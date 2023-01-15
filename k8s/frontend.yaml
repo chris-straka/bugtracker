@@ -1,37 +1,71 @@
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: client-depl
-# spec:
-#   replicas: 1
-#   selector:
-#     matchLabels:
-#       app: client
-#   template:
-#     metadata:
-#       labels:
-#         app: client
-#     spec:
-#       containers:
-#         - name: client
-#           image: cstudent/client
-#           env:
-#             - name: JWT_KEY
-#               valueFrom:
-#                 secretKeyRef:
-#                   name: weibuddies-secrets
-#                   key: JWT_KEY
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: client-cluster-ip
-# spec:
-#   type: ClusterIP
-#   selector:
-#     app: client
-#   ports:
-#     - name: client
-#       protocol: TCP
-#       port: 3000
-#       targetPort: 3000
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      serviceAccountName: default
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: client
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          image: cstudent/frontend
+          ports:
+          - containerPort: 3000
+          readinessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_health"
+              port: 3000
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-readiness-probe"
+          livenessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_health"
+              port: 3000
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-liveness-probe"
+          env:
+          - name: PORT
+            value: "3000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+    - name: frontend
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

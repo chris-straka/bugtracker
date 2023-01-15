@@ -1,0 +1,6 @@
+**/.DS_Store
+
+# Ignore DevSpace cache and log folder
+.devspace/
+
+notes.txt

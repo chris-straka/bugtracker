@@ -2,14 +2,12 @@
   "name": "bugtracker",
   "version": "0.0.0",
   "scripts": {
+    "preinstall": "npx only-allow npm",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "docker:start": "npm run docker build && npm run docker run",
-    "docker:build": "docker build --target dev -t cstudent/frontend-dev",
-    "docker:run": "docker run cstudent/frontend-dev"
+    "test": "ng test"
   },
   "private": true,
   "dependencies": {

@@ -1,10 +1,10 @@
 FROM node:18-alpine as build
-EXPOSE 3000
+EXPOSE 4200
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production
-RUN npm run build
+RUN npm ci
 COPY . .
+RUN npm run build
 CMD npm run start
 
 FROM nginx:1.23.3-alpine

@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Name of the deployment
+  name: backend
+spec:
+  selector:
+    matchLabels:
+      # the labels that should be used to select the pods that this deployment will manage
+      # I used app: backend but I also could've used service: foo
+      app: backend
+
+  # what template should all the pods use
+  template:
+    metadata:
+      labels:
+        # what labels should be applied to the pods 
+        # these pods need to be selected by my deployment and my service
+        app: backend
+    spec:
+      # I got the user/group ID for this by running `make nerdctl-shell-frontend` and then by running `cat /etc/passwd`
+      # securityContext:
+      #   runAsUser: 101
+      #   runAsNonRoot: true
+      #   fsGroup: 101
+      #   runAsGroup: 101
+      
+      # what containers should each pod be running
+      containers:
+        - name: backend/spring
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          image: frontend
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          # readinessProbe:
+          #   initialDelaySeconds: 10
+          #   httpGet:
+          #     path: "/_health"
+          #     port: 80
+          #     httpHeaders:
+          #     - name: "Cookie"
+          #       value: "shop_session-id=x-readiness-probe"
+          # livenessProbe:
+          #   initialDelaySeconds: 10
+          #   httpGet:
+          #     path: "/_health"
+          #     port: 80
+          #     httpHeaders:
+          #     - name: "Cookie"
+          #       value: "shop_session-id=x-liveness-probe"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+    - name: frontend
+      protocol: TCP
+      # the port that the service will be listening on for traffic
+      port: 3000
+      # the port that the pods will use to listen to traffic
+      targetPort: 80

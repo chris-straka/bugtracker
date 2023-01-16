@@ -1,24 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  # Name of the deployment
   name: frontend
 spec:
   selector:
     matchLabels:
+      # the labels that should be used to select the pods that this deployment will manage
+      # I used app: frontend but I also could've used service: foo
       app: frontend
+
+  # what template should all the pods use
   template:
     metadata:
       labels:
+        # what labels should be applied to the pods 
         app: frontend
     spec:
-      serviceAccountName: default
+      # I got the user/group ID for this by running `make nerdctl-shell-frontend` and then by running `cat /etc/passwd`
       securityContext:
-        fsGroup: 1000
-        runAsGroup: 1000
-        runAsUser: 1000
+        runAsUser: 101
         runAsNonRoot: true
+        fsGroup: 101
+        runAsGroup: 101
+      
+      # what containers should each pod be running
       containers:
-        - name: client
+        - name: frontend/nginx
           resources:
             requests:
               cpu: 100m
@@ -35,26 +43,24 @@ spec:
             readOnlyRootFilesystem: true
           image: cstudent/frontend
           ports:
-          - containerPort: 3000
-          readinessProbe:
-            initialDelaySeconds: 10
-            httpGet:
-              path: "/_health"
-              port: 3000
-              httpHeaders:
-              - name: "Cookie"
-                value: "shop_session-id=x-readiness-probe"
-          livenessProbe:
-            initialDelaySeconds: 10
-            httpGet:
-              path: "/_health"
-              port: 3000
-              httpHeaders:
-              - name: "Cookie"
-                value: "shop_session-id=x-liveness-probe"
-          env:
-          - name: PORT
-            value: "3000"
+          - containerPort: 80
+            protocol: TCP
+          # readinessProbe:
+          #   initialDelaySeconds: 10
+          #   httpGet:
+          #     path: "/_health"
+          #     port: 80
+          #     httpHeaders:
+          #     - name: "Cookie"
+          #       value: "shop_session-id=x-readiness-probe"
+          # livenessProbe:
+          #   initialDelaySeconds: 10
+          #   httpGet:
+          #     path: "/_health"
+          #     port: 80
+          #     httpHeaders:
+          #     - name: "Cookie"
+          #       value: "shop_session-id=x-liveness-probe"
 ---
 apiVersion: v1
 kind: Service
@@ -65,7 +71,9 @@ spec:
   selector:
     app: frontend
   ports:
-    - name: frontend
+    - name: http
       protocol: TCP
+      # the port that the service will be listening on for traffic
       port: 3000
-      targetPort: 3000
+      # the port that the pods will use to listen to traffic
+      targetPort: 80

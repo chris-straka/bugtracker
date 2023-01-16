@@ -1,9 +1,11 @@
-# install frontend and backend dependencies
+# Install frontend and backend dependencies
 install:
 	cd ./frontend && npm i && cd - \
 	cd backend && ./gradlew build && cd -
 
 ### NERDCTL ### 
+
+## BUILD
 nerdctl-build-frontend:
 	cd ./frontend && nerdctl build -t frontend . && cd - 
 
@@ -13,12 +15,19 @@ nerdctl-build-backend:
 nerdctl-build:
 	docker-build-frontend && docker-build-backend
 
-# 4200 my computer, 80 container
+## RUN
 nerdctl-run-frontend:
-	cd ./frontend && nerdctl run -p 4200:80 frontend && cd - 
+	nerdctl run -p 4200:80 frontend 
 
 nerdctl-run-backend:
-	cd ./backend && nerdctl run backend && cd -
+	nerdctl run backend 
 
 nerdctl-run:
 	nerdctl-run-frontend && nerdctl-run-backend
+
+## SHELL
+nerdctl-shell-frontend:
+	nerdctl run -it frontend sh
+
+nerdctl-shell-backend:
+	nerdctl run -it backend sh

@@ -1,6 +1,12 @@
 **/.DS_Store
+node_modules/
+
 
 # Ignore DevSpace cache and log folder
 .devspace/
 
 notes.txt
+
+.env
+
+**/*.chatgpt

@@ -1,41 +1,45 @@
-import { User } from "../models/Users/Vanilla";
-import { postgres as db } from "../config/index";
+import { User } from "../models/User";
+import { db, dbType } from "../config/postgres";
 
-export interface IUserDatabase {
+interface IUserRepository {
   getUser: (email: string) => Promise<User>;
-  createUser: (email: string, password: string) => Promise<User>;
+  createUser: (email: string, hashedPassword: string) => Promise<User>;
+  deleteUser: (email: string) => Promise<boolean>
 }
 
-export const postgres: IUserDatabase = {
-  getUser(email) {
-    return db
-      .query({
-        name: 'getUser',
-        text: 'SELECT * FROM users WHERE email = $1;',
-        values: [email],
-      })
-      .then((data: any) => data.rows[0]);
-  },
-  createUser(email, password) {
-    return db
-      .query({
-        name: 'createUser',
-        text: 'INSERT INTO users(email, password) VALUES ($1, $2) RETURNING *;',
-        values: [email, password],
-      })
-      .then((data: any) => data.rows[0]);
-  },
-};
+export class UserRepository implements IUserRepository {
+  readonly #db: dbType
 
+  constructor(db: dbType) {
+    this.#db = db
+  }
 
-const UserDatabase = (db: IUserDatabase): IUserDatabase => ({
-  getUser(email) {
-    return db.getUser(email);
-  },
-  async createUser(email, password) {
-    const hashedPassword = await Password.toHash(password);
-    return db.createUser(email, hashedPassword);
-  },
-});
+  async getUser(email: string) {
+    const data = await this.#db.query({
+      name: 'getuser',
+      text: 'SELECT * FROM users WHERE email = $1;',
+      values: [email],
+    })
+    return data.rows[0]
+  }
 
-export const userDb = UserDatabase(postgres);
+  async createUser(email: string, hashedPassword: string) {
+    const data = await this.#db.query({
+      name: 'createuser',
+      text: 'INSERT INTO users(email, password) VALUES ($1, $2) RETURNING *;',
+      values: [email, hashedPassword],
+    })
+    return data.rows[0]
+  }
+
+  async deleteUser(email: string) {
+    const result = await this.#db.query({
+      name: 'deleteuser',
+      text: 'DELETE FROM users WHERE email = $1;',
+      values: [email]
+    })
+    return result.rowCount > 0
+  }
+}
+
+export const userRepository = new UserRepository(db);

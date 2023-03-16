@@ -15,8 +15,13 @@ const pool = new Pool();
 
 pool.on('error', (err, client) => {
   console.error(`Unexpected error on ${client} -- ${err}`)
-  
+
   process.exit(-1);
 })
+
+export { 
+  pool as db,
+  Pool as dbType
+}
 
 export default pool

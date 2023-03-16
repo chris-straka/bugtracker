@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { loginUser, logoutUser, signupUser, forgetPassword, resetPassword } from "../../controllers/Session/Auth"
+import { getAllProjects, getProjectComments, createProject, deleteProject } from "../../controllers/ProjectController"
 
 const router = Router()
 
-router.post('/login', loginUser)
-router.post('/logout', logoutUser)
-router.post('/signup', signupUser)
-router.post('/forget-password', forgetPassword)
-router.post('/reset-password', resetPassword)
+router.get('/projects', getAllProjects)
+router.get('/projects/:projectId', getProjectComments)
+router.post('/projects/:projectId', createProject)
+router.delete('/projects/:projectId', deleteProject)
+router.get('/projects/:projectId/comments', getProjectComments)
 
 export default router 

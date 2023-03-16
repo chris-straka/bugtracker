@@ -1,5 +1,7 @@
 # Nest Backend
 
+TypeORM
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.

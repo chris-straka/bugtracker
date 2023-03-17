@@ -1,4 +1,4 @@
-import { jwt } from "../config/index"
+import jwt from "../config/jwt"
 
 export function loginUser() { }
 export function logoutUser() { }

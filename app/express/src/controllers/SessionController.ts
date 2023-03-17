@@ -1,4 +1,4 @@
-import { sessions } from "../config/index";
+import sessions from "../config/session";
 
 export function loginUser() { }
 export function logoutUser() { }

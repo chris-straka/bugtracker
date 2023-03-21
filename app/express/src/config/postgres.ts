@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 
-if (!process.env.PGPASSWORD) throw new Error('process.env.PGPASSWORD is not set')
+// if (!process.env.PGPASSWORD) throw new Error('process.env.PGPASSWORD is not set')
 // if (!process.env.PGHOST) throw new Error('process.env.PGHOST is not set')
 // if (!process.env.PGPORT) throw new Error('process.env.PGPORT is not set')
 // if (!process.env.PGDATABASE) throw new Error('process.env.PGDATABASE is not set')

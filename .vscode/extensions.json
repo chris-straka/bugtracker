@@ -1,5 +1,7 @@
 {
   "recommendations": [
-    "angular.ng-template"
+    "angular.ng-template",
+    "dbaeumer.vscode-eslint",
+    "mikestead.dotenv"
   ]
 }

@@ -1,10 +1,13 @@
 import { Router } from "express"
-import sessionRoutes from "./session"
-import jwtRoutes from './jwt'
+import authRouter from "./auth"
+import projectRouter from "./project"
+import ticketRouter from "./ticket"
+import userRouter from "./user"
 
 const router = Router()
-
-router.use('/session', sessionRoutes)
-router.use('/jwt', jwtRoutes)
+router.use(authRouter)
+router.use(projectRouter)
+router.use(ticketRouter)
+router.use(userRouter)
 
 export default router

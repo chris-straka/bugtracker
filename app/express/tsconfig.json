@@ -5,18 +5,13 @@
     "target": "ES2020",
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
+    "outDir": "build",
     "strict": true,
     "skipLibCheck": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "esModuleInterop": true
   },
   "include": [
     "src/**/*"
   ],
-  "exclude": [
-    "**/__tests__/*.ts",
-    "**/__test__/*.ts",
-    "node_modules",
-    "**/*.test.ts"
-  ]
 }

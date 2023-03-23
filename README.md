@@ -1,14 +1,10 @@
 # Bug Tracker
 
-This application lets users report and track bugs.
-
-## Project Structure
-
 /app has the monolith versions for the backend.
 
 /services has the microservices version of the backend.
 
-/frontend folder has frontends for the backend (either monolith/microservices)
+/frontend has the frontends for the backend.
 
 ## How it works
 
@@ -36,8 +32,8 @@ Contributors
   Comment on tickets
 
 1. PMs or Admins create projects and assign users to them.
-2. Those users can create "tickets" for those projects, that talk about some type of bug.
-3. People can leave comments and change the status etc, the history will be recorded
+2. Those users can then create "tickets" for those projects. Those tickets describe a bug.
+3. People can leave comments and make changes to the tickets, history will be recorded.
 
 ## Helpful
 

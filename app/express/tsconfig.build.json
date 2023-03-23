@@ -1,11 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "esModuleInterop": true
+    "sourceMap": false
   },
-  "include": [
+  "exclude": [
     "**/__tests__/*.ts",
     "**/__test__/*.ts",
+    "node_modules",
     "**/*.test.ts"
   ]
 }

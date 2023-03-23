@@ -1,27 +1,33 @@
-FROM node:18-alpine as base
-RUN mkdir /app && chown node:node /app
-WORKDIR /app
-RUN corepack enable 
-COPY --chown=node:node package.json pnpm-lock.yaml ./
+# base
+FROM node:18.15.0-bullseye AS base
+WORKDIR /usr/src/app
+RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
+COPY package.json pnpm-lock.yaml ./
+EXPOSE 3000
 
-FROM base as dev
-USER node
-RUN corepack prepare pnpm@6.32.4 --activate
-RUN pnpm install 
+# dev
+FROM base AS dev
+WORKDIR /usr/src/app
+RUN pnpm install --frozen-lockfile
+
+# build
+FROM dev AS build
+WORKDIR /usr/src/app
 COPY . .
-CMD [ "pnpm", "dev" ]
-
-FROM dev as build
 RUN pnpm build
 
-FROM base as dependencies
-USER node
-RUN corepack prepare pnpm@6.32.4 --activate
-RUN pnpm install -P
-
-FROM gcr.io/distroless/nodejs18-debian11 as prod
-USER node
+# deps
+FROM base AS deps
+WORKDIR /usr/src/app
 ENV NODE_ENV=production
-COPY --from=build ./app/build ./build
-COPY --from=dependencies ./app/node_modules ./node_modules
+RUN pnpm install 
+
+# prod
+FROM gcr.io/distroless/nodejs18-debian11:nonroot as prod
+ENV NODE_ENV=production
+USER nonroot
+COPY --from=build --chown=nonroot:nonroot /usr/src/app/build ./
+COPY --from=deps --chown=nonroot:nonroot /usr/src/app/node_modules ./node_modules
 CMD ["./build/index.js"]

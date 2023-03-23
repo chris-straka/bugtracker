@@ -3,7 +3,7 @@ CREATE TABLE Users (
   name VARCHAR(100) NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
   password VARCHAR(100) NOT NULL,
-  role ENUM('admin', 'project_manager', 'qa', 'developer', 'contributor') NOT NULL,
+  role ENUM('admin', 'project_manager', 'developer', 'contributor') NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 );

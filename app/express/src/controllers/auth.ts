@@ -1,9 +1,15 @@
 import type { Request, Response, NextFunction } from 'express'
-import sessions from '../config/session'
+// import sessions from '../config/session'
 
 export function loginUser (req: Request, res: Response, next: NextFunction): void {
-  console.log(sessions)
-  res.sendStatus(200)
+  const { email, password } = req.body
+
+  try {
+    res.send(email)
+    res.send(password)
+  } catch (error) {
+    next(error)
+  }
 }
 
 export function logoutUser (req: Request, res: Response, next: NextFunction): void { }

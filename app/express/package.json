@@ -6,14 +6,14 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "tsnd ./src/index.ts",
-    "ddev": "docker-compose up",
     "build": "tsc -p tsconfig.build.json",
-    "bbuild": "tsc",
-    "dbuild": "nerdctl build -t cstudent/express-backend .",
-    "prismagen": "prisma generate",
     "test": "jest",
-    "dev:k8s": "tsnd src/index.ts",
-    "lint": "eslint . --ext .ts --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .ts --fix --ignore-path .gitignore",
+    "ddev": "docker compose up --remove-orphans",
+    "dbuild": "docker build -t cstudent/express-backend .",
+    "drun": "docker run --rm -p 3000:3000 --env-file .env cstudent/express-backend",
+    "dshell": "docker run --rm -it --env-file .env cstudent/express-backend /bin/bash",
+    "dclear": "docker rm $(docker ps -a -q)"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.4.1",

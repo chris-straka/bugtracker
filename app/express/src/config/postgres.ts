@@ -1,24 +1,31 @@
-import { Pool } from "pg";
+import { Pool } from 'pg'
 
-if (process.env.NODE_ENV === "production") {
-  if (!process.env.PGPASSWORD) throw new Error('process.env.PGPASSWORD is not set')
-  if (!process.env.PGHOST) throw new Error('process.env.PGHOST is not set')
-  if (!process.env.PGPORT) throw new Error('process.env.PGPORT is not set')
-  if (!process.env.PGDATABASE) throw new Error('process.env.PGDATABASE is not set')
-  if (!process.env.PGUSER) throw new Error('process.env.PGUSER is not set')
+function assertEnvVarExists (name: string): void {
+  const value = process.env[name]
+  if (value === undefined || value === '') {
+    throw new Error(`process.env.${name} is not set`)
+  }
 }
 
-/** 
- * Pool() uses environment variables to connect to postgres 
- * 
+/**
+ * pg package uses environment variables to connect to postgres
+ *
  * https://node-postgres.com/apis/pool
  */
-const pool = new Pool();
+if (process.env.NODE_ENV === 'production') {
+  assertEnvVarExists('PGUSER')
+  assertEnvVarExists('PGPASSWORD')
+  assertEnvVarExists('PGHOST')
+  assertEnvVarExists('PGPORT')
+  assertEnvVarExists('PGDATABASE')
+}
+
+const pool = new Pool()
 
 pool.on('error', (err, client) => {
-  console.error(`Unexpected error on ${client} -- ${err}`)
-
-  process.exit(-1);
+  console.log(client)
+  console.error(err)
+  process.exit(-1)
 })
 
 export {

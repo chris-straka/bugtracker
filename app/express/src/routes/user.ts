@@ -1,6 +1,6 @@
-import { Router } from "express";
-import { getUser, deleteUser, createUser, updateUser } from "../controllers/UserController"
-import { isAuthenticated } from "../middleware/isAuthenticated";
+import { Router } from 'express'
+import { getUser, deleteUser, createUser, updateUser } from '../controllers/UserController'
+import { isAuthenticated } from '../middleware/isAuthenticated'
 
 const router = Router()
 

@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: .
+      target: dev
+    ports:
+      - 3000:3000 # host:container
+    volumes:
+      - .:/usr/src/app # host:container (WORKDIR)
+    environment:
+      PGUSER: development_user
+      PGPASSWORD: testing
+      PGHOST: postgres_container
+      PGPORT: 5432
+      PGDATABASE: bugtracker_backend_database
+      NODE_ENV: development
+      SESSIONS_SECRET: testing
+  db:
+    image: postgres:15
+    container_name: postgres_container
+    environment:
+      POSTGRES_USER: development_user
+      POSTGRES_PASSWORD: testing
+      POSTGRES_DB: bugtracker_backend_database
+    ports:
+      - "5432:5432" # host:container
+    volumes: 
+      - ./bugtracker.sql:/docker-entrypoint-initdb.d/init.sql # start the db with this schema

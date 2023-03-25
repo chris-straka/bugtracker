@@ -1,10 +1,10 @@
-import { Router } from "express";
+import { Router } from 'express'
 import {
   getAllProjects, getProject, getProjectComments,
   createProject, editProject, deleteProject,
   addUserToProject, removeUserFromProject
-} from "../controllers/ProjectController"
-import { isAuthenticated } from "../middleware/isAuthenticated";
+} from '../controllers/ProjectController'
+import { isAuthenticated } from '../middleware/isAuthenticated'
 
 const router = Router()
 

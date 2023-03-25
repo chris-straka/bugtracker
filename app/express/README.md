@@ -2,8 +2,6 @@
 
 This backend monolith implements sessions, graphQL, rest, PG (no ORM).
 
-I use [rancher desktop](https://docs.rancherdesktop.io/getting-started/installation/) (which uses nerdctl) and not docker desktop.
-
 ## Notes
 
 Sessions are stateful when stored on the server and violate restful principles. For this API, I'm going to make the API read the sessionID and then hit the DB to find out more information on the user.
@@ -19,7 +17,7 @@ When the [express-session docs](https://expressjs.com/en/resources/middleware/se
 
 cookie-parser is the same as express-session except it stores the session information on the client and not the server.
 
-CMD [“node”, “index.js”]  is best for forwarding signals to the node process
+CMD ["node", "index.js"]  is best for forwarding signals to the node process
 
 ### Docker
 
@@ -32,6 +30,12 @@ CMD [“node”, “index.js”]  is best for forwarding signals to the node pro
   - They made this command because if you change something in your package.json file that is unrelated to your dependencies (name, description, etc), docker will re-run the entire dockerfile again starting at the part where you added package.json (because the package.json changed and the build needs to reflect that). This also means it will reinstall all your dependencies again, even if none of them changed in the package.json file. So if you only add the lock file and install from that, changes to your package.json won't change the lock file until you install new packages. At least that's how I currently understand it.
 
 I wanted my Dockerfile to only specify my production I needed to install the dev dependencies in one stage and the production dependencies in another, because I actually need a devDependency to build my production app (typescript's tsc), but I don't actually want devDependencies in my production build. I also wanted to I ended up with something pretty ugly, but I don't feel comfortable with other solutions so it'll stick for now.
+
+I tried [rancher desktop](https://docs.rancherdesktop.io/getting-started/installation/) which uses nerdctl and not docker, and it was giving me issues. Hot reload wasn't working when I tried nerdctl compose, which was unfortunate. I had to use ts-node-dev --poll to get it to work, and that wasn't a great DX.
+
+## PNPM
+
+I'm confused with how pnpm works. I used multistage builds with docker, and I downloaded my npm packages in one stage and then copied the node_modules to a new stage. I thought that wouldn't work because the new stage wouldn't have the virtual store from the previous stage, but it did work. I thought the node_modules folder was a bunch of references in pnpm? So why does it work in the new stage which doesn't even have pnpm installed? I must be missing something.
 
 ## Attribution
 

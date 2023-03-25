@@ -17,7 +17,7 @@ CREATE TABLE UserHistory (
   previous_values JSONB, 
   new_values JSONB NOT NULL,
   change_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-)
+);
 
 -- faster logins
 CREATE UNIQUE INDEX user_email_idx ON Users(email);
@@ -29,7 +29,7 @@ CREATE TABLE Projects (
   description VARCHAR(500) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-)
+);
 
 /*
   The ProjectUsers table marks a many to many relationship
@@ -52,8 +52,8 @@ CREATE TABLE ProjectUsers (
     It combines two foreign keys into one primary key. If I used a regular primary key instead, 
     I could accidentally map the same project to the same user more than once
   */
-  PRIMARY KEY (project_id, user_id)
-)
+  PRIMARY KEY (project_id, user_id),
+);
 
 /*
   ProjectComments is a one to many relationship
@@ -66,7 +66,7 @@ CREATE TABLE ProjectComments (
   project_id INTEGER NOT NULL REFERENCES Projects(id), 
   description VARCHAR(500) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-)
+);
 
 CREATE TABLE ProjectHistory (
   id SERIAL PRIMARY KEY,
@@ -77,7 +77,7 @@ CREATE TABLE ProjectHistory (
   previous_values JSONB,
   new_values JSONB NOT NULL,
   change_timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 CREATE TABLE Tickets (
   id SERIAL PRIMARY KEY,
@@ -89,7 +89,7 @@ CREATE TABLE Tickets (
   status VARCHAR(100) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-)
+);
 
 CREATE TABLE TicketAssignments (
   ticket_id INTEGER NOT NULL REFERENCES Tickets(id),

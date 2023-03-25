@@ -1,38 +1,38 @@
-import { User } from "../models/User";
-import { db, dbType } from "../config/postgres";
+import { type User } from '../models/User'
+import { db, type dbType } from '../config/postgres'
 
 interface IUserRepository {
-  getUser: (email: string) => Promise<User>;
-  createUser: (email: string, hashedPassword: string) => Promise<User>;
+  getUser: (email: string) => Promise<User>
+  createUser: (email: string, hashedPassword: string) => Promise<User>
   deleteUser: (email: string) => Promise<boolean>
 }
 
 export class UserRepository implements IUserRepository {
   readonly #db: dbType
 
-  constructor(db: dbType) {
+  constructor (db: dbType) {
     this.#db = db
   }
 
-  async getUser(email: string) {
+  async getUser (email: string): Promise<User> {
     const data = await this.#db.query({
       name: 'getuser',
       text: 'SELECT * FROM users WHERE email = $1;',
-      values: [email],
+      values: [email]
     })
     return data.rows[0]
   }
 
-  async createUser(email: string, hashedPassword: string) {
+  async createUser (email: string, hashedPassword: string): Promise<User> {
     const data = await this.#db.query({
       name: 'createuser',
       text: 'INSERT INTO users(email, password) VALUES ($1, $2) RETURNING *;',
-      values: [email, hashedPassword],
+      values: [email, hashedPassword]
     })
     return data.rows[0]
   }
 
-  async deleteUser(email: string) {
+  async deleteUser (email: string): Promise<boolean> {
     const result = await this.#db.query({
       name: 'deleteuser',
       text: 'DELETE FROM users WHERE email = $1;',
@@ -42,4 +42,4 @@ export class UserRepository implements IUserRepository {
   }
 }
 
-export const userRepository = new UserRepository(db);
+export const userRepository = new UserRepository(db)

@@ -1,16 +1,46 @@
 {
   "name": "express-mongoose",
   "version": "1.0.0",
-  "description": "With mocha and chai-http Rate limiting. JWT",
-  "main": ".eslintrc.js",
-  "directories": {
-    "doc": "docs"
-  },
-  "devDependencies": {},
+  "description": "Backend api for a bugtracker application",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": ""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "dependencies": {
+    "@opentelemetry/api": "^1.4.1",
+    "@opentelemetry/auto-instrumentations-node": "^0.36.4",
+    "@opentelemetry/instrumentation-express": "^0.32.1",
+    "@opentelemetry/sdk-node": "^0.36.1",
+    "bcrypt": "^5.1.0",
+    "compression": "^1.7.4",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "graphql": "^16.6.0",
+    "graphql-http": "^1.16.0",
+    "helmet": "^6.0.1",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^7.0.3",
+    "nodemailer": "^6.9.1",
+    "pino": "^8.11.0",
+    "pino-pretty": "^10.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.2",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
+    "@types/chai": "^4.3.4",
+    "@types/chai-http": "^4.2.0",
+    "@types/express": "^4.17.17",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.15.10",
+    "@types/nodemailer": "^6.4.7",
+    "@typescript-eslint/eslint-plugin": "^5.57.0",
+    "@typescript-eslint/parser": "^5.57.0",
+    "chai": "^4.3.7",
+    "chai-http": "^4.3.0",
+    "eslint": "^8.36.0",
+    "mocha": "^10.2.0",
+    "openapi-types": "^12.1.0",
+    "typescript": "^5.0.2"
+  }
 }

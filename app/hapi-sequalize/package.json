@@ -1,14 +1,11 @@
 {
   "name": "hapi-sequalize",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend for a bugtracker application",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": ""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@hapi/code": "^9.0.3",
     "@hapi/hapi": "^21.3.0",

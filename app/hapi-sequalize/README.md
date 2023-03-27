@@ -1,5 +1,9 @@
 # Hapi Sequalize Example
 
-This one will use a payment processor so that people can pool money to solving different tickets.
+Payment processor to fund tickets.
 
-https://github.com/hapijs/code
+## Newman Tests
+
+## Attribution 
+
+- [Hapi Framework](https://github.com/hapijs/code)

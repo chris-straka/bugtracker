@@ -1,3 +1,7 @@
-npm i winston
+npm i \
+  fastify \
+  winston \
+  socket.io
 
-npm i -D ava
+npm -D i \
+  ava

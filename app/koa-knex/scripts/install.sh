@@ -5,8 +5,8 @@ yarn add \
   @opentelemetry/sdk-node \
   compression \
   dotenv \
-  express \
-  bcrypt \
+  koa \
+  argon2 \
   graphql \
   graphql-http \
   helmet \
@@ -14,10 +14,8 @@ yarn add \
   swagger-jsdoc \
   swagger-ui-express \
   nodemailer \
-  mongoose \
-  pino \
-  pino-pretty \
-  zod
+  otpauth \
+  qrcode \
 
 yarn -D add \
   @types/mocha \

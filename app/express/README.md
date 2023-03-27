@@ -33,9 +33,9 @@ I wanted my Dockerfile to only specify my production I needed to install the dev
 
 I tried [rancher desktop](https://docs.rancherdesktop.io/getting-started/installation/) which uses nerdctl and not docker, and it was giving me issues. Hot reload wasn't working when I tried nerdctl compose, which was unfortunate. I had to use ts-node-dev --poll to get it to work, and that wasn't a great DX.
 
-## PNPM
-
-I'm confused with how pnpm works. I used multistage builds with docker, and I downloaded my npm packages in one stage and then copied the node_modules to a new stage. I thought that wouldn't work because the new stage wouldn't have the virtual store from the previous stage, but it did work. I thought the node_modules folder was a bunch of references in pnpm? So why does it work in the new stage which doesn't even have pnpm installed? I must be missing something.
+```sh
+npm init @eslint/config
+```
 
 ## Attribution
 

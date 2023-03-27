@@ -1,45 +1,29 @@
-import { type User } from '../models/User'
-import { db, type dbType } from '../config/postgres'
+import type { User } from '../models/User'
+import { db } from '../config/postgres'
 
-interface IUserRepository {
-  getUser: (email: string) => Promise<User>
-  createUser: (email: string, hashedPassword: string) => Promise<User>
-  deleteUser: (email: string) => Promise<boolean>
+export async function getUser (email: string): Promise<User> {
+  const data = await db.query({
+    name: 'get_user',
+    text: 'SELECT * FROM users WHERE email = $1;',
+    values: [email]
+  })
+  return data.rows[0]
 }
 
-export class UserRepository implements IUserRepository {
-  readonly #db: dbType
-
-  constructor (db: dbType) {
-    this.#db = db
-  }
-
-  async getUser (email: string): Promise<User> {
-    const data = await this.#db.query({
-      name: 'getuser',
-      text: 'SELECT * FROM users WHERE email = $1;',
-      values: [email]
-    })
-    return data.rows[0]
-  }
-
-  async createUser (email: string, hashedPassword: string): Promise<User> {
-    const data = await this.#db.query({
-      name: 'createuser',
-      text: 'INSERT INTO users(email, password) VALUES ($1, $2) RETURNING *;',
-      values: [email, hashedPassword]
-    })
-    return data.rows[0]
-  }
-
-  async deleteUser (email: string): Promise<boolean> {
-    const result = await this.#db.query({
-      name: 'deleteuser',
-      text: 'DELETE FROM users WHERE email = $1;',
-      values: [email]
-    })
-    return result.rowCount > 0
-  }
+export async function createUser (email: string, hashedPassword: string): Promise<User> {
+  const data = await db.query({
+    name: 'create_user',
+    text: 'INSERT INTO users(email, password) VALUES ($1, $2) RETURNING *;',
+    values: [email, hashedPassword]
+  })
+  return data.rows[0]
 }
 
-export const userRepository = new UserRepository(db)
+export async function deleteUser (email: string): Promise<boolean> {
+  const result = await db.query({
+    name: 'delete_user',
+    text: 'DELETE FROM users WHERE email = $1;',
+    values: [email]
+  })
+  return result.rowCount > 0
+}

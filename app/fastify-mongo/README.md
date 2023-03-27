@@ -1,3 +1,3 @@
 # Fastify 
 
-This one will have a live chat feature for each project or bug
+I'm thinking of adding a live chat feature for each project on this one

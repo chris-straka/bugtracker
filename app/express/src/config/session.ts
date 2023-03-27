@@ -1,5 +1,5 @@
 import type { SessionOptions } from 'express-session'
-import sessions from 'express-session'
+import session from 'express-session'
 
 const secret = process.env.SESSIONS_SECRET
 
@@ -32,4 +32,4 @@ if (process.env.NODE_ENV === 'production' && sessionConfig.cookie != null) {
   sessionConfig.cookie.secure = true
 }
 
-export default sessions(sessionConfig)
+export default session(sessionConfig)

@@ -2,6 +2,7 @@ describe('Auth controller', () => {
   describe('loginUser()', () => {
     test('Should 400 if the user fails to pass in their email or password', async () => {})
     test('Should 401 if the authentication service rejects the login attempt', async () => {})
+    test('Should 401 if the authentication service rejects the login attempt', async () => {})
   })
 
   describe('logoutUser()', () => {

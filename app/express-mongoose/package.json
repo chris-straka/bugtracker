@@ -1,8 +1,12 @@
 {
   "name": "express-mongoose",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "With mocha and chai-http Rate limiting. JWT",
+  "main": ".eslintrc.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

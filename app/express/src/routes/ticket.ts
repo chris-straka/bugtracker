@@ -4,7 +4,7 @@ import {
   deleteTicket, editTicket, assignDeveloperToTicket,
   removeDeveloperFromTicket, getTicketComments,
   createTicketComment, editTicketComment, deleteTicketComment
-} from '../controllers/TicketController'
+} from '../controllers/ticket'
 import { isAuthenticated } from '../middleware/isAuthenticated'
 
 const router = Router()

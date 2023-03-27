@@ -3,7 +3,7 @@ import {
   getAllProjects, getProject, getProjectComments,
   createProject, editProject, deleteProject,
   addUserToProject, removeUserFromProject
-} from '../controllers/ProjectController'
+} from '../controllers/project'
 import { isAuthenticated } from '../middleware/isAuthenticated'
 
 const router = Router()

@@ -1,5 +1,5 @@
-import { Schema, Document, model } from 'mongoose';
-import { User } from './User';
+import { Schema, Document, model } from 'mongoose'
+import { User } from './User'
 
 export interface Project extends Document {
   owner_id: User['_id'];
@@ -15,7 +15,6 @@ const projectSchema = new Schema({
   description: { type: String, required: true },
   created_at: { type: Date, default: Date.now },
   last_modified_at: { type: Date, default: Date.now },
-});
+})
 
-
-export const ProjectModel = model<Project>('Project', projectSchema);
+export const ProjectModel = model<Project>('Project', projectSchema)

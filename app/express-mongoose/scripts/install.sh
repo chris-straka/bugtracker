@@ -6,7 +6,7 @@ yarn add \
   compression \
   dotenv \
   express \
-  bcrypt \
+  argon2 \
   graphql \
   graphql-http \
   helmet \
@@ -15,8 +15,7 @@ yarn add \
   swagger-ui-express \
   nodemailer \
   mongoose \
-  pino \
-  pino-pretty \
+  bunyan \
   zod
 
 yarn -D add \
@@ -25,7 +24,6 @@ yarn -D add \
   @types/express \
   @types/node \
   @types/nodemailer \
-  @types/bcrypt \
   @typescript-eslint/eslint-plugin \
   @typescript-eslint/parser \
   eslint \

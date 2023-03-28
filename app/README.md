@@ -2,4 +2,4 @@
 
 This folder contains the monolith backends for the bugtracker app.
 
-The app is rewritten a lot in express because I wanted to try out different ORMs and practice.
+It's hella WET in this dir, but I tried to add a different forms of nuance for each backend. It made for good practice.

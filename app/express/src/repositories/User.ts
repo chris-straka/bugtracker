@@ -10,11 +10,11 @@ export async function getUser (email: string): Promise<User> {
   return data.rows[0]
 }
 
-export async function createUser (email: string, hashedPassword: string): Promise<User> {
+export async function createUser (name: string, email: string, hashedPassword: string): Promise<User> {
   const data = await db.query({
     name: 'create_user',
-    text: 'INSERT INTO users(email, password) VALUES ($1, $2) RETURNING *;',
-    values: [email, hashedPassword]
+    text: 'INSERT INTO users(name, email, password) VALUES ($1, $2, $3) RETURNING *;',
+    values: [name, email, hashedPassword]
   })
   return data.rows[0]
 }

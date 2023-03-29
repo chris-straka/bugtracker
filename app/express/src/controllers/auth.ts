@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express'
-import { authenticateUser, createUser } from '../services/user'
+import { authenticateUser, createNewUser } from '../services/user'
 
 export async function loginUser (req: Request, res: Response, next: NextFunction) {
   const { email, password } = req.body
@@ -7,16 +7,16 @@ export async function loginUser (req: Request, res: Response, next: NextFunction
   try {
     const user = await authenticateUser(email, password)
 
-    // regenerate() creates a req.sessionID for me automatically
     req.session.regenerate((err) => {
-      if (err != null) next(err)
-
+      if (err) next(err)
       req.session.user = user
-      req.session.save((err) => { if (err != null) next(err) })
+      req.session.save((err) => { 
+        if (err) next(err) 
+        res.status(200).json({ message: 'Successfully logged in' })
+      })
     })
 
   } catch (error) {
-    // if (!isAuthenticated) res.status(401).json({ message: 'User could not be authenticated or does not exist' })
     next(error)
   }
 }
@@ -28,20 +28,25 @@ export function logoutUser (req: Request, res: Response, next: NextFunction) {
 
   req.session.destroy((err) => {
     if (err != null) next(err)
+    res.status(200).json({message: 'Successfully logged out'})
   })
 }
 
-export async function signupUser (req: Request, _: Response, next: NextFunction) {
+export async function signupUser (req: Request, res: Response, next: NextFunction) {
   const { name, email, password } = req.body
 
   try {
-    await createUser(name, email, password)
+    const user = await createNewUser(name, email, password)
 
     req.session.regenerate((err) => {
       if (err != null) next(err)
-      req.session.user = {}
-      req.session.save((err) => { if (err != null) next(err) })
+      req.session.user = user
+      req.session.save((err) => { 
+        if (err != null) next(err) 
+        res.status(201).json({ message: 'Successfully signed up' })
+      })
     })
+
   } catch (error) {
     next(error)
   }

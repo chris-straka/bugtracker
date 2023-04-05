@@ -1,7 +1,11 @@
-// Use eslint's default formatter
 {
   "eslint.format.enable": true,
   "[typescript]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "yaml.schemas": {
+    "file:///c%3A/Users/yi8sy/.vscode/extensions/atlassian.atlascode-2.10.0/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
+    "kubernetes://schema/v1%40service": "file:///Users/chris/p/bugtracker/app/express/k8s/api.yaml"
   },
 }

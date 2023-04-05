@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  # If I don't specify replicas, it defaults to 1
+  # I'm making it explicit here for clarity
+  replicas: 1
+  selector:
+    matchLabels:
+      # the labels that should be used to select the pods that this deployment will manage
+      # I used app: backend but I also could've used service: foo
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: api
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PGUSER
+              value: development_user
+            - name: PGPASSWORD
+              value: testing
+            - name: PGHOST
+              value: db
+            - name: PGPORT
+              value: "5432"
+            - name: PGDATABASE
+              value: bugtracker_backend_database
+            - name: NODE_ENV
+              value: development
+            - name: SESSIONS_SECRET
+              value: testing
+            - name: REDIS_HOST
+              value: redis
+            - name: REDIS_PORT
+              value: "6379"
+      # I got the user/group ID for this by running `make nerdctl-shell-frontend` and then by running `cat /etc/passwd`
+      # securityContext:
+      #   runAsUser: 101
+      #   runAsNonRoot: true
+      #   fsGroup: 101
+      #   runAsGroup: 101

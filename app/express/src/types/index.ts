@@ -1,0 +1,1 @@
+export type Roles = 'admin' | 'contributor' | 'developer' | 'project_manager'

@@ -1,6 +1,10 @@
 ## Notes
 
-Sessions are stateful when stored on the server and violate restful principles. For this API, I'm going to make the API read the sessionID and then hit the DB to find out more information on the user.
+A lot of the session stuff happens automatically.
+
+Sessions make the server stateful when they're stored on the server (which violates restful principles). 
+
+For this API, I'm going to make the API read the sessionID and hit the DB to find out more information on the user.
 
 ```js
 // middleware is evaluated from right to left

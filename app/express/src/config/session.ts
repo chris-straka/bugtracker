@@ -1,29 +1,28 @@
 import type { SessionOptions } from 'express-session'
 import session from 'express-session'
+import { redisStore } from './redis'
 
-const secret = process.env.SESSIONS_SECRET
-
-if (secret === undefined || secret === '') {
-  throw new Error('process.env.SESSIONS_SECRET is not set')
-}
+if (!process.env.SESSIONS_SECRET) throw new Error('process.env.SESSIONS_SECRET is not set')
 
 /**
- * The "store" is what holds all your session data.
- * By default it's MemoryStore (server memory), but you should use a DB in prod.
+ * The "store" is what holds all the session data.
+ * Default is MemoryStore (server memory), it's only meant for dev
  *
- * The resave option will save the user's session to the store after every request
- * It will save regardless of whether or not their session information has changed.
+ * resave will save the user's session to the store after every request,
+ * regardless of whether or not their session information has changed.
  * It's not recommended (creates race conditions) but your store might require it.
+ * Redis does not so it's disabled.
  *
- * saveUninitialized forces a session to be saved to the store even if it has not yet been modified.
- * You still create a session cookie with its own session id, and the user will send it back to you,
- * except you would only store an empty session object on req.session. You would use this option,
- * if you wanted to track recurring visitors who haven't saved anything to your site.
+ * saveUninitialized forces a session to be saved to the store even if it has not yet been modified (i.e. {}).
+ * It's used if you want to track recurring visitors who haven't done anything on your site yet.
+ * Because it's possible to create a session cookie with its own session id but still have nothing in the session itself.
+ * The user sends the session cookie with every request and each session cookie has its own ID despite the session being empty.
  */
 const sessionConfig: SessionOptions = {
-  secret,
-  resave: false,
+  store: redisStore,
+  secret: process.env.SESSIONS_SECRET,
   rolling: true,
+  resave: false,
   saveUninitialized: false,
   cookie: { secure: false }
 }

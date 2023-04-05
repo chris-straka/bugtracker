@@ -1,11 +1,13 @@
+CREATE TYPE user_role AS ENUM('admin', 'project_manager', 'developer', 'contributor');
+
 CREATE TABLE Users (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
+  username VARCHAR(100) NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
   password VARCHAR(100) NOT NULL,
-  role ENUM('admin', 'project_manager', 'developer', 'contributor') NOT NULL,
+  role user_role NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  last_modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE UserHistory (
@@ -16,7 +18,7 @@ CREATE TABLE UserHistory (
   changed_fields JSONB NOT NULL,
   previous_values JSONB, 
   new_values JSONB NOT NULL,
-  change_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  change_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- faster logins
@@ -28,7 +30,7 @@ CREATE TABLE Projects (
   name VARCHAR(100) NOT NULL,
   description VARCHAR(500) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  last_modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 /*
@@ -52,7 +54,7 @@ CREATE TABLE ProjectUsers (
     It combines two foreign keys into one primary key. If I used a regular primary key instead, 
     I could accidentally map the same project to the same user more than once
   */
-  PRIMARY KEY (project_id, user_id),
+  PRIMARY KEY (project_id, user_id)
 );
 
 /*
@@ -65,7 +67,7 @@ CREATE TABLE ProjectComments (
   owner_id INTEGER NOT NULL REFERENCES Users(id),
   project_id INTEGER NOT NULL REFERENCES Projects(id), 
   description VARCHAR(500) NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE ProjectHistory (
@@ -76,7 +78,7 @@ CREATE TABLE ProjectHistory (
   changed_fields JSONB NOT NULL,
   previous_values JSONB,
   new_values JSONB NOT NULL,
-  change_timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  change_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE Tickets (
@@ -88,7 +90,7 @@ CREATE TABLE Tickets (
   type VARCHAR(100) NOT NULL,
   status VARCHAR(100) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  last_modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE TicketAssignments (
@@ -102,7 +104,7 @@ CREATE TABLE TicketComments (
   owner_id INTEGER NOT NULL REFERENCES Users(id),
   description VARCHAR(500) NOT NULL,
   ticket_id INTEGER NOT NULL REFERENCES Tickets(id),
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE TicketHistory (
@@ -112,5 +114,5 @@ CREATE TABLE TicketHistory (
   changed_fields JSONB NOT NULL,
   previous_values JSONB,
   new_values JSONB NOT NULL,
-  change_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  change_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

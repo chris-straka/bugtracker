@@ -1,3 +1,10 @@
-// import type { Request, Response, NextFunction } from 'express'
+import type { Request, Response, NextFunction } from 'express'
 
-// export const isAuthorized = (req: Request, res: Response, next: NextFunction): void => { }
+export function isAuthorized (authorizedUserRoles: string[]) {
+  return function (req: Request, res: Response, next: NextFunction) {
+    console.log(authorizedUserRoles)
+    console.log(req)
+    console.log(res)
+    console.log(next)
+  }
+} 

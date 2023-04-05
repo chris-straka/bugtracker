@@ -6,19 +6,22 @@ RUN corepack prepare pnpm@latest --activate
 COPY package.json pnpm-lock.yaml ./
 EXPOSE 3000
 
+# I need dev dependencies in order to build for production (typescript)
+# So I can't just install prod dependencies like I want to just yet
 FROM base AS dev
 WORKDIR /usr/src/app
 ENV NODE_ENV=development
 RUN pnpm install --frozen-lockfile
 CMD ["pnpm", "dev"]
 
-# I need the dev dependencies for pnpm build to work (tsc)
+# Build the production app
 FROM dev AS build
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
 COPY . .
 RUN pnpm build
 
+# Grab the production app from build and only install the production dependencies
 FROM base as prod
 WORKDIR /usr/src/app
 ENV NODE_ENV=production

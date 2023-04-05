@@ -1,10 +1,4 @@
-import {
-  UserAlreadyExistsError,
-  UserDoesNotExistError,
-  UserProvidedTheWrongPasswordError,
-} from './auth'
-
-export class AppError extends Error {
+class AppError extends Error {
   statusCode: number
   status: 'fail' | 'error'
   isOperational: boolean
@@ -19,8 +13,47 @@ export class AppError extends Error {
   }
 }
 
+class UserAlreadyExistsError extends AppError {
+  constructor() {
+    super('User already exists', 409)
+  }
+}
+
+class UserDoesNotExistError extends AppError {
+  constructor() {
+    super('User does not exist', 404)
+  }
+}
+
+class UserProvidedTheWrongPasswordError extends AppError {
+  constructor() {
+    super('Incorrect password provided', 401)
+  }
+}
+
+class UserDidNotProvideTheirPasswordError extends AppError {
+  constructor() {
+    super('No password provided', 400)
+  }
+}
+
+class UserIsNotAuthenticatedError extends AppError {
+  constructor() {
+    super('User is not authenticated', 401) 
+  }
+}
+
+class UserIsNotAllowedToChangeThisResourceError extends AppError {
+  constructor() {
+    super('User does not own the resource they intend to change', 401)
+  }
+}
+
 export {
   UserAlreadyExistsError,
   UserDoesNotExistError,
-  UserProvidedTheWrongPasswordError
+  UserProvidedTheWrongPasswordError,
+  UserDidNotProvideTheirPasswordError,
+  UserIsNotAuthenticatedError,
+  UserIsNotAllowedToChangeThisResourceError
 }

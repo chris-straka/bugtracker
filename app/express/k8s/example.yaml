@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      
+      # what containers should each pod be running
+      containers:
+        - name: backend/spring
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - all
+            privileged: false
+            readOnlyRootFilesystem: true
+          image: frontend
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          # readinessProbe:
+          #   initialDelaySeconds: 10
+          #   httpGet:
+          #     path: "/_health"
+          #     port: 80
+          #     httpHeaders:
+          #     - name: "Cookie"
+          #       value: "shop_session-id=x-readiness-probe"
+          # livenessProbe:
+          #   initialDelaySeconds: 10
+          #   httpGet:
+          #     path: "/_health"
+          #     port: 80
+          #     httpHeaders:
+          #     - name: "Cookie"
+          #       value: "shop_session-id=x-liveness-probe"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+    - name: frontend
+      protocol: TCP
+      # the port that the service will be listening on for traffic
+      port: 3000
+      # the port that the pods will use to listen to traffic
+      targetPort: 80

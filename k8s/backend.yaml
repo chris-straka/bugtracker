@@ -1,7 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  # Name of the deployment
   name: backend
 spec:
   selector:
@@ -10,7 +9,7 @@ spec:
       # I used app: backend but I also could've used service: foo
       app: backend
 
-  # what template should all the pods use
+  # what template all the pods use
   template:
     metadata:
       labels:

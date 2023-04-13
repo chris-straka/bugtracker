@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 import { isAuthenticated, validateInput } from '../middleware/index'
-import { login, logout, userIsLoggedIn } from '../controllers/sessions'
+import { login, logout } from '../controllers/sessions'
 
 const router = Router()
 
@@ -16,8 +16,11 @@ router.post(
   login
 )
 
-router.get('/sessions', isAuthenticated, userIsLoggedIn)
-
-router.delete('/sessions', isAuthenticated, logout)
+// logout
+router.delete(
+  '/sessions',
+  isAuthenticated,
+  logout
+)
 
 export default router

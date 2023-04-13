@@ -1,12 +1,16 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
-import { isAuthenticated, isAllowed, validateInput } from '../middleware'
-import { getUser, deleteUser, createUser, changeUserEmail, changeUsername } from '../controllers/users'
+import { isAuthenticated, isTheOwner, validateInput } from '../middleware'
+import { getUser, deleteUser, createUser, changeEmail, changeUsername } from '../controllers/users'
 
 const router = Router()
 
 router.post('/users', 
-  [],
+  [
+    body('username', 'Username is required').notEmpty().isString(),
+    body('email', 'Invalid email format').isEmail(),
+    body('password', 'Password must be 5 to 90 chars').isLength({ min: 5, max: 90 }),
+  ],
   validateInput,
   createUser
 )
@@ -18,23 +22,23 @@ router.get('/users/:userId',
 
 router.put('/users/:userId/email', 
   isAuthenticated, 
-  isAllowed, 
+  isTheOwner, 
   [body('email', 'Email is not valid').isEmail()],
   validateInput,
-  changeUserEmail
+  changeEmail
 )
 
 router.put('/users/:userId/username', 
   isAuthenticated, 
-  isAllowed, 
+  isTheOwner, 
   [body('username', 'Username is not valid').isString()],
   validateInput,
   changeUsername
 )
 
-router.delete('/users', 
+router.delete('/users/:userId', 
   isAuthenticated, 
-  isAllowed,
+  isTheOwner,
   deleteUser
 )
 

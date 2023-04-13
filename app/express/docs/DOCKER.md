@@ -1,13 +1,16 @@
 # Docker
 
-- Apparently docker runs things as PID 1 and you don't want Node to run as PID 1 (Snyk talks about it, see attribution below). 
-  - Synk recommend using a different init process instead for the Node process (such as "dumb-init").
+Environment variables that you set inside a docker compose file can not be understood by parent process's outside of docker compose. So if you run `jest`, and `jest` has a globalSetup() that spins up docker compose containers for your test, those ENV variables that you set in docker-compose are not going to show up in `jest`. This means your test runner will not know how to connect to PGHOST, it won't have the PGUSER or the PGPASSWORD, etc. 
 
-- The WORKDIR, ENV stanzas in Docker reset after every stage in a multistage build, so you have to reapply it in all stages where you want to use it.
+You might be inclined to duplicate the ENV variables from the docker compose file into a .env file, and then run that dotenv() inside the jest globalSetup() hook. But if you do this, just know that the environment variables related to the docker network (PGHOST=db, REDIS_HOST), will be unintelligible for jest. Only containers inside the docker compose network understand what PGHOST=db means. Jest is outside of that network and does not understand that db is a service inside your docker compose file. You must use PGHOST=127.0.0.1 instead or PGHOST=localhost.
 
-- `pnpm fetch` is similar to `pnpm install`, except it only uses the pnpm-lock.yaml file and not the package.json file. 
-  - They made this command because if you change something in your package.json file that is unrelated to your dependencies (name, description, etc), docker will re-run the entire dockerfile again starting at the part where you added package.json (because the package.json changed and the build needs to reflect that). This also means it will reinstall all your dependencies again, even if none of them changed in the package.json file. So if you only add the lock file and install from that, changes to your package.json won't change the lock file until you install new packages. At least that's how I currently understand it.
+So in summary, if your backend API is running inside docker compose then you can connect to the DB by listening for it on localhost i.e. PGHOST=localhost or by listening to the other service PGHOST=db. Your jest process is not running inside docker compose and can only understand PG=localhost.
 
-I wanted my Dockerfile to only specify my production I needed to install the dev dependencies in one stage and the production dependencies in another, because I actually need a devDependency to build my production app (typescript's tsc), but I don't actually want devDependencies in my production build. I also wanted to I ended up with something pretty ugly, but I don't feel comfortable with other solutions so it'll stick for now.
+## Small stuff 
 
-I tried [rancher desktop](https://docs.rancherdesktop.io/getting-started/installation/) which uses nerdctl and not docker, and it was giving me issues. Hot reload wasn't working when I tried nerdctl compose, which was unfortunate. I had to use ts-node-dev --poll to get it to work, and that wasn't a great DX.
+Docker runs things as PID 1 and Node doesn't want to be PID 1 (Snyk talks about it, see my attributions). 
+So you might want to use a dummy init process instead (Snyk uses 'dumb-init').
+
+The WORKDIR and ENV stanzas in Docker reset after every stage in a multistage build.
+
+I tried [rancher desktop](https://docs.rancherdesktop.io/getting-started/installation/) which uses nerdctl and not docker. But it was giving me issues with bind mounts, which meant hot reload wasn't working either. I could have done it with ts-node-dev --poll, but that wasn't a great DX imo.

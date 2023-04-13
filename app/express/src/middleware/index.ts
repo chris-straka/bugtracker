@@ -1,10 +1,10 @@
 import { isAuthenticated } from './isAuthenticated'
 import { isAuthorized } from './isAuthorized'
 import { validateInput } from './validateInput'
-import { isAllowed } from './isAllowed'
+import { isTheOwner } from './isTheOwner'
 
 export {
-  isAllowed,
+  isTheOwner,
   isAuthenticated,
   isAuthorized,
   validateInput,

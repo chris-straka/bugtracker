@@ -1,32 +1,22 @@
 import request from 'supertest'
 import { faker } from '@faker-js/faker'
+import { closeDBConnections } from '../utility/closeDbConnections'
+import UserService from '../services/user'
 import app from '../config/server'
 
 describe('Auth Routes', () => {
-  let userId: number
   const username = faker.internet.userName()
   const email = faker.internet.email()
   const password = faker.internet.password()
 
   // Create a new user for testing purposes
   beforeAll(async () => {
-    const res = await request(app)
-      .post('/users')
-      .send({ username, email, password })
-    userId = res.body.user.id
+    await UserService.createUser(username, email, password, 'developer')
   })
 
-  // Delete that user
   afterAll(async () => {
-    await request(app).delete(`/users/${userId}`)
-  })
-
-  describe('GET /sessions', () => {
-    test('If the user is logged in, they should receive a 204', async () => {
-      await request(app)
-        .get('/sessions')
-        .expect(204)
-    })
+    await UserService.deleteUserByEmail(email)
+    await closeDBConnections()
   })
 
   describe('POST /sessions', () => {
@@ -57,14 +47,14 @@ describe('Auth Routes', () => {
         .expect(400)
     })
 
-    test('When the user tries to sign in with credentials that don\'t exist, it should return 401', async () => {
+    test('When the user tries to sign into someone that does not exist, it should return 401', async () => {
       await request(app)
         .post('/sessions')
         .send({ email: faker.internet.email(), password: faker.internet.password() })
         .expect(401)
     })
 
-    test('When the user inserts the wrong password, it should return 401', async () => {
+    test('When the user inserts the correct email but the wrong password, it should return 401', async () => {
       await request(app)
         .post('/sessions')
         .send({ email, password: faker.internet.password() })
@@ -74,12 +64,18 @@ describe('Auth Routes', () => {
 
   describe('DELETE /sessions', () => {
     test('When the user logs out successfully, it should return 204', async () => {
-      await request(app)
+      const agent = request.agent(app)
+
+      await agent
+        .post('/sessions')
+        .send({ email, password })
+
+      await agent
         .delete('/sessions')
         .expect(204)
     })
 
-    test('After the user has been signed out, it should return 401 on any route that requires authentication', async () => {
+    test('When an unauthenticated user tries to access a protected route, it should return 401', async () => {
       await request(app)
         .delete('/sessions')
         .expect(401)

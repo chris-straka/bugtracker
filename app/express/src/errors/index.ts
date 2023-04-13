@@ -1,4 +1,4 @@
-class AppError extends Error {
+export class AppError extends Error {
   statusCode: number
   status: 'fail' | 'error'
   isOperational: boolean
@@ -13,41 +13,16 @@ class AppError extends Error {
   }
 }
 
-class UserAlreadyExistsError extends AppError {
-  constructor() {
-    super('User already exists', 409)
-  }
-}
+import { 
+  UserAlreadyExistsError, UserDidNotProvideTheirPasswordError, 
+  UserDoesNotExistError, UserIsNotAllowedToChangeThisResourceError,
+  UserIsNotAuthenticatedError, UserProvidedTheWrongPasswordError,
+  UserIsNotAuthorizedError
+} from './user'
 
-class UserDoesNotExistError extends AppError {
-  constructor() {
-    super('User does not exist', 404)
-  }
-}
-
-class UserProvidedTheWrongPasswordError extends AppError {
-  constructor() {
-    super('Incorrect password provided', 401)
-  }
-}
-
-class UserDidNotProvideTheirPasswordError extends AppError {
-  constructor() {
-    super('No password provided', 400)
-  }
-}
-
-class UserIsNotAuthenticatedError extends AppError {
-  constructor() {
-    super('User is not authenticated', 401) 
-  }
-}
-
-class UserIsNotAllowedToChangeThisResourceError extends AppError {
-  constructor() {
-    super('User does not own the resource they intend to change', 401)
-  }
-}
+import { 
+  RoleDoesNotExistError
+} from './server'
 
 export {
   UserAlreadyExistsError,
@@ -55,5 +30,7 @@ export {
   UserProvidedTheWrongPasswordError,
   UserDidNotProvideTheirPasswordError,
   UserIsNotAuthenticatedError,
-  UserIsNotAllowedToChangeThisResourceError
+  UserIsNotAllowedToChangeThisResourceError,
+  UserIsNotAuthorizedError,
+  RoleDoesNotExistError
 }

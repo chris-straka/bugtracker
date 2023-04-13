@@ -1,15 +1,12 @@
 import 'express-session'
-import { Roles } from './types'
+// import './types'
 import app from './config/server'
 
 const PORT = process.env.PORT ?? 3000
 
-declare module 'express-session' {
-  interface SessionData {
-    userId: string | null,
-    role: Roles | null
-  }
-}
+app.get('/foo', (req, res) => {
+  res.send(process.env.PGHOST)
+})
 
 app.listen(PORT, () => {
   console.log(`express running on port ${PORT}`)

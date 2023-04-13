@@ -1,6 +1,6 @@
 import { Socket } from 'net'
 
-export const isPortReachable = (port: number, host = 'localhost'): Promise<boolean> => {
+export async function isPortReachable (port: number, host = 'localhost'): Promise<boolean> {
   return new Promise((res) => {
     const socket = new Socket()
 

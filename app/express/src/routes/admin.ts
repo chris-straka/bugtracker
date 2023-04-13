@@ -4,7 +4,7 @@ import { deleteUser, createUser } from '../controllers/users'
 
 const router = Router()
 
-router.post('/admin/users/:userId', 
+router.post('/admin/users', 
   isAuthenticated, 
   isAuthorized(['admin']), 
   createUser
@@ -13,7 +13,6 @@ router.post('/admin/users/:userId',
 router.put('/admin/users/:userId', 
   isAuthenticated, 
   isAuthorized(['admin']), 
-  
 )
 
 router.delete('/admin/users/:userId', 

@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
-import { isAuthenticated } from '.'
 import { createRequest, createResponse } from 'node-mocks-http'
 import { SessionData } from 'express-session'
+import { UserIsNotAuthenticatedError } from '../../errors'
+import { isAuthenticated } from '../../middleware'
 
 describe('isAuthenticated()', () => {
   let req: Request
@@ -13,7 +14,7 @@ describe('isAuthenticated()', () => {
     next = jest.fn()
   })
 
-  test('If the user is logged in, it should return 200', async () => {
+  test('If the user is logged in, it should return 200', () => {
     req = createRequest({
       session: {
         userId: '1'
@@ -26,10 +27,12 @@ describe('isAuthenticated()', () => {
     expect(next).toHaveBeenCalledWith()
   })
 
-  test('If the user is not logged in, it should return 401', async () => {
+  test('If the user is not logged in, it should return 401', () => {
     req = createRequest()
+
     isAuthenticated(req, res, next)
 
     expect(next).toHaveBeenCalledTimes(1)
+    expect(next).toHaveBeenCalledWith(expect.any(UserIsNotAuthenticatedError))
   })
 })

@@ -1,2 +1,38 @@
 # Spring Boot Bugtracker Backend
 
+This is the spring boot monolith backend for the bugtracker application.
+
+```sh
+./gradlew tasks     # see all available tasks
+./gradlew.bat tasks # for windows users
+
+./gradlew bootRun
+```
+
+## Notes
+
+The Gradle version is in gradle/wrapper/gradle-wrapper.properties.
+You can find the [latest gradle versions here](https://services.gradle.org/).
+
+Set this up later my guy
+
+https://github.com/ben-manes/gradle-versions-plugin
+# Resources
+
+- [Official Gradle documentation](https://docs.gradle.org)
+- [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/3.0.4/gradle-plugin/reference/html/)
+- [Create an OCI image](https://docs.spring.io/spring-boot/docs/3.0.4/gradle-plugin/reference/html/#build-image)
+- [Spring Web](https://docs.spring.io/spring-boot/docs/3.0.4/reference/htmlsingle/#web)
+- [Spring Data JPA](https://docs.spring.io/spring-boot/docs/3.0.4/reference/htmlsingle/#data.sql.jpa-and-spring-data)
+- [Spring Security](https://docs.spring.io/spring-boot/docs/3.0.4/reference/htmlsingle/#web.security)
+- [Spring for GraphQL](https://docs.spring.io/spring-boot/docs/3.0.4/reference/html/web.html#web.graphql)
+- [Spring Boot DevTools](https://docs.spring.io/spring-boot/docs/3.0.4/reference/htmlsingle/#using.devtools)
+- [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
+- [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
+- [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
+- [Accessing Data with JPA](https://spring.io/guides/gs/accessing-data-jpa/)
+- [Securing a Web Application](https://spring.io/guides/gs/securing-web/)
+- [Spring Boot and OAuth2](https://spring.io/guides/tutorials/spring-boot-oauth2/)
+- [Authenticating a User with LDAP](https://spring.io/guides/gs/authenticating-ldap/)
+- [Building a GraphQL service](https://spring.io/guides/gs/graphql-server/)
+- [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)

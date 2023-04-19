@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { toHash, comparePasswords } from './password'
+import { toHash, comparePasswords } from '../../utility/passwordHashing'
 
 describe('Password utils', () => {
   const password = faker.internet.password()

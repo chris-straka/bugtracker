@@ -1,5 +1,4 @@
 import 'express-session'
-// import './types'
 import app from './config/server'
 
 const PORT = process.env.PORT ?? 3000

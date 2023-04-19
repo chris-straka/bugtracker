@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 dotenv.config()
-import { isPortReachable } from '../../utility/isPortReachable'
+import { isPortReachable } from '../helper'
 import { execSync } from 'child_process'
 
 async function globalSetup() {

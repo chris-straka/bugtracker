@@ -23,6 +23,19 @@ async function closePostgresDBConnection () {
   await pool.end()
 }
 
+export async function cleanupDb() { 
+  await pool.query('TRUNCATE ticket_history')
+  await pool.query('TRUNCATE ticket_comments')
+  await pool.query('TRUNCATE ticket_assignments')
+  await pool.query('TRUNCATE tickets')
+  await pool.query('TRUNCATE project_history')
+  await pool.query('TRUNCATE project_comments')
+  await pool.query('TRUNCATE project_users')
+  await pool.query('TRUNCATE projects')
+  await pool.query('TRUNCATE user_history')
+  await pool.query('TRUNCATE users')
+}
+
 export {
   pool as db,
   Pool as dbType,

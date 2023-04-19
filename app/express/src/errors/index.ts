@@ -15,7 +15,7 @@ export class AppError extends Error {
 
 import { 
   UserAlreadyExistsError, UserDidNotProvideTheirPasswordError, 
-  UserDoesNotExistError, UserIsNotAllowedToChangeThisResourceError,
+  UserNotFound, UserIsNotAllowedToChangeThisResourceError,
   UserIsNotAuthenticatedError, UserProvidedTheWrongPasswordError,
   UserIsNotAuthorizedError
 } from './user'
@@ -24,13 +24,18 @@ import {
   RoleDoesNotExistError
 } from './server'
 
+import { 
+  NothingToChangeError
+} from './admin'
+
 export {
   UserAlreadyExistsError,
-  UserDoesNotExistError,
+  UserNotFound,
   UserProvidedTheWrongPasswordError,
   UserDidNotProvideTheirPasswordError,
   UserIsNotAuthenticatedError,
   UserIsNotAllowedToChangeThisResourceError,
   UserIsNotAuthorizedError,
-  RoleDoesNotExistError
+  RoleDoesNotExistError,
+  NothingToChangeError
 }

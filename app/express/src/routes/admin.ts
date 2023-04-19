@@ -1,24 +1,20 @@
 import { Router } from 'express'
-import { isAuthenticated, isAuthorized } from '../middleware'
-import { deleteUser, createUser } from '../controllers/users'
+import { body } from 'express-validator'
+import { isAuthenticated, isAuthorized, validateInput } from '../middleware'
+import { changeUser } from '../controllers/admin'
 
 const router = Router()
 
-router.post('/admin/users', 
-  isAuthenticated, 
-  isAuthorized(['admin']), 
-  createUser
-)
-
-router.put('/admin/users/:userId', 
-  isAuthenticated, 
-  isAuthorized(['admin']), 
-)
-
-router.delete('/admin/users/:userId', 
-  isAuthenticated, 
-  isAuthorized(['admin']), 
-  deleteUser
+router.put('/admin/users/:userId',
+  isAuthenticated,
+  isAuthorized(['admin']),
+  [
+    body('email', 'Invalid email format').optional().isEmail(),
+    body('username', 'Invalid username').optional().isString(),
+    body('role', 'Invalid role').optional().isIn(['admin', 'project_manager', 'developer', 'contributor'])
+  ],
+  validateInput,
+  changeUser
 )
 
 export default router

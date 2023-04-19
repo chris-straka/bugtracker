@@ -6,7 +6,7 @@ export class UserAlreadyExistsError extends AppError {
   }
 }
 
-export class UserDoesNotExistError extends AppError {
+export class UserNotFound extends AppError {
   constructor() {
     super('Authentication failed', 401)
   }

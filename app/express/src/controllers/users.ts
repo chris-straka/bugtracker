@@ -1,11 +1,12 @@
 import type { Request, Response, NextFunction } from 'express'
 import UserService from '../services/user'
 
+// POST /users 
 export async function createUser(req: Request, res: Response, next: NextFunction) {
   const { username, email, password } = req.body
 
   try {
-    const user = await UserService.createUser(username, email, password, 'contributor')
+    const user = await UserService.createUser(username, email, password, 'guest')
 
     req.session.regenerate((err) => {
       if (err != null) return next(err)
@@ -31,6 +32,7 @@ export async function createUser(req: Request, res: Response, next: NextFunction
   }
 }
 
+// GET /users/:userId
 export async function getUser(req: Request, res: Response, next: NextFunction) {
   const { userId } = req.params
 
@@ -49,30 +51,33 @@ export async function getUser(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// PUT /users/:userId/email
 export async function changeEmail(req: Request, res: Response, next: NextFunction) {
   const { userId } = req.params
   const { email } = req.body
 
   try {
     await UserService.changeEmail(userId, email)
-    res.status(200).json({ message: 'Email updated succesfully' })
+    res.status(204).send()
   } catch (error) {
     return next(error) 
   }
 }
 
+// PUT /users/:userId/username
 export async function changeUsername(req: Request, res: Response, next: NextFunction) {
   const { userId } = req.params
   const { username } = req.body
 
   try {
     await UserService.changeUsername(userId, username)
-    res.status(200).send({ message: 'Username updated succesfully' })
+    res.status(204).send()
   } catch (error) {
     return next(error) 
   }
 }
 
+// DELETE /users/:userId
 export async function deleteUser(req: Request, res: Response, next: NextFunction) {
   const { userId } = req.params
 

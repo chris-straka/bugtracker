@@ -1,4 +1,4 @@
-# Express Web API 
+# Express Web API
 
 This is an express API written in TS (monolith). It implements sessions, graphQL, rest, PG (no ORM).
 
@@ -6,30 +6,23 @@ I have notes in the /docs folder
 
 ## Roles
 
-- dev: Can edit tickets assigned to them, update the status of the ticket (e.g., mark it as resolved), and add comments.
+- ADMIN: Everything
+- PROJECT_MANAGER: Creates & manages projects, assigns tickets to devs
+- DEVELOPER: Create/edit tickets & comments. Can update ticket status
+- CONTRIBUTOR: Ditto, but can't update ticket status
+- GUEST: Can view projects/comments but can't edit
 
-- Admin: Can edit all tickets, assign tickets to developers, update the status of the ticket, and add comments.
-
-- Contributor: Can create new tickets and edit the tickets they created, but cannot change the status of the ticket or assign it to others.
-
-- Project Manager: Can edit all tickets, assign tickets to developers, update the status of the ticket, and add comments.
-
-## Commands 
+## Commands
 
 ```sh
 pnpm ddev
 pnpm test
 ```
 
-## Debugging 
+## Debugging (vscode)
 
-Open a JS debug terminal in vscode by bringing up the command palette.
-
-```
->Debug: Javascript Debug Terminal
-```
-
-Then run whatever command you want to debug, ddev or test.
+Download the Jest Runner extension from the .vscode folder and use its debug feature on any test case. 
+Set breakpoints anywhere in the application that need debugging.
 
 ## Attribution
 

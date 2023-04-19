@@ -1,4 +1,4 @@
-export interface UserDB {
+export type UserWithPassword = {
   id: number
   username: string
   email: string
@@ -6,4 +6,4 @@ export interface UserDB {
   role: 'admin' | 'project_manager' | 'developer' | 'contributor'
 }
 
-export type User = Omit<UserDB, 'password'>
+export type User = Omit<UserWithPassword, 'password'>

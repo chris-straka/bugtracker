@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import UserService from '../services/user'
 
+// POST /sessions
 export async function login(req: Request, res: Response, next: NextFunction) {
   const { email, password } = req.body
 
@@ -27,12 +28,12 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
       })
     })
-
   } catch (error) {
     return next(error)
   }
 }
 
+// DELETE /sessions
 export function logout(req: Request, res: Response, next: NextFunction) {
   // If someone manages to get the old sessionID
   // this will prevent them from using any of the user's session data

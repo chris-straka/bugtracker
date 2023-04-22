@@ -1,4 +1,4 @@
-export class AppError extends Error {
+class AppError extends Error {
   statusCode: number
   status: 'fail' | 'error'
   isOperational: boolean
@@ -13,20 +13,55 @@ export class AppError extends Error {
   }
 }
 
-import { 
-  UserAlreadyExistsError, UserDidNotProvideTheirPasswordError, 
-  UserNotFound, UserIsNotAllowedToChangeThisResourceError,
-  UserIsNotAuthenticatedError, UserProvidedTheWrongPasswordError,
-  UserIsNotAuthorizedError
-} from './user'
+// USER ERRORS
+class UserAlreadyExistsError extends AppError {
+  constructor() {
+    super('User already exists', 409)
+  }
+}
 
-import { 
-  RoleDoesNotExistError
-} from './server'
+class UserNotFound extends AppError {
+  constructor() {
+    super('Authentication failed', 401)
+  }
+}
 
-import { 
-  NothingToChangeError
-} from './admin'
+class UserProvidedTheWrongPasswordError extends AppError {
+  constructor() {
+    super('Incorrect password provided', 401)
+  }
+}
+
+class UserDidNotProvideTheirPasswordError extends AppError {
+  constructor() {
+    super('No password provided', 400)
+  }
+}
+
+class UserIsNotAuthenticatedError extends AppError {
+  constructor() {
+    super('User is not authenticated', 401) 
+  }
+}
+
+class UserIsNotAllowedToChangeThisResourceError extends AppError {
+  constructor() {
+    super('User does not own the resource they intend to change', 401)
+  }
+}
+
+class UserIsNotAuthorizedError extends AppError {
+  constructor() {
+    super('User is not authorized to access this resource', 403) 
+  }
+}
+
+// PASSWORD
+class InvalidOrMissingToken extends AppError {
+  constructor() {
+    super('The password reset token is invalid or missing', 400) 
+  }
+}
 
 export {
   UserAlreadyExistsError,
@@ -36,6 +71,5 @@ export {
   UserIsNotAuthenticatedError,
   UserIsNotAllowedToChangeThisResourceError,
   UserIsNotAuthorizedError,
-  RoleDoesNotExistError,
-  NothingToChangeError
+  InvalidOrMissingToken
 }

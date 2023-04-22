@@ -1,6 +1,6 @@
-CREATE TYPE user_role AS ENUM('admin', 'project_manager', 'developer', 'contributor', 'guest');
+CREATE TYPE user_role AS ENUM('owner', 'admin', 'project_manager', 'developer', 'tester', 'quality_assurance', 'contributor', 'guest');
 
-CREATE TABLE users (
+CREATE TABLE user (
   id SERIAL PRIMARY KEY,
   username VARCHAR(100) NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
@@ -26,7 +26,7 @@ CREATE UNIQUE INDEX user_email_idx ON Users(email);
 
 CREATE TYPE project_status AS ENUM('active', 'completed', 'archived');
 
-CREATE TABLE projects (
+CREATE TABLE project (
   id SERIAL PRIMARY KEY,
   owner_id INTEGER REFERENCES Users(id),
   name VARCHAR(100) NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE projects (
   It's more flexible because you can associate users with projects in more interesting ways.
   It has better data integrity because this table will make sure each user is only added once per project.
 */
-CREATE TABLE project_users (
+CREATE TABLE project_user (
   project_id INTEGER NOT NULL REFERENCES Projects(id),
   user_id INTEGER NOT NULL REFERENCES Users(id),
   /*
@@ -65,7 +65,7 @@ CREATE TABLE project_users (
   one project can have many comments
   one comment can't have many projects
 */
-CREATE TABLE project_comments (
+CREATE TABLE project_comment (
   id SERIAL PRIMARY KEY,
   owner_id INTEGER NOT NULL REFERENCES Users(id),
   project_id INTEGER NOT NULL REFERENCES Projects(id), 
@@ -89,7 +89,7 @@ CREATE TYPE ticket_status AS ENUM('open', 'in_progress', 'closed', 'on_hold');
 CREATE TYPE ticket_priority AS ENUM('low', 'medium', 'high', 'critical');
 CREATE TYPE ticket_type AS ENUM('bug', 'feature_request', 'task', 'documentation', 'improvement', 'question');
 
-CREATE TABLE tickets (
+CREATE TABLE ticket (
   id SERIAL PRIMARY KEY,
   project_id INTEGER NOT NULL REFERENCES Projects(id), 
   owner_id INTEGER NOT NULL REFERENCES Users(id),
@@ -104,13 +104,13 @@ CREATE TABLE tickets (
 
 CREATE INDEX tickets_project_id_idx ON tickets(project_id);
 
-CREATE TABLE ticket_assignments (
+CREATE TABLE ticket_assignment (
   ticket_id INTEGER NOT NULL REFERENCES Tickets(id),
   developer_id INTEGER NOT NULL REFERENCES Users(id),
   PRIMARY KEY (ticket_id, developer_id)
 );
 
-CREATE TABLE ticket_comments (
+CREATE TABLE ticket_comment (
   id SERIAL PRIMARY KEY,
   owner_id INTEGER NOT NULL REFERENCES users(id),
   ticket_id INTEGER NOT NULL REFERENCES tickets(id),

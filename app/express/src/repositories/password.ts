@@ -21,7 +21,6 @@ async function addToken(token: string, userId: string) {
 
 async function grabUserFromToken(token: string) {
   const userId = await redisClient.get(`reset-password:${token}`)
-  if (!userId) throw new Error('Invalid or expired token')
 
   // delete the used token
   await redisClient.del(`reset-password:${token}`) 

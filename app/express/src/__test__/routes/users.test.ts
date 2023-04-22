@@ -9,20 +9,17 @@ describe('User Routes', () => {
   })
 
   describe('POST /users', () => {
-    // arrange
     const email = faker.internet.email()
     const username = faker.internet.userName()
     const password = faker.internet.password()
     const role = 'guest'
 
     it('should 201 with user data when valid email, username, and password are provided', async () => {
-      // act
       const response = await request(app)
         .post('/users')
         .send({ email, username, password })
         .expect(201)
 
-      // assert
       expect(response.body).toMatchObject({ user: { id: expect.any(Number), email, username, role } })
     })
 
@@ -38,11 +35,11 @@ describe('User Routes', () => {
 
     it('should 409 when trying to create an account with an already used email/username', async () => {
       const differentEmail = faker.internet.email()
-      const differentPassword = faker.internet.password()
+      const differentUsername = faker.internet.userName()
 
       await request(app)
         .post('/users')
-        .send({ username: differentPassword, email, password })
+        .send({ username: differentUsername, email, password })
         .expect(409)
 
       await request(app)
@@ -59,7 +56,7 @@ describe('User Routes', () => {
       const res = await agent.get(`/users/${id}`)
 
       expect(res.status).toBe(200)
-      expect(res.body).toMatchObject({ user: { id, email, username, role } })
+      expect(res.body).toMatchObject({ user: { id: id.toString(), email, username, role } })
     })
 
     it('should 401 when the userId does not exist', async () => {
@@ -71,15 +68,15 @@ describe('User Routes', () => {
     // user 1
     let agent: SuperAgentTest
     let id: string
-    let username: string
 
     // user 2
     let agent2: SuperAgentTest
-    let email: string
+    let agent2Email: string
+    let agent2Username: string
 
     beforeAll(async () => {
-      ({ agent, id, username } = await createTestUser());
-      ({ agent: agent2, email } = await createTestUser())
+      ({ agent, id } = await createTestUser());
+      ({ agent: agent2, email: agent2Email, username: agent2Username } = await createTestUser())
     })
 
     describe('/email', () => {
@@ -100,7 +97,7 @@ describe('User Routes', () => {
       it('should 409 when changing to an already existing email', async () => {
         await agent
           .put(`/users/${id}/email`) 
-          .send({ email })
+          .send({ email: agent2Email })
           .expect(409)
       })
     })
@@ -123,17 +120,27 @@ describe('User Routes', () => {
       it('should 409 when changing to an already existing username', async () => {
         await agent
           .put(`/users/${id}/username`) 
-          .send({ username })
+          .send({ username: agent2Username })
           .expect(409)
       })
     })
   })
 
   describe('DELETE /users/:userId', () => {
-    it('should 204 when the user deletes themselves', async () => {
-      const { agent, id } = await createTestUser()
+    let agent: SuperAgentTest
+    let userId: string
 
-      await agent.delete(`/users/${id}`).expect(204)
+    beforeEach(async () => {
+      ({ agent, id: userId } = await createTestUser())
+    })
+
+    it('should 204 when the user deletes themselves', async () => {
+      await agent.delete(`/users/${userId}`).expect(204)
+    })
+
+    it('should 401 when a non-admin tries to delete someone', async () => {
+      const { agent: otherPerson } = await createTestUser('project_manager')
+      await otherPerson.delete(`/users/${userId}`).expect(401)
     })
   })
 })

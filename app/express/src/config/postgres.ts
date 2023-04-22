@@ -24,16 +24,16 @@ async function closePostgresDBConnection () {
 }
 
 export async function cleanupDb() { 
-  await pool.query('TRUNCATE ticket_history')
-  await pool.query('TRUNCATE ticket_comments')
-  await pool.query('TRUNCATE ticket_assignments')
-  await pool.query('TRUNCATE tickets')
-  await pool.query('TRUNCATE project_history')
-  await pool.query('TRUNCATE project_comments')
-  await pool.query('TRUNCATE project_users')
-  await pool.query('TRUNCATE projects')
-  await pool.query('TRUNCATE user_history')
-  await pool.query('TRUNCATE users')
+  await pool.query('TRUNCATE ticket_history CASCADE')
+  await pool.query('TRUNCATE ticket_comments CASCADE')
+  await pool.query('TRUNCATE ticket_assignments CASCADE')
+  await pool.query('TRUNCATE tickets CASCADE')
+  await pool.query('TRUNCATE project_history CASCADE')
+  await pool.query('TRUNCATE project_comments CASCADE')
+  await pool.query('TRUNCATE project_users CASCADE')
+  await pool.query('TRUNCATE projects CASCADE')
+  await pool.query('TRUNCATE user_history CASCADE')
+  await pool.query('TRUNCATE users CASCADE')
 }
 
 export {

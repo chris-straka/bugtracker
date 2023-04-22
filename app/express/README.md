@@ -1,16 +1,36 @@
-# Express Web API
+# Express Monolith Backend
 
-This is an express API written in TS (monolith). It implements sessions, graphQL, rest, PG (no ORM).
+> Express, Typescript, Jest, REST, GraphQL, Postgres (no ORM), Docker, K8s, Terraform
 
-I have notes in the /docs folder
+This bug tracker helps an organization keep track of different bugs across various projects.
 
-## Roles
+## User Roles
 
-- ADMIN: Everything
-- PROJECT_MANAGER: Creates & manages projects, assigns tickets to devs
-- DEVELOPER: Create/edit tickets & comments. Can update ticket status
-- CONTRIBUTOR: Ditto, but can't update ticket status
-- GUEST: Can view projects/comments but can't edit
+Admins can manage users, projects, tickets, and comments.
+
+Project Managers (PMs) can manage projects they create.
+
+- They can add and remove people from their projects
+- Only the project owner or an admin can add and remove other PMs from a project.
+  - Owner -> The PM or admin who created the project
+
+Developers can manage tickets in the projects they're a part of
+
+- They can edit any ticket in the project, not just the ones they're assigned to
+
+Contributors can manage tickets in projects they're a part of.
+
+- They can only edit tickets that they own
+
+Guests can view everything but can't create/edit anything
+
+## Workflow
+
+Every new user starts off as a guest until they've been granted higher privileges by the admin.
+
+An admin or a PM can then create a project and assign other users to it.
+
+Those users can then create and edit comments or tickets in that project
 
 ## Commands
 
@@ -21,8 +41,9 @@ pnpm test
 
 ## Debugging (vscode)
 
-Download the Jest Runner extension from the .vscode folder and use its debug feature on any test case. 
-Set breakpoints anywhere in the application that need debugging.
+1. Download the Jest Runner extension (as specified in the .vscode folder)
+2. Add the breakpoints wherever you want in the application
+3. Go to the test case that runs that calls your breakpoint and click "debug"
 
 ## Attribution
 

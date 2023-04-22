@@ -1,5 +1,6 @@
 import { execSync } from 'child_process'
 import { cleanupDb } from '../../config/postgres'
+import { closeDbConnections } from '../helper'
 
 const globalTeardown = async () => {
   if (process.env.CI) {
@@ -9,9 +10,8 @@ const globalTeardown = async () => {
       console.error('Error when trying to stop docker containers:', error)
     }
   } else { 
-    if (Math.ceil(Math.random() * 10) === 10) {
-      await cleanupDb()
-    }
+    if (Math.ceil(Math.random() * 10) === 10) await cleanupDb()
+    await closeDbConnections()
   }
 }
 

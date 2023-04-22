@@ -1,4 +1,4 @@
-export type Roles = 'admin' | 'contributor' | 'developer' | 'project_manager' | 'guest'
+export type Roles = 'owner' | 'admin' | 'contributor' | 'developer' | 'tester' | 'quality_assurance' | 'project_manager' | 'guest'
 
 export type TicketStatus = 'open' | 'in_progress' | 'closed' | 'on_hold'
 export type TicketPriority = 'low' | 'medium' | 'high' | 'criticial'

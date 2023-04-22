@@ -9,10 +9,9 @@ async function createProject(name: string, description: string, owner_id: string
   return data.rows[0]
 }
 
-// TODO
 async function createProjectComment(description: string, owner_id: string, project_id: string) {
   const result = await db.query({
-    name: 'create_project',
+    name: 'create_project_comment',
     text: 'INSERT INTO project_comments(description, owner_id, project_id) VALUES ($1, $2, $3) RETURNING *;',
     values: [description, owner_id, project_id]
   })

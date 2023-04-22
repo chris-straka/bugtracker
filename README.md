@@ -6,34 +6,11 @@
 
 /frontend has the frontends for the backend.
 
-## How it works
+## Workflow
 
-This application has four different types of users...
+A project manager creates a project and then adds users to that project
 
-Admins
-  Manage users (CRUD)
-  Manage projects (CRUD)
-  Manage tickets (CRUD)
-
-Project Managers
-  Manage projects that they're a part of (CRUD)
-  Manage tickets in those projects (CRUD) 
-  Manage users in those projects (add/remove/assign)
-
-Developers
-  View projects that they're assigned to
-  Update tickets
-  Create tickets
-  Comment on tickets
-
-Contributors
-  View projects that they're assigned to
-  Create tickets
-  Comment on tickets
-
-1. PMs or Admins create projects and assign users to them.
-2. Those users can then create "tickets" for those projects. Those tickets describe a bug.
-3. People can leave comments and make changes to the tickets, history will be recorded.
+Those users can then create and edit tickets and comments
 
 ## Helpful
 

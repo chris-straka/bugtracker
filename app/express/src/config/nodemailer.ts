@@ -1,9 +1,11 @@
-import nodemailer from 'nodemailer'
+import { createTestAccount, createTransport, getTestMessageUrl } from 'nodemailer'
 
-async function createTransporter() {
-  const testAccount = await nodemailer.createTestAccount()
+export async function createTransporter() {
+  const testAccount = await createTestAccount()
 
-  return nodemailer.createTransport({
+  if (process.env.NODE_ENV === 'production') throw new Error('sendMail() TODO')
+
+  return createTransport({
     host: 'smtp.ethereal.email',
     port: 587,
     secure: false,
@@ -15,14 +17,18 @@ async function createTransporter() {
 }
 
 export async function sendEmail(to: string, subject: string, html: string) {
-  const transporter = await createTransporter()
+  try {
+    const transporter = await createTransporter()
 
-  const res = await transporter.sendMail({
-    from: 'todo@gmail.com',
-    to,
-    subject,
-    html
-  })
+    const res = await transporter.sendMail({
+      from: 'no-reply@example.com',
+      to,
+      subject,
+      html
+    })
 
-  if (process.env.NODE_ENV !== 'production') console.log('preview URL', nodemailer.getTestMessageUrl(res))
+    if (process.env.NODE_ENV !== 'production') console.log('preview URL', getTestMessageUrl(res))
+  } catch(error) {
+    console.error(error)
+  }
 }

@@ -2,12 +2,12 @@ import request, { SuperAgentTest } from 'supertest'
 import { faker } from '@faker-js/faker'
 import { closeDbConnections, createTestUser } from '../helper'
 import { sendEmail } from '../../config/nodemailer'
-import { createPasswordResetToken } from '../../services/password'
+import PasswordService from '../../services/password'
 import ResetPasswordRepository from '../../repositories/password'
 import app from '../../config/server'
 
 jest.mock('../../config/nodemailer', () => ({
-  sendMail: jest.fn(),
+  sendEmail: jest.fn(),
 }))
 
 describe('Reset Password Routes', () => {
@@ -37,7 +37,7 @@ describe('Reset Password Routes', () => {
   })
 
   describe('PUT /passwords/:passwordResetToken', () => {
-    const token = createPasswordResetToken()
+    const token = PasswordService.createPasswordResetToken()
 
     beforeEach(async () => {
       await ResetPasswordRepository.addToken(token, id)
@@ -63,12 +63,12 @@ describe('Reset Password Routes', () => {
       const newPassword = faker.internet.password()
       const otherNewPassword = faker.internet.password()
 
-      await agent.put(`/passwords/${token}`).send({ newPassword })
+      await agent.put(`/passwords/${token}`).send({ newPassword }).expect(204)
       await agent.put(`/passwords/${token}`).send({ newPassword: otherNewPassword }).expect(400)
     })
 
     it('should 400 when a faulty token is provided', async () => {
-      const wrongToken = createPasswordResetToken()
+      const wrongToken = PasswordService.createPasswordResetToken()
       await request(app).put(`/passwords/${wrongToken}`).expect(400)
     })
   })

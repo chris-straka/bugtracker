@@ -1,4 +1,4 @@
-## sts StatefulSets 
+## StatefulSets "sts"
 
 Sts run a bunch of identical pods just like a deployment. 
 

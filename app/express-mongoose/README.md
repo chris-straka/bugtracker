@@ -1,3 +1,5 @@
 # Express Mongoose
 
-Rate limiting.
+Elasticsearch for project and ticket search 
+
+Rate limiting

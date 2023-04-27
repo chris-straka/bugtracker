@@ -17,12 +17,7 @@ export async function createTestUser(role: Roles = 'contributor') {
     .post('/sessions')
     .send({ email, password })
   
-  const id = res.body.user.id
+  const id = res.body.user.id.toString()
 
   return { agent, id, username, email, password, role }
-}
-
-export async function deleteAllUsers() {
-  if (process.env.NODE_ENV === 'production') throw new Error('Attempted to deleteAllUsers() in production! Stopped')
-
 }

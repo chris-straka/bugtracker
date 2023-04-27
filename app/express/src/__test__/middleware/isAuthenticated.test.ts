@@ -14,7 +14,7 @@ describe('isAuthenticated()', () => {
     next = jest.fn()
   })
 
-  test('If the user is logged in, it should return 200', () => {
+  it('should 200 if the user is logged in', () => {
     req = createRequest({
       session: {
         userId: '1'

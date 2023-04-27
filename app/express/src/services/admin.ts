@@ -1,7 +1,7 @@
 import { Roles } from '../types'
 import { UserNotFound, UserAlreadyExistsError } from '../errors'
 import UserRepository from '../repositories/user'
-import AdminRepository from '../repositories/admin'
+import AdminRepository from '../repositories/admin/user'
 
 async function changeUser(newUser: { id: string, username?: string, role?: Roles, email?: string }) {
   const { id, username, email } = newUser

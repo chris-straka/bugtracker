@@ -63,6 +63,13 @@ class InvalidOrMissingToken extends AppError {
   }
 }
 
+// PROJECT
+class ProjectAlreadyExistsError extends AppError {
+  constructor() {
+    super('The project already exists', 409)
+  }
+}
+
 export {
   UserAlreadyExistsError,
   UserNotFound,
@@ -71,5 +78,6 @@ export {
   UserIsNotAuthenticatedError,
   UserIsNotAllowedToChangeThisResourceError,
   UserIsNotAuthorizedError,
+  ProjectAlreadyExistsError,
   InvalidOrMissingToken
 }

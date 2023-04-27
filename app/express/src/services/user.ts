@@ -4,7 +4,7 @@ import { toHash, comparePasswords } from '../utility/passwordHashing'
 import { UserNotFound, UserProvidedTheWrongPasswordError, UserAlreadyExistsError } from '../errors'
 
 async function authenticateUser(givenEmail: string, givenPassword: string) {
-  const user = await UserRepository.getUserByEmailWithPassword(givenEmail)
+  const user = await UserRepository.getUserWithPasswordByEmail(givenEmail)
   if (!user) throw new UserNotFound()
   
   const { password: storedPasswordHash, ...userWithoutPasswordHash } = user
@@ -14,7 +14,7 @@ async function authenticateUser(givenEmail: string, givenPassword: string) {
   return userWithoutPasswordHash
 }
 
-async function createUser(username: string, email: string, password: string, role: Roles) {
+async function createUser(username: string, email: string, password: string, role: Roles = 'guest') {
   const userExists = await UserRepository.checkIfUserExistsByEmailOrUsername(email, username)
   if (userExists) throw new UserAlreadyExistsError()
 

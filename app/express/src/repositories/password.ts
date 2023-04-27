@@ -2,24 +2,20 @@ import { db } from '../config/postgres'
 import { redisClient } from '../config/redis'
 
 async function changePassword(id: string, newPasswordHash: string) {
-  try {
-    const data = await db.query({
-      name: 'change_password',
-      text: 'UPDATE users SET password = $2 WHERE id = $1;',
-      values: [id, newPasswordHash]
-    })
-    return data.rowCount > 0
-  } catch (error) {
-    console.error('error', error) 
-  }
+  const data = await db.query({
+    name: 'change_password',
+    text: 'UPDATE user SET password = $2 WHERE id = $1;',
+    values: [id, newPasswordHash]
+  })
+  return data.rowCount > 0
 }
 
-async function addToken(token: string, userId: string) {
+async function storeUserIdForPasswordReset(token: string, userId: string) {
   const TOKEN_EXPIRATION_IN_SECONDS = 3600 // 1 hour
   await redisClient.setEx(`reset-password:${token}`, TOKEN_EXPIRATION_IN_SECONDS, userId.toString())
 }
 
-async function grabUserFromToken(token: string) {
+async function getUserFromRedisUsingPasswordResetToken(token: string) {
   const userId = await redisClient.get(`reset-password:${token}`)
 
   // delete the used token
@@ -29,6 +25,6 @@ async function grabUserFromToken(token: string) {
 
 export default { 
   changePassword,
-  addToken,
-  grabUserFromToken
+  storeUserIdForPasswordReset,
+  getUserFromRedisUsingPasswordResetToken
 }

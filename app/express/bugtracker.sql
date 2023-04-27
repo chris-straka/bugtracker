@@ -12,8 +12,8 @@ CREATE TABLE user (
 
 CREATE TABLE user_history (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES Users(id),
-  changer_id INTEGER NOT NULL REFERENCES Users(id),
+  user_id INTEGER NOT NULL REFERENCES user(id),
+  changer_id INTEGER NOT NULL REFERENCES user(id),
   action VARCHAR(100) NOT NULL,
   changed_fields JSONB NOT NULL,
   previous_values JSONB, 
@@ -22,13 +22,13 @@ CREATE TABLE user_history (
 );
 
 -- faster logins
-CREATE UNIQUE INDEX user_email_idx ON Users(email);
+CREATE UNIQUE INDEX user_email_idx ON user(email);
 
 CREATE TYPE project_status AS ENUM('active', 'completed', 'archived');
 
 CREATE TABLE project (
   id SERIAL PRIMARY KEY,
-  owner_id INTEGER REFERENCES Users(id),
+  owner_id INTEGER REFERENCES user(id),
   name VARCHAR(100) NOT NULL,
   description VARCHAR(500) NOT NULL,
   status project_status NOT NULL DEFAULT 'active',
@@ -50,8 +50,8 @@ CREATE TABLE project (
   It has better data integrity because this table will make sure each user is only added once per project.
 */
 CREATE TABLE project_user (
-  project_id INTEGER NOT NULL REFERENCES Projects(id),
-  user_id INTEGER NOT NULL REFERENCES Users(id),
+  project_id INTEGER NOT NULL REFERENCES project(id),
+  user_id INTEGER NOT NULL REFERENCES user(id),
   /*
     this is a composite primary key (it's common in many-to-many relationships)
     It combines two foreign keys into one primary key. If I used a regular primary key instead, 
@@ -67,8 +67,8 @@ CREATE TABLE project_user (
 */
 CREATE TABLE project_comment (
   id SERIAL PRIMARY KEY,
-  owner_id INTEGER NOT NULL REFERENCES Users(id),
-  project_id INTEGER NOT NULL REFERENCES Projects(id), 
+  owner_id INTEGER NOT NULL REFERENCES user(id),
+  project_id INTEGER NOT NULL REFERENCES project(id), 
   description VARCHAR(500) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -76,8 +76,8 @@ CREATE TABLE project_comment (
 
 CREATE TABLE project_history (
   id SERIAL PRIMARY KEY,
-  project_id INTEGER NOT NULL REFERENCES Projects(id),
-  changer_id INTEGER NOT NULL REFERENCES Users(id),
+  project_id INTEGER NOT NULL REFERENCES project(id),
+  changer_id INTEGER NOT NULL REFERENCES user(id),
   action VARCHAR(100) NOT NULL, 
   changed_fields JSONB NOT NULL,
   previous_values JSONB,
@@ -91,8 +91,8 @@ CREATE TYPE ticket_type AS ENUM('bug', 'feature_request', 'task', 'documentation
 
 CREATE TABLE ticket (
   id SERIAL PRIMARY KEY,
-  project_id INTEGER NOT NULL REFERENCES Projects(id), 
-  owner_id INTEGER NOT NULL REFERENCES Users(id),
+  project_id INTEGER NOT NULL REFERENCES project(id), 
+  owner_id INTEGER NOT NULL REFERENCES user(id),
   name VARCHAR(100) NOT NULL,
   description VARCHAR(500) NOT NULL,
   priority ticket_priority NOT NULL,
@@ -105,15 +105,15 @@ CREATE TABLE ticket (
 CREATE INDEX tickets_project_id_idx ON tickets(project_id);
 
 CREATE TABLE ticket_assignment (
-  ticket_id INTEGER NOT NULL REFERENCES Tickets(id),
-  developer_id INTEGER NOT NULL REFERENCES Users(id),
+  ticket_id INTEGER NOT NULL REFERENCES ticket(id),
+  developer_id INTEGER NOT NULL REFERENCES user(id),
   PRIMARY KEY (ticket_id, developer_id)
 );
 
 CREATE TABLE ticket_comment (
   id SERIAL PRIMARY KEY,
-  owner_id INTEGER NOT NULL REFERENCES users(id),
-  ticket_id INTEGER NOT NULL REFERENCES tickets(id),
+  owner_id INTEGER NOT NULL REFERENCES user(id),
+  ticket_id INTEGER NOT NULL REFERENCES ticket(id),
   comment VARCHAR(500) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_modified_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -121,8 +121,8 @@ CREATE TABLE ticket_comment (
 
 CREATE TABLE ticket_history (
   id SERIAL PRIMARY KEY,
-  ticket_id INTEGER NOT NULL REFERENCES tickets(id),
-  changer_id INTEGER NOT NULL REFERENCES users(id),
+  ticket_id INTEGER NOT NULL REFERENCES ticket(id),
+  changer_id INTEGER NOT NULL REFERENCES user(id),
   changed_fields JSONB NOT NULL,
   previous_values JSONB,
   new_values JSONB NOT NULL,

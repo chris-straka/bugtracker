@@ -1,6 +1,6 @@
 # Next Prisma
 
-Push notifications
+RBAC - where users create their own roles with their own permissions
 
 ## Attribution
 

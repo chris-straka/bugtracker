@@ -2,8 +2,10 @@
 
 Live Chat Project Feature
 
+## Newman Tests
+
 ## Notes
 
-WebRTC is a technology used for RTC (audio, video, and p2p data transfer). 
+WebRTC is mostly for audio, video and p2p data transfer
 
-It's overkill in this case.
+It's probably overkill for a live chat moderated by a server.

@@ -1,18 +1,35 @@
-import { closeDbConnections } from './db'
-import { isPortReachable } from './helpers'
-import { createProject, createProjects, createProjectComment, createProjectComments } from './project'
-import { createTicket, createTickets, createTicketComment } from './ticket'
+import { closeDbConnections, isPortReachable } from './db'
+import { 
+  createPmAndProject, createPmAndProjects, createPmProjectAndComment, 
+  addUserToProject, addUsersToProject, createProjectComment, 
+  createTicket, createTickets, createTicketComment, createPmProjectWithUsersAndTickets,
+  createProjectComments, createPmAndProjectWithAssignments, createPmAndProjectWithUsersAndComments,
+  createPmProjectWithTicketAndTicketComments, createPmProjectWithTicketAndTicketAssignments, 
+  createTicketAssignment, createTicketComments 
+} from './project'
 import { createTestUser } from './user'
+import { testPaginationRoutes } from './pagination'
 
 export { 
   closeDbConnections,
   isPortReachable,
   createTestUser,
-  createProject,
-  createProjects,
+  createPmAndProject,
+  createPmAndProjects,
+  createPmProjectAndComment,
   createProjectComment,
   createProjectComments,
+  createPmAndProjectWithAssignments,
+  createPmAndProjectWithUsersAndComments,
+  createPmProjectWithUsersAndTickets,
+  createPmProjectWithTicketAndTicketComments,
+  createPmProjectWithTicketAndTicketAssignments,
+  createTicketAssignment, 
+  createTicketComments,
+  addUserToProject,
+  addUsersToProject,
   createTicket,
   createTickets,
-  createTicketComment
+  createTicketComment,
+  testPaginationRoutes
 }

@@ -1,7 +1,6 @@
-# Express Monolith Backend
+# Express Monolith Backend API
 
 > Express, Typescript, Jest, REST, GraphQL, Postgres (no ORM), Docker, K8s, Terraform
-
 This bug tracker helps an organization keep track of different bugs across various projects.
 
 ## User Roles
@@ -26,11 +25,27 @@ Guests can view everything but can't create/edit anything
 
 ## Workflow
 
-Every new user starts off as a guest until they've been granted higher privileges by the admin.
+Every new user starts off as a guest until they've been granted higher privileges by an admin.
+An admin or PM can then create a project and assign users to it.
+Those users can then CRUD comments or tickets in that project
 
-An admin or a PM can then create a project and assign other users to it.
+1. The user signs in with their email and password 
+2. They're brought to a dashboard
+  - Home (contains a searchbar for tickets/projects AND ticket statistics)
+  - My tickets  (assigned to them)
+  - My projects (assigned to them)
+  - My profile
 
-Those users can then create and edit comments or tickets in that project
+The admin would see
+  - Search
+  - All tickets
+  - All projects
+  - Manage Users 
+
+## Frontend
+
+Dashboard has ticket statistics, but when they search something they disappear and to make way for the search results.
+There will be a button that pops up to clear the search results to show the ticket stats again.
 
 ## Commands
 
@@ -53,3 +68,4 @@ pnpm test
 - [Error](https://stackoverflow.com/questions/783818)
 - [Node Green](https://node.green/)
 - [tdd video](https://www.youtube.com/watch?v=M44umyYPiuo)
+- [Bug Tracker App That I'm Cloning](https://www.youtube.com/watch?v=vG824vBdYY8)

@@ -1,27 +1,27 @@
 import { SuperAgentTest } from 'supertest'
 import { encodeBase64 } from '../../utility/base64'
 
-export function testPaginationRoutes(
+export function testSearchPaginationRoutes(
   agent: SuperAgentTest,
   endpoint: string,
-  entities: string,
+  things: string,
   endCursor: string
 ) {
-  it(`should 200 and return a list of ${entities}`, async () => {
+  it(`should 200 and return a list of ${things}`, async () => {
     const res = await agent.get(endpoint).expect(200)
 
-    expect(res.body).toHaveProperty(entities)
+    expect(res.body).toHaveProperty(things)
     expect(res.body).toHaveProperty('nextCursor')
   })
 
-  it(`should 200 and return the number of ${entities} that you asked for`, async () => {
+  it(`should 200 and return the number of ${things} that you asked for`, async () => {
     const limit = 6
     const res = await agent.get(`${endpoint}?limit=${limit}`).expect(200)
         
-    expect(res.body[entities].length).toBe(limit)
+    expect(res.body[things].length).toBe(limit)
   })
 
-  it(`should 200 when using nextCursor to get more ${entities}`, async () => {
+  it(`should 200 when using nextCursor to get more ${things}`, async () => {
     const first = await agent.get(endpoint)
     const nextCursor = first.body.nextCursor
 
@@ -30,7 +30,7 @@ export function testPaginationRoutes(
       .expect(200)
   })
 
-  it(`should 200 and send the same ${entities} when using the same cursor`, async () => {
+  it(`should 200 and send the same ${things} when using the same cursor`, async () => {
     const limit = 3
     const first = await agent.get(`${endpoint}?limit=${limit}`).expect(200)
     const nextCursor = first.body.nextCursor
@@ -44,7 +44,7 @@ export function testPaginationRoutes(
     const res = await agent.get(`${endpoint}?cursor=${encodeBase64(endCursor)}`)
 
     expect(res.status).toBe(200)
-    expect(res.body[entities].length).toBe(0)
+    expect(res.body[things].length).toBe(0)
   })
 
   // limit

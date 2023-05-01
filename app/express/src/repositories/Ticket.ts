@@ -1,4 +1,5 @@
 import { db } from '../config/postgres'
+import { Ticket } from '../models/Ticket'
 import { TicketPriority, TicketType } from '../types'
 
 async function createTicket(
@@ -8,7 +9,7 @@ async function createTicket(
   type: TicketType,
   project_id: string,
   owner_id: string
-) {
+): Promise<Ticket> {
   const result = await db.query({
     name: 'create_ticket',
     text: 'INSERT INTO ticket(name, description, priority, type) VALUES ($1, $2, $3, $4) RETURNING *;',

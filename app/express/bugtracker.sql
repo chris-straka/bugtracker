@@ -85,8 +85,8 @@ CREATE TABLE project_history (
   change_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TYPE ticket_status AS ENUM('open', 'in_progress', 'closed', 'on_hold');
-CREATE TYPE ticket_priority AS ENUM('low', 'medium', 'high', 'critical');
+CREATE TYPE ticket_status AS ENUM('open', 'in_progress', 'closed', 'additional_info_required');
+CREATE TYPE ticket_priority AS ENUM('none', 'low', 'medium', 'high', 'critical');
 CREATE TYPE ticket_type AS ENUM('bug', 'feature_request', 'task', 'documentation', 'improvement', 'question');
 
 CREATE TABLE ticket (

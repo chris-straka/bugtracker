@@ -1,20 +1,9 @@
 import type { Roles } from '../types'
 import UserRepository from '../repositories/user'
-import { toHash, comparePasswords } from '../utility/passwordHashing'
-import { UserNotFound, UserProvidedTheWrongPasswordError, UserAlreadyExistsError } from '../errors'
+import { toHash } from '../utility/passwordHashing'
+import { UserNotFoundError, UserAlreadyExistsError } from '../errors'
 
-async function authenticateUser(givenEmail: string, givenPassword: string) {
-  const user = await UserRepository.getUserWithPasswordByEmail(givenEmail)
-  if (!user) throw new UserNotFound()
-  
-  const { password: storedPasswordHash, ...userWithoutPasswordHash } = user
-  const passwordsMatch = await comparePasswords(givenPassword, storedPasswordHash)
-  if (!passwordsMatch) throw new UserProvidedTheWrongPasswordError()
-
-  return userWithoutPasswordHash
-}
-
-async function createUser(username: string, email: string, password: string, role: Roles = 'guest') {
+async function createUser(username: string, email: string, password: string, role: Roles = 'contributor') {
   const userExists = await UserRepository.checkIfUserExistsByEmailOrUsername(email, username)
   if (userExists) throw new UserAlreadyExistsError()
 
@@ -25,7 +14,7 @@ async function createUser(username: string, email: string, password: string, rol
 
 async function changeEmail(id: string, newEmail: string) {
   const user = await UserRepository.getUserById(id)
-  if (!user) throw new UserNotFound()
+  if (!user) throw new UserNotFoundError()
 
   const emailAlreadyExists = await UserRepository.checkIfUserExistsByEmail(newEmail)
   if (emailAlreadyExists) throw new UserAlreadyExistsError()
@@ -35,7 +24,7 @@ async function changeEmail(id: string, newEmail: string) {
 
 async function changeUsername(id: string, newUsername: string) {
   const user = await UserRepository.getUserById(id)
-  if (!user) throw new UserNotFound()
+  if (!user) throw new UserNotFoundError()
 
   const usernameAlreadyExists = await UserRepository.checkIfUserExistsByUsername(newUsername)
   if (usernameAlreadyExists) throw new UserAlreadyExistsError()
@@ -43,30 +32,8 @@ async function changeUsername(id: string, newUsername: string) {
   await UserRepository.changeUsername(id, newUsername)
 }
 
-async function getUserById(id: string) {
-  const user = await UserRepository.getUserById(id)
-  if (!user) throw new UserNotFound()
-  return user
-}
-
-async function deleteUserById(id: string) {
-  const user = await UserRepository.getUserById(id)
-  if (!user) throw new UserNotFound()
-  await UserRepository.deleteUserById(id)
-}
-
-async function deleteUserByEmail(email: string) {
-  const user = await UserRepository.checkIfUserExistsByEmail(email)
-  if (!user) throw new UserNotFound()
-  await UserRepository.deleteUserByEmail(email)
-}
-
 export default {
-  authenticateUser,
   createUser,
   changeEmail,
   changeUsername,
-  getUserById,
-  deleteUserById,
-  deleteUserByEmail
 }

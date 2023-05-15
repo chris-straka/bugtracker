@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 import { createRequest, createResponse } from 'node-mocks-http'
 import { UserIsNotAuthorizedError } from '../../errors'
 import { isAuthorized } from '../../middleware'
+import { Roles } from '../../types'
 
 describe('isAuthorized()', () => {
   let req: Request
@@ -20,7 +21,7 @@ describe('isAuthorized()', () => {
       }
     })
 
-    const authorizedRoles = ['admin']
+    const authorizedRoles = ['admin'] as Roles[]
     isAuthorized(authorizedRoles)(req, res, next)
 
     expect(next).toHaveBeenCalledTimes(1)
@@ -34,7 +35,7 @@ describe('isAuthorized()', () => {
       }
     })
 
-    const authorizedRoles = ['admin']
+    const authorizedRoles = ['admin'] as Roles[]
     isAuthorized(authorizedRoles)(req, res, next)
 
     expect(next).toHaveBeenCalledTimes(1)

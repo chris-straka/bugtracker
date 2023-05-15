@@ -2,8 +2,7 @@ import { Roles } from '../../types'
 import { User } from '../../models/User'
 import { db } from '../../config/postgres'
 
-async function changeUser(userChanges: { id: string, username?: string, role?: Roles, email?: string }): Promise<User> {
-  const { id, email, username, role } = userChanges
+async function changeUser(userId: string, username?: string, email?: string, role?: Roles): Promise<User> {
   const fields = []
   const values = []
 
@@ -30,14 +29,25 @@ async function changeUser(userChanges: { id: string, username?: string, role?: R
   if (fields.length === 0) throw new Error('There\'s nothing here that I have to change')
 
   const result = await db.query({
-    name: 'update_user',
+    name: 'admin_update_user',
     text: `UPDATE user SET ${fields.join(', ')} WHERE id = $1 RETURNING username, role, id, email;`,
-    values: [id, ...values],
+    values: [userId, ...values],
   })
 
   return result.rows[0]
 }
 
+async function deleteUser(userId: string): Promise<boolean> {
+  const result = await db.query({
+    name: 'admin_update_user',
+    text: 'DELETE FROM user WHERE id = $1',
+    values: [userId],
+  })
+
+  return result.rowCount > 0
+}
+
 export default {
-  changeUser
+  changeUser,
+  deleteUser
 }

@@ -24,9 +24,10 @@ async function closePostgresDBConnection () {
 }
 
 export async function cleanupDb() { 
+  if (process.env.NODE_ENV === 'production') throw new Error('Tried to delete the production DB')
   await pool.query('TRUNCATE ticket_history CASCADE')
   await pool.query('TRUNCATE ticket_comments CASCADE')
-  await pool.query('TRUNCATE ticket_assignments CASCADE')
+  await pool.query('TRUNCATE ticket_user CASCADE')
   await pool.query('TRUNCATE tickets CASCADE')
   await pool.query('TRUNCATE project_history CASCADE')
   await pool.query('TRUNCATE project_comments CASCADE')

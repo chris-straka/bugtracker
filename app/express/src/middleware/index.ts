@@ -1,11 +1,11 @@
 import { isAuthenticated } from './isAuthenticated'
+import { isProjectMemberOrAdmin } from './isProjectMember'
 import { isAuthorized } from './isAuthorized'
 import { validateInput } from './validateInput'
-import { isTheOwner } from './isTheOwner'
 
 export {
-  isTheOwner,
   isAuthenticated,
+  isProjectMemberOrAdmin,
   isAuthorized,
   validateInput,
 }

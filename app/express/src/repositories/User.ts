@@ -2,7 +2,6 @@ import type { User, UserWithPassword } from '../models/User'
 import type { Roles } from '../types'
 import { db } from '../config/postgres'
 
-// create the user
 async function createUser(username: string, email: string, hashedPassword: string, role: Roles): Promise<User> {
   const data = await db.query({
     name: 'create_user',
@@ -12,7 +11,6 @@ async function createUser(username: string, email: string, hashedPassword: strin
   return data.rows[0]
 }
 
-// grab the user
 async function getUserByEmail(email: string): Promise<User> {
   const data = await db.query({
     name: 'get_user_by_email',
@@ -40,7 +38,15 @@ async function getUserById(id: string): Promise<User> {
   return data.rows[0]
 }
 
-// check if user exists
+async function checkIfUserExistsById(userId: string): Promise<boolean> {
+  const data = await db.query({
+    name: 'check_if_user_exists_by_email',
+    text: 'SELECT 1 FROM user WHERE id = $1;',
+    values: [userId]
+  })
+  return data.rows.length > 0
+}
+
 async function checkIfUserExistsByEmail(email: string): Promise<boolean> {
   const data = await db.query({
     name: 'check_if_user_exists_by_email',
@@ -87,7 +93,7 @@ async function changeUsername(id: string, username: string): Promise<boolean> {
   return data.rowCount > 0
 }
 
-// delete the user
+// delete user
 async function deleteUserById(id: string): Promise<boolean> {
   const result = await db.query({
     name: 'delete_user_by_id',
@@ -107,6 +113,7 @@ async function deleteUserByEmail(email: string): Promise<boolean> {
 }
 
 export default {
+  checkIfUserExistsById,
   checkIfUserExistsByEmail,
   checkIfUserExistsByEmailOrUsername,
   checkIfUserExistsByUsername,

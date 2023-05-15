@@ -1,12 +1,11 @@
-import { Ticket } from './Ticket'
+import { ProjectStatus } from '../types'
 
 export interface Project {
   id: number
   owner_id: number
   name: string
   description: string
-  comments: ProjectComment[]
-  tickets: Ticket[]
+  status: ProjectStatus
 }
 
 

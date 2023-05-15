@@ -1,16 +1,22 @@
 import { faker } from '@faker-js/faker'
-import TicketRepository from '../../../repositories/ticket'
+import { TicketCommentRepository } from '../../../repositories/tickets'
 
 export async function createTicketComment(
   ticketId: string, 
   ownerId: string,
   message: string = faker.random.words(30)
 ) {
-  return await TicketRepository.createTicketComment(ticketId, ownerId, message)
+  const ticketComment = await TicketCommentRepository.createTicketComment(ticketId, ownerId, message)
+  return { ...ticketComment, id: ticketComment.id.toString() }
 }
 
 export async function createTicketComments(numberOfTicketComments: number, ticketId: string, ownerId: string) {
+  const ticketComments = []
+
   for (let i = 0; i < numberOfTicketComments; i++) {
-    await createTicketComment(ticketId, ownerId)
+    const ticketComment = await createTicketComment(ticketId, ownerId)
+    ticketComments.push(ticketComment)
   }
+
+  return ticketComments
 }

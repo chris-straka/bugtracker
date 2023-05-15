@@ -1,18 +1,16 @@
 import { Router } from 'express'
 import adminRouter from './admin'
-import passwordRouter from './passwords'
+import authRouter from './auth'
 import projectRouter from './projects'
-import sessionRouter from './sessions'
 import ticketRouter from './tickets'
-import userRouter from './users'
+import meRouter from './me'
 
 const router = Router()
 
 router.use(adminRouter)
-router.use(passwordRouter)
-router.use(sessionRouter)
+router.use(authRouter)
 router.use(projectRouter)
 router.use(ticketRouter)
-router.use(userRouter)
+router.use(meRouter)
 
 export default router

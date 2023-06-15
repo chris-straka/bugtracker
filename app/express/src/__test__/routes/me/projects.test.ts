@@ -1,7 +1,9 @@
 import { faker } from '@faker-js/faker'
+import type { TestUser, TestProject } from '../../helper'
 import { 
-  TestUser, closeDbConnections, createPmAndProjects, 
-  testPaginationRoutes, createTestUser, addUserToProjects, TestProject
+  createPmAndProjects, testPaginationRoutes, 
+  createTestUser, addUserToProjects, 
+  closeDbConnections
 } from '../../helper'
 
 afterAll(async () => {

@@ -1,10 +1,12 @@
 import { faker } from '@faker-js/faker'
+import type { TestUser, TestProject, TestProjectComment } from '../../helper'
 import { 
-  createTestUser, createProjectComment, createNewUserAndAddThemToProject, 
-  testPaginationRoutes, createPmAndProjectWithUsersAndComments, 
-  TestUser, TestProject, TestProjectComment, closeDbConnections,
+  createTestUser, createProjectComment, 
+  createNewUserAndAddThemToProject, 
+  testPaginationRoutes, closeDbConnections,
+  createPmAndProjectWithUsersAndComments, 
 } from '../../helper'
-
+ 
 afterAll(async () => {
   await closeDbConnections()
 })

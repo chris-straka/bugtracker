@@ -1,49 +1,72 @@
-import { Roles } from '../../types'
-import { UserIsNotAuthorizedError, UserNotFoundError } from '../../errors'
-import UserRepository from '../../repositories/user'
-import AdminRepository from '../../repositories/admin/user'
+import type { UserRole } from '../../models/User'
+import type { IUserRepository } from '../../repositories'
+import { UserNotFoundError, UserIsNotAuthorizedError } from '../../errors'
 
-async function changeUser(
-  adminRole: 'admin' | 'owner', 
-  userId: string, 
-  username?: string, 
-  role?: Roles, 
-  email?: string
-) {
-  const user = await UserRepository.getUserById(userId)
-  if (!user) throw new UserNotFoundError()
+export class AdminUserService {
+  #userDb: IUserRepository
 
-  // an admin can't change an admin
-  if (adminRole === 'admin' && user.role === 'admin') {
-    throw new UserIsNotAuthorizedError()
+  constructor(userDb: IUserRepository) {
+    this.#userDb = userDb
   }
 
-  // an admin can't change an owner
-  if (adminRole === 'admin' && user.role === 'owner') {
-    throw new UserIsNotAuthorizedError()
+  async changeUser(
+    adminRole: 'admin' | 'owner', 
+    userId: string, 
+    username?: string, 
+    email?: string
+  ) {
+    const user = await this.#userDb.getUserBy('id', userId)
+    if (!user) throw new UserNotFoundError()
+
+    // an admin can't change an admin
+    if (adminRole === 'admin' && user.role === 'admin') {
+      throw new UserIsNotAuthorizedError()
+    }
+
+    // an admin can't change an owner
+    if (adminRole === 'admin' && user.role === 'owner') {
+      throw new UserIsNotAuthorizedError()
+    }
+
+    if (username) await this.#userDb.changeUsername(userId, username)
+    if (email) await this.#userDb.changeUsername(userId, email)
   }
-  
-  return await AdminRepository.changeUser(userId, username, email, role)
-}
 
-async function deleteUser(adminRole: 'admin' | 'owner', userId: string) {
-  const user = await UserRepository.getUserById(userId)
-  if (!user) throw new UserNotFoundError()
+  async changeRole(
+    userId: string, 
+    adminRole: 'admin' | 'owner', 
+    role: UserRole, 
+  ) {
+    const user = await this.#userDb.getUserBy('id', userId)
+    if (!user) throw new UserNotFoundError()
 
-  // an admin can't delete an admin
-  if (adminRole === 'admin' && user.role === 'admin') {
-    throw new UserIsNotAuthorizedError()
+    // an admin can't change an admin
+    if (adminRole === 'admin' && user.role === 'admin') {
+      throw new UserIsNotAuthorizedError()
+    }
+
+    // an admin can't change an owner
+    if (adminRole === 'admin' && user.role === 'owner') {
+      throw new UserIsNotAuthorizedError()
+    }
+    
+    return await this.#userDb.changeRole(userId, role)
   }
 
-  // an admin can't delete an owner
-  if (adminRole === 'admin' && user.role === 'owner') {
-    throw new UserIsNotAuthorizedError()
+  async deleteUserBy(field: 'id' | 'email' | 'username', adminRole: 'admin' | 'owner', userId: string) {
+    const user = await this.#userDb.getUserBy(field, userId)
+    if (!user) throw new UserNotFoundError()
+
+    // an admin can't delete an admin
+    if (adminRole === 'admin' && user.role === 'admin') {
+      throw new UserIsNotAuthorizedError()
+    }
+
+    // an admin can't delete an owner
+    if (adminRole === 'admin' && user.role === 'owner') { 
+      throw new UserIsNotAuthorizedError()
+    }
+
+    return await this.#userDb.deleteUserBy('id', userId)
   }
-
-  return await AdminRepository.deleteUser(userId)
-}
-
-export default {
-  changeUser,
-  deleteUser
 }

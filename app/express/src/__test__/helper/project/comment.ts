@@ -1,13 +1,12 @@
 import { faker } from '@faker-js/faker'
-import { ProjectCommentRepository } from '../../../repositories/projects'
+import { projectCommentRepository } from '../../../repositories'
 
-export async function createProjectComment(ownerId: string, projectId: string) {
-  const projectComment =  await ProjectCommentRepository.createProjectComment(faker.lorem.paragraph(), ownerId, projectId)
-
+export async function createProjectComment(projectId: string, ownerId: string) {
+  const projectComment =  await projectCommentRepository.createProjectComment(projectId, ownerId, faker.lorem.paragraph())
   return { ...projectComment, id: projectComment.id.toString() }
 }
 
-export async function createProjectComments(ownerId: string, projectId: string, numberOfComments: number) {
+export async function createProjectComments(projectId: string, ownerId: string, numberOfComments: number) {
   const projectComments = []
 
   for (let i = 0; i < numberOfComments; i++) {

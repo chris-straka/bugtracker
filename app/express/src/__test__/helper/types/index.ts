@@ -1,5 +1,7 @@
-import { Project , ProjectComment } from '../../../models/Project'
-import { Ticket, TicketComment } from '../../../models/Ticket'
+import type { Project } from '../../../models/Project'
+import type { ProjectComment } from '../../../models/ProjectComment'
+import type { Ticket } from '../../../models/Ticket'
+import type { TicketComment } from '../../../models/TicketComment'
 
 export type TestTicket = Omit<Ticket, 'id'> & { id: string }
 

@@ -1,8 +1,8 @@
-import request, { SuperAgentTest } from 'supertest'
 import { faker } from '@faker-js/faker'
-import { Roles } from '../../types'
+import request, { SuperAgentTest } from 'supertest'
+import type { UserRole } from '../../models/User'
 import app from '../../config/server'
-import UserService from '../../services/user'
+import { userService } from '../../services'
 
 export type TestUser = {
   agent: SuperAgentTest,
@@ -13,12 +13,12 @@ export type TestUser = {
   role: string
 }
 
-export async function createTestUser(role: Roles = 'developer'): Promise<TestUser> {
+export async function createTestUser(role: UserRole = 'developer'): Promise<TestUser> {
   const username = faker.internet.userName()
   const email = faker.internet.email()
   const password = faker.internet.password()
 
-  await UserService.createUser(username, email, password, role)
+  await userService.createUser(username, email, password, role)
 
   const agent = request.agent(app)
   const res = await agent.post('/sessions').send({ email, password })

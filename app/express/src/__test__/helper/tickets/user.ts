@@ -1,31 +1,31 @@
+import type { TestTicket } from '../types'
+import type { UserRole } from '../../../models/User'
 import { createNewUserAndAddThemToProject } from '../project'
-import { TicketUserRepository } from '../../../repositories/tickets'
-import { TestTicket } from '../types'
-import { Roles } from '../../../types'
+import { ticketUserRepository } from '../../../repositories'
 
 export async function addUserToTicket(userId: string, ticketId: string) {
-  return await TicketUserRepository.addUserToTicket(ticketId, userId)
+  return await ticketUserRepository.addUserToTicket(ticketId, userId)
 }
 
 export async function addUserToTickets(userId: string, tickets: TestTicket[]) {
   for(const ticket of tickets) {
-    await TicketUserRepository.addUserToTicket(ticket.id, userId)
+    await ticketUserRepository.addUserToTicket(ticket.id, userId)
   }
 }
 
-export async function createNewUserAndAddThemToTicket(projectId: string, ticketId: string, role?: Roles) {
+export async function createNewUserAndAddThemToTicket(projectId: string, ticketId: string, role?: UserRole) {
   const user = await createNewUserAndAddThemToProject(projectId, role)
-  await TicketUserRepository.addUserToTicket(ticketId, user.id)
+  await ticketUserRepository.addUserToTicket(ticketId, user.id)
   return user
 }
 
-export async function createNewUserAndAddThemToTickets(projectId: string, tickets: TestTicket[], role?: Roles) {
+export async function createNewUserAndAddThemToTickets(projectId: string, tickets: TestTicket[], role?: UserRole) {
   const user = await createNewUserAndAddThemToProject(projectId, role)
   await addUserToTickets(user.id, tickets)
   return user
 }
 
-export async function createNewUsersAndAddThemToTicket(numberOfUsers: number, projectId: string, ticketId: string) {
+export async function createNewUsersAndAddThemToTicket(projectId: string, ticketId: string, numberOfUsers: number) {
   const ticketUsers = []
 
   for (let i = 0; i < numberOfUsers; i++) {
@@ -35,4 +35,3 @@ export async function createNewUsersAndAddThemToTicket(numberOfUsers: number, pr
 
   return ticketUsers
 }
-

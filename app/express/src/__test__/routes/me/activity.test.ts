@@ -1,7 +1,8 @@
 import { faker } from '@faker-js/faker'
+import type { TestUser, TestProject } from '../../helper'
 import { 
-  TestProject, TestUser, createPmAndProjects, 
-  createTicket, closeDbConnections 
+  createPmAndProjects, createTicket,
+  closeDbConnections
 } from '../../helper'
 
 afterAll(async () => {
@@ -14,13 +15,12 @@ describe('User route for checking recent history and statistics', () => {
 
   beforeAll(async () => {
     ({ pm, projects } = await createPmAndProjects(2))
-
     await createTicket(
       projects[0].id, 
       pm.id, 
       faker.lorem.sentence(), 
       faker.lorem.paragraph(), 
-      'criticial', 
+      'critical', 
       'bug', 
       'open'
     )

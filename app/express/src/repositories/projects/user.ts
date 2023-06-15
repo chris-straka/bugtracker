@@ -1,56 +1,64 @@
-import { db } from '../../config/postgres'
-import { User } from '../../models/User'
+import type { Pool } from 'pg'
+import type { BaseUser } from '../../models/User'
 
-async function getProjectUsers(projectId: string): Promise<User[]> {
-  const data = await db.query({
-    name: 'get_project_users',
-    text: `
-      SELECT u.*
-      FROM project_user pu
-      JOIN user u ON u.id = pu.user_id 
-      WHERE pu.project_id = $1;
-    `,
-    values: [projectId]
-  })
-  return data.rows
+export interface IProjectUserRepository {
+  getProjectUsers(projectId: string): Promise<BaseUser[]>,
+  checkIfUserIsAssignedToProject(projectId: string, userId: string): Promise<boolean>,
+  addUserToProject(projectId: string, userId: string): Promise<boolean>,
+  removeUserFromProject(projectId: string, userId: string): Promise<boolean>,
 }
 
-async function addUserToProject(projectId: string, userId: string): Promise<boolean> {
-  const res = await db.query({
-    name: 'add_user_to_project',
-    text: 'INSERT INTO project_user(project_id, user_id) VALUES ($1, $2);',
-    values: [projectId, userId]
-  }) 
+export class ProjectUserRepository implements IProjectUserRepository {
+  #pool: Pool
 
-  return res.rowCount > 0
-}
+  constructor(dbPool: Pool) {
+    this.#pool = dbPool
+  }
 
-async function removeUserFromProject(projectId: string, userId: string): Promise<boolean> {
-  const res = await db.query({
-    name: 'add_user_to_project',
-    text: 'DELETE FROM project_user WHERE project_id = $1 AND user_id = $2;',
-    values: [projectId, userId]
-  }) 
+  async getProjectUsers(projectId: string) {
+    const data = await this.#pool.query<BaseUser>({
+      name: 'get_project_users',
+      text: `
+        SELECT u.id, u.username, u.email, u.role
+        FROM project_user pu
+        JOIN app_user u ON u.id = pu.user_id
+        WHERE pu.project_id = $1;
+      `,
+      values: [projectId]
+    })
+    return data.rows
+  }
 
-  return res.rowCount > 0
-}
+  async checkIfUserIsAssignedToProject(projectId: string, userId: string) {
+    const data = await this.#pool.query({
+      name: 'check_if_user_is_assigned_to_project',
+      text: `
+        SELECT 1
+        FROM project_user
+        WHERE project_id = $1 AND user_id = $2;
+      `,
+      values: [userId, projectId]
+    })
+    return data.rowCount > 1
+  }
 
-async function checkIfUserIsAssignedToProject(projectId: string, userId: string): Promise<boolean> {
-  const data = await db.query({
-    name: 'check_if_user_is_assigned_to_project',
-    text: `
-      SELECT 1
-      FROM project_user
-      WHERE project_id = $1 AND user_id = $2;
-    `,
-    values: [userId, projectId]
-  })
-  return data.rowCount > 1
-}
+  async addUserToProject(projectId: string, userId: string) {
+    const res = await this.#pool.query({
+      name: 'add_user_to_project',
+      text: 'INSERT INTO project_user(project_id, user_id) VALUES ($1, $2);',
+      values: [projectId, userId]
+    })
 
-export default {
-  getProjectUsers,
-  addUserToProject,
-  removeUserFromProject,
-  checkIfUserIsAssignedToProject
+    return res.rowCount > 0
+  }
+
+  async removeUserFromProject(projectId: string, userId: string) {
+    const res = await this.#pool.query({
+      name: 'add_user_to_project',
+      text: 'DELETE FROM project_user WHERE project_id = $1 AND user_id = $2;',
+      values: [projectId, userId]
+    }) 
+
+    return res.rowCount > 0
+  }
 }

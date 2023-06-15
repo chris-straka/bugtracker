@@ -10,17 +10,21 @@ const redisPort = parseInt(process.env.REDIS_PORT)
 export const redisClient = createClient({
   socket: {
     host: redisHost,
-    port: redisPort
-  }
+    port: redisPort,
+  }, 
 })
 
-redisClient.connect().catch(console.error)
+redisClient.connect()
+
+redisClient.on('error', err => console.log('Redis Client Error', err))
 
 /** 
  * It will store all my sessions as keys in the redis store
  * The prefix for each key is sess: by default
  */
 export const redisStore = new RedisStore({ client: redisClient })
+
+redisStore.on('error', err => console.log('Reddis Store Error', err))
 
 export async function closeRedisConnection() {
   return await redisClient.quit()

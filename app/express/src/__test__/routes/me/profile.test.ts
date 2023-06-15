@@ -1,11 +1,12 @@
 import { faker } from '@faker-js/faker'
-import { TestUser, closeDbConnections, createTestUser } from '../../helper'
+import type { TestUser } from '../../helper'
+import { createTestUser, closeDbConnections } from '../../helper'
 
 afterAll(async () => {
   await closeDbConnections()
 })
 
-describe('User routes for changing their email/username and deleting their account', () => {
+describe('User routes for managing your own account', () => {
   let user: TestUser
 
   beforeAll(async () => {

@@ -1,39 +1,55 @@
-import type { Roles } from '../types'
-import UserRepository from '../repositories/user'
-import { toHash } from '../utility/passwordHashing'
-import { UserNotFoundError, UserAlreadyExistsError } from '../errors'
+import type { UserRole } from '../models/User'
+import type { IUserRepository, IEmailResetRepository, IPasswordResetRepository } from '../repositories'
+import { UserNotFoundError, UserAlreadyExistsError , InvalidOrMissingTokenError } from '../errors'
+import { toHashWithSalt } from '../utility'
 
-async function createUser(username: string, email: string, password: string, role: Roles = 'contributor') {
-  const userExists = await UserRepository.checkIfUserExistsByEmailOrUsername(email, username)
-  if (userExists) throw new UserAlreadyExistsError()
+export class UserService {
+  #userDb: IUserRepository
+  #emailDb: IEmailResetRepository
+  #passwordDb: IPasswordResetRepository
 
-  const hashedPassword = await toHash(password)
+  constructor(userDb: IUserRepository, emailDb: IEmailResetRepository, passwordDb: IPasswordResetRepository) {
+    this.#userDb = userDb
+    this.#emailDb = emailDb
+    this.#passwordDb = passwordDb
+  }
 
-  return await UserRepository.createUser(username, email, hashedPassword, role)
-}
+  async getUserByEmail(email: string) {
+    return await this.#userDb.getUserBy('email', email)
+  }
 
-async function changeEmail(id: string, newEmail: string) {
-  const user = await UserRepository.getUserById(id)
-  if (!user) throw new UserNotFoundError()
+  async getUserEmail(userId: string) {
+    return await this.#userDb.getUserEmail(userId)
+  }
 
-  const emailAlreadyExists = await UserRepository.checkIfUserExistsByEmail(newEmail)
-  if (emailAlreadyExists) throw new UserAlreadyExistsError()
+  async createUser(username: string, email: string, password: string, role: UserRole = 'contributor') {
+    const userExists = await this.#userDb.userExistsByEmailOrUsername(email, username)
+    if (userExists) throw new UserAlreadyExistsError()
 
-  await UserRepository.changeEmail(id, newEmail)
-}
+    const hashedPassword = await toHashWithSalt(password)
+    return await this.#userDb.createUser(username, email, hashedPassword, role)
+  }
 
-async function changeUsername(id: string, newUsername: string) {
-  const user = await UserRepository.getUserById(id)
-  if (!user) throw new UserNotFoundError()
+  async changeUsername(id: string, newUsername: string) {
+    const user = await this.#userDb.getUserBy('id', id)
+    if (!user) throw new UserNotFoundError()
 
-  const usernameAlreadyExists = await UserRepository.checkIfUserExistsByUsername(newUsername)
-  if (usernameAlreadyExists) throw new UserAlreadyExistsError()
+    const usernameAlreadyExists = await this.#userDb.userExistsBy('username', newUsername)
+    if (usernameAlreadyExists) throw new UserAlreadyExistsError()
 
-  await UserRepository.changeUsername(id, newUsername)
-}
+    await this.#userDb.changeUsername(id, newUsername)
+  }
 
-export default {
-  createUser,
-  changeEmail,
-  changeUsername,
+  async changePassword(token: string, newPassword: string) {
+    const userId = await this.#passwordDb.validatePasswordResetToken(token)
+    if (!userId) throw new InvalidOrMissingTokenError()
+
+    const newPasswordHash = await toHashWithSalt(newPassword)
+    const result = await this.#userDb.changePassword(userId, newPasswordHash)
+    if (!result) throw new Error('Password could not be saved in DB')
+  }
+
+  async deleteUserBy(field: 'id' | 'username' | 'email', value: string) {
+    return await this.#userDb.deleteUserBy(field, value) 
+  }
 }

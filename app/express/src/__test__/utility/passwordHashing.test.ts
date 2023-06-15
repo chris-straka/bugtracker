@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker'
-import { toHash, comparePasswords } from '../../utility/passwordHashing'
+import { toHashWithSalt, checkIfPasswordIsAMatch } from '../../utility/password'
 
 describe('Password utils', () => {
   const password = faker.internet.password()
-  const hashedPassword = toHash(password)
+  const hashedPassword = toHashWithSalt(password)
 
   test('toHash() should produce the correct hash', () => {
     // my db schema requires a length of 145 for passwords
@@ -15,19 +15,19 @@ describe('Password utils', () => {
     expect(hashedPassword).toHaveLength(145) 
 
     const otherPassword = faker.internet.password()
-    const otherHashedPassword = toHash(otherPassword)
+    const otherHashedPassword = toHashWithSalt(otherPassword)
 
     expect(otherHashedPassword).not.toBe(hashedPassword)
   })
 
   test('comparePasswords() should return true if the hashed password is correct', () => {
-    const result = comparePasswords(password, hashedPassword)
+    const result = checkIfPasswordIsAMatch(password, hashedPassword)
     expect(result).toBe(true)
   })
 
   test('comparePasswords() should return false if the hashed password is incorrect', () => {
     const wrongPassword = faker.internet.password()
-    const result = comparePasswords(wrongPassword, hashedPassword)
+    const result = checkIfPasswordIsAMatch(wrongPassword, hashedPassword)
     expect(result).toBe(false)
   })
 })

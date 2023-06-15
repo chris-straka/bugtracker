@@ -1,6 +1,6 @@
+import type { TicketPriority, TicketType } from '../../models/Ticket'
 import { createTestUser } from './user'
 import { createTicket, createTickets } from './tickets'
-import { TicketPriority, TicketType } from '../../types'
 import { 
   createProject, createProjects, createProjectComments, 
   createNewUsersAndAddThemToProject, createProjectComment 
@@ -15,7 +15,7 @@ export async function createPmAndProject(projectName?: string, projectDescriptio
 
 export async function createPmAndProjectWithUsers(numberOfProjectUsers: number) {
   const { pm, project } = await createPmAndProject()
-  const users = await createNewUsersAndAddThemToProject(numberOfProjectUsers, project.id)
+  const users = await createNewUsersAndAddThemToProject(project.id, numberOfProjectUsers)
   return { pm, project, users }
 }
 
@@ -39,8 +39,8 @@ export async function createPmAndProjectWithComment() {
 
 export async function createPmAndProjectWithUsersAndComments(numberOfUsers: number, numberOfComments: number) {
   const { pm, project } = await createPmAndProject()
-  const users = await createNewUsersAndAddThemToProject(numberOfUsers, project.id)
-  const projectComments = await createProjectComments(pm.id, project.id, numberOfComments)
+  const users = await createNewUsersAndAddThemToProject(project.id, numberOfUsers)
+  const projectComments = await createProjectComments(project.id, pm.id, numberOfComments)
   return { pm, project, users, projectComments }
 }
 

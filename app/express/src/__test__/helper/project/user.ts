@@ -1,25 +1,25 @@
+import type { UserRole } from '../../../models/User'
+import type { TestProject } from '..'
 import { createTestUser } from '../user'
-import { Roles } from '../../../types'
-import { TestProject } from '..'
-import { ProjectUserRepository } from '../../../repositories/projects'
+import { projectUserRepository } from '../../../repositories'
 
-export async function addUserToProject(userId: string, projectId: string ) {
-  return await ProjectUserRepository.addUserToProject(userId, projectId)
+export async function addUserToProject(projectId: string, userId: string) {
+  return await projectUserRepository.addUserToProject(projectId, userId)
 }
 
 export async function addUserToProjects(userId: string, projects: TestProject[]) {
-  for(const ticket of projects) {
-    await ProjectUserRepository.addUserToProject(ticket.id, userId)
+  for(const project of projects) {
+    await projectUserRepository.addUserToProject(project.id, userId)
   }
 }
 
-export async function createNewUserAndAddThemToProject(projectId: string, userRole: Roles = 'developer') {
+export async function createNewUserAndAddThemToProject(projectId: string, userRole: UserRole = 'developer') {
   const user = await createTestUser(userRole)
-  await ProjectUserRepository.addUserToProject(user.id, projectId)
+  await projectUserRepository.addUserToProject(projectId, user.id)
   return user 
 }
 
-export async function createNewUsersAndAddThemToProject(numberOfNewUsers: number, projectId: string) {
+export async function createNewUsersAndAddThemToProject(projectId: string, numberOfNewUsers: number) {
   const users = [] 
 
   for (let i = 0; i < numberOfNewUsers; i++) {

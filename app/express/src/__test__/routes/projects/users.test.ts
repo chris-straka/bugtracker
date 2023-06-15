@@ -1,6 +1,8 @@
+import type { TestUser, TestProject } from '../../helper'
 import { 
-  createTestUser, createNewUserAndAddThemToProject, testPaginationRoutes, 
-  TestUser, TestProject, createPmAndProjectWithUsers, closeDbConnections
+  createTestUser, createNewUserAndAddThemToProject, 
+  testPaginationRoutes, createPmAndProjectWithUsers,
+  closeDbConnections
 } from '../../helper'
 
 afterAll(async () => {

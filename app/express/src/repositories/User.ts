@@ -1,128 +1,200 @@
-import type { User, UserWithPassword } from '../models/User'
-import type { Roles } from '../types'
-import { db } from '../config/postgres'
+import type { Pool } from 'pg'
+import type { BaseUser, AuthUser, UserAccountStatus, UserRole } from '../models/User'
+import { UserNotFoundError } from '../errors'
 
-async function createUser(username: string, email: string, hashedPassword: string, role: Roles): Promise<User> {
-  const data = await db.query({
-    name: 'create_user',
-    text: 'INSERT INTO user(username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, username, email, role;',
-    values: [username, email, hashedPassword, role]
-  })
-  return data.rows[0]
+export interface IUserRepository {
+  createUser(username: string, email: string, hashedPassword: string, role: UserRole): Promise<BaseUser>
+  
+  getUserEmail(userId: string): Promise<string>
+  getUserBy(field: 'id' | 'email' | 'username', value: string): Promise<BaseUser>
+  getUserAccountStatus(userId: string): Promise<UserAccountStatus>
+  getUserForAuthentication(email: string): Promise<AuthUser>
+
+  userExistsBy(field: 'id' | 'email' | 'username', value: string): Promise<boolean>
+  userExistsByEmailOrUsername(email: string, username: string): Promise<boolean>
+
+  changeUsername(id: string, newUsername: string): Promise<BaseUser>
+  changeEmail(oldEmail: string, newEmail?: string): Promise<BaseUser>
+  changePassword(id: string, newPasswordHash: string): Promise<boolean>
+  changeRole(id: string, newRole: UserRole): Promise<BaseUser>
+
+  deleteUserBy(field: 'id' | 'email' | 'username', value: string): Promise<boolean>
 }
 
-async function getUserByEmail(email: string): Promise<User> {
-  const data = await db.query({
-    name: 'get_user_by_email',
-    text: 'SELECT id, email, role, username FROM user WHERE email = $1;',
-    values: [email]
-  })
-  return data.rows[0]
-}
+export class UserRepository implements IUserRepository {
+  #pool: Pool
 
-async function getUserWithPasswordByEmail(email: string): Promise<UserWithPassword> {
-  const data = await db.query({
-    name: 'get_user_by_email_with_password',
-    text: 'SELECT * FROM user WHERE email = $1;',
-    values: [email]
-  })
-  return data.rows[0]
-}
+  constructor(dbPool: Pool) {
+    this.#pool = dbPool
+  }
 
-async function getUserById(id: string): Promise<User> {
-  const data = await db.query({
-    name: 'get_user_by_id',
-    text: 'SELECT id, username, email, role FROM user WHERE id = $1;',
-    values: [id]
-  })
-  return data.rows[0]
-}
+  async createUser(username: string, email: string, hashedPassword: string, role: UserRole) {
+    const data = await this.#pool.query<BaseUser>({
+      name: 'create_user',
+      text: `
+        INSERT INTO app_user(username, email, password, role) 
+        VALUES ($1, $2, $3, $4) 
+        RETURNING id, username, email, role;
+      `,
+      values: [username, email, hashedPassword, role]
+    })
+    return data.rows[0]
+  }
 
-async function checkIfUserExistsById(userId: string): Promise<boolean> {
-  const data = await db.query({
-    name: 'check_if_user_exists_by_email',
-    text: 'SELECT 1 FROM user WHERE id = $1;',
-    values: [userId]
-  })
-  return data.rows.length > 0
-}
+  async getUserForAuthentication(email: string) {
+    const data = await this.#pool.query<AuthUser>({
+      name: 'get_user_for_authentication',
+      text: 'SELECT id, username, email, password, role FROM app_user WHERE email = $1;',
+      values: [email]
+    })    
 
-async function checkIfUserExistsByEmail(email: string): Promise<boolean> {
-  const data = await db.query({
-    name: 'check_if_user_exists_by_email',
-    text: 'SELECT 1 FROM user WHERE email = $1;',
-    values: [email]
-  })
-  return data.rows.length > 0
-}
+    return data.rows[0]
+  }
 
-async function checkIfUserExistsByUsername(username: string): Promise<boolean> {
-  const data = await db.query({
-    name: 'check_if_user_exists_by_username',
-    text: 'SELECT 1 FROM user WHERE username = $1;',
-    values: [username]
-  })
-  return data.rows.length > 0
-}
+  async getUserEmail(userId: string) {
+    const data = await this.#pool.query<BaseUser>({
+      name: 'get_user_email',
+      text: 'SELECT email FROM app_user WHERE id = $1;',
+      values: [userId]
+    })
 
-async function checkIfUserExistsByEmailOrUsername(email: string, username: string): Promise<boolean> {
-  const data = await db.query({
-    name: 'check_if_user_exists_by_email_or_username',
-    text: 'SELECT 1 FROM user WHERE email = $1 OR username = $2;',
-    values: [email, username]
-  })
-  return data.rows.length > 0
-}
+    if (data.rows[0]) return data.rows[0].email
+    throw new UserNotFoundError()
+  }
 
-// update the user
-async function changeEmail(id: string, email: string): Promise<boolean> {
-  const data = await db.query({
-    name: 'change_email',
-    text: 'UPDATE user SET email = $2 WHERE id = $1;',
-    values: [id, email]
-  })
-  return data.rowCount > 0
-}
+  async getUserBy(field: 'id' | 'email' | 'username', value: string) {
+    let query: string
 
-async function changeUsername(id: string, username: string): Promise<boolean> {
-  const data = await db.query({
-    name: 'change_username',
-    text: 'UPDATE user SET username = $2 WHERE id = $1;',
-    values: [id, username]
-  })
-  return data.rowCount > 0
-}
+    switch (field) {
+      case 'id':
+        query = 'SELECT id, username, email, role FROM app_user WHERE id = $1;'
+        break
+      case 'email':
+        query = 'SELECT id, username, email, role FROM app_user WHERE email = $1;'
+        break
+      case 'username':
+        query = 'SELECT id, username, email, role FROM app_user WHERE username = $1;'
+        break
+      default:
+        throw new Error('Invalid field')
+    }
 
-// delete user
-async function deleteUserById(id: string): Promise<boolean> {
-  const result = await db.query({
-    name: 'delete_user_by_id',
-    text: 'DELETE FROM user WHERE id = $1;',
-    values: [id]
-  })
-  return result.rowCount > 0
-}
+    const data = await this.#pool.query<BaseUser>({
+      name: 'get_user_by',
+      text: query,
+      values: [value]
+    })
 
-async function deleteUserByEmail(email: string): Promise<boolean> {
-  const result = await db.query({
-    name: 'delete_user_by_email',
-    text: 'DELETE FROM user WHERE email = $1;',
-    values: [email]
-  })
-  return result.rowCount > 0
-}
+    return data.rows[0]
+  }
 
-export default {
-  checkIfUserExistsById,
-  checkIfUserExistsByEmail,
-  checkIfUserExistsByEmailOrUsername,
-  checkIfUserExistsByUsername,
-  getUserWithPasswordByEmail,
-  getUserByEmail,
-  getUserById,
-  changeEmail,
-  changeUsername,
-  createUser,
-  deleteUserById,
-  deleteUserByEmail
+  async getUserAccountStatus(userId: string) {
+    const data = await this.#pool.query<UserAccountStatus>({
+      name: 'user_is_active',
+      text: 'SELECT account_status FROM app_user WHERE id = $1;', 
+      values: [userId]
+    })
+
+    return data.rows[0]
+  }
+
+  async userExistsBy(field: 'id' | 'email' | 'username', value: string) {
+    let query: string
+
+    switch (field) {
+      case 'id':
+        query = 'SELECT 1 FROM app_user WHERE id = $1;'
+        break
+      case 'email':
+        query = 'SELECT 1 FROM app_user WHERE email = $1;'
+        break
+      case 'username':
+        query = 'SELECT 1 FROM app_user WHERE username = $1;'
+        break
+      default:
+        throw new Error('Invalid field')
+    }
+
+    const data = await this.#pool.query({
+      name: 'user_exists_by',
+      text: query,
+      values: [value]
+    })
+
+    return data.rows.length > 0
+  }
+
+  async userExistsByEmailOrUsername(email: string, username: string) {
+    const data = await this.#pool.query({
+      name: 'check_if_user_exists_by_email_or_username',
+      text: 'SELECT 1 FROM app_user WHERE email = $1 OR username = $2;',
+      values: [email, username]
+    })
+
+    return data.rows.length > 0
+  }
+
+  async changeUsername(userId: string, username: string) {
+    const data = await this.#pool.query<BaseUser>({
+      name: 'admin_update_user',
+      text: 'UPDATE app_user SET username = $2 WHERE id = $1 RETURNING id, username, email, role;',
+      values: [userId, username],
+    })
+
+    return data.rows[0]
+  }
+
+  async changeEmail(oldEmail: string, newEmail: string) {
+    const data = await this.#pool.query<BaseUser>({
+      name: 'admin_update_user',
+      text: 'UPDATE app_user SET email = $2 WHERE email = $1 RETURNING id, username, email, role;',
+      values: [oldEmail, newEmail]
+    })
+
+    return data.rows[0]
+  }
+
+  async changePassword(id: string, newPasswordHash: string) {
+    const data = await this.#pool.query({
+      name: 'change_password',
+      text: 'UPDATE app_user SET password = $2 WHERE id = $1;',
+      values: [id, newPasswordHash]
+    })
+    return data.rowCount > 0
+  }
+
+  async changeRole(id: string, newRole: UserRole) {
+    const data = await this.#pool.query<BaseUser>({
+      name: 'change_email',
+      text: 'UPDATE app_user SET role = $2 WHERE id = $1 RETURNING id, username, email, role;',
+      values: [id, newRole]
+    })
+    return data.rows[0]
+  }
+
+  async deleteUserBy(field: 'id' | 'email' | 'username', value: string) {
+    let query: string
+
+    switch (field) {
+      case 'id':
+        query = 'DELETE FROM app_user WHERE id = $1;'
+        break
+      case 'email':
+        query = 'DELETE FROM app_user WHERE email = $1;'
+        break
+      case 'username':
+        query = 'DELETE FROM app_user WHERE username = $1;'
+        break
+      default:
+        throw new Error('Invalid field')
+    }
+
+    const data = await this.#pool.query({
+      name: 'delete_user_by',
+      text: query,
+      values: [value]
+    })
+
+    return data.rowCount > 0
+  }
 }

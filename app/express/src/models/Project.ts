@@ -1,4 +1,5 @@
-import { ProjectStatus } from '../types'
+export type ProjectStatus = 'active' | 'completed' | 'archived'
+export const ProjectStatusArray = ['active', 'completed', 'archived'] as const
 
 export interface Project {
   id: number
@@ -6,12 +7,6 @@ export interface Project {
   name: string
   description: string
   status: ProjectStatus
-}
-
-
-export interface ProjectComment {
-  id: number
-  owner_id: number
-  name: string
-  description: string
+  created_at: Date
+  last_modified_at: Date
 }

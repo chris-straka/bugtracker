@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
-import { TicketType, TicketPriority, TicketStatus } from '../../../types'
-import { TicketRepository } from '../../../repositories/tickets'
+import type { TicketPriority, TicketType, TicketStatus } from '../../../models/Ticket'
+import { ticketRepository } from '../../../repositories'
 
 export async function createTicket(
   projectId: string, 
@@ -11,43 +11,16 @@ export async function createTicket(
   type: TicketType = 'bug',
   status: TicketStatus = 'open'
 ) {
-  const ticket = await TicketRepository.createTicket(
-    projectId, 
-    ownerId,
-    name,
-    description,
-    priority, 
-    type, 
-    status
-  )
-
+  const ticket = await ticketRepository.createTicket(projectId, ownerId, name, description, priority, type, status)
   return { ...ticket, id: ticket.id.toString() }
 }
 
 export async function createTickets(projectId: string, ownerId: string, numberOfTickets: number, description?: string) {
-  const tickets = []
-
-  for (let i = 0; i < numberOfTickets; i++) {
-    const ticket = await createTicket(
-      projectId, 
-      ownerId, 
-      faker.lorem.sentence(),
-      description
-    )
-
-    tickets.push(ticket)
-  }
-
-  return tickets
+  const promises = Array.from(
+    { length: numberOfTickets }, 
+    () => createTicket(projectId, ownerId, faker.lorem.sentence(), description)
+  )
+  
+  return await Promise.all(promises)
 }
 
-export async function createTicketsAndAssignUser(numberOfTickets: number, projectId: string, ownerId: string) {
-  const tickets = []
-
-  for (let i = 0; i < numberOfTickets; i++) {
-    const ticket = await createTicket(projectId, ownerId)
-    tickets.push(ticket)
-  }
-
-  return tickets
-}

@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Bugtracker DB Server",
+      "Group": "Bugtracker Server Group",
+      "Host": "postgres",
+      "Port": 5432,
+      "Username": "bugtracker_backend_database_user",
+      "MaintenanceDB": "bugtracker_backend_database",
+      "SSLMode": "prefer"
+    }
+  }
+}

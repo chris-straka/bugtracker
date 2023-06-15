@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from 'express'
-import { Roles } from '../types'
+import type { UserRole } from '../models/User'
 import { UserIsNotAuthorizedError } from '../errors'
 
-export function isAuthorized (authorizedRoles: Roles[]) {
+export function isAuthorized (authorizedRoles: UserRole[]) {
   return function (req: Request, _: Response, next: NextFunction) {
     const authorized = authorizedRoles.some((authorizedRole) =>  authorizedRole === req.session.userRole)
     if (!authorized) return next(new UserIsNotAuthorizedError())

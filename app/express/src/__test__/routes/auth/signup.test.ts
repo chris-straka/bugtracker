@@ -1,8 +1,10 @@
 import { faker } from '@faker-js/faker'
 import request from 'supertest'
-import { Roles } from '../../../types'
+import { UserRole } from '../../../models/User'
 import { createTestUser, closeDbConnections } from '../../helper'
 import app from '../../../config/server'
+
+const url = '/users'
 
 afterAll(async () => {
   await closeDbConnections()
@@ -14,10 +16,10 @@ describe('User sign up routes', () => {
       const email    = faker.internet.email()
       const username = faker.internet.userName()
       const password = faker.internet.password()
-      const role     = 'contributor' as Roles
+      const role     = 'contributor' as UserRole
 
       const res = await request(app)
-        .post('/users')
+        .post(url)
         .send({ 
           email,
           username,
@@ -39,7 +41,7 @@ describe('User sign up routes', () => {
 
     it('should 400 when something is missing', async () => {
       await request(app)
-        .post('/users')
+        .post(url)
         .send({ 
           email: faker.internet.email(), 
           username: faker.internet.userName() 
@@ -49,7 +51,7 @@ describe('User sign up routes', () => {
 
     it('should 400 when email is invalid', async () => {
       await request(app)
-        .post('/users')
+        .post(url)
         .send({ 
           email: 'jeff', 
           username: faker.internet.userName(),
@@ -62,7 +64,7 @@ describe('User sign up routes', () => {
       const currentUser = await createTestUser('contributor')
 
       await request(app)
-        .post('/users')
+        .post(url)
         .send({ 
           email: currentUser.email, 
           username: faker.internet.userName(), 
@@ -75,7 +77,7 @@ describe('User sign up routes', () => {
       const currentUser = await createTestUser('contributor')
 
       await request(app)
-        .post('/users')
+        .post(url)
         .send({ 
           email: faker.internet.email(), 
           username: currentUser.username, 

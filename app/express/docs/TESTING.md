@@ -8,3 +8,7 @@ Best explanation for spy, stub and mock are on [sinon](https://sinonjs.org/relea
 
 node-mocks-http mocking req and res for middleware (particularly useful for headers, cookies or streams).
 nock mocks HTTP calls (particularly good for microservices).
+
+## Links
+
+- [Mocks](https://stackoverflow.com/questions/53420562)

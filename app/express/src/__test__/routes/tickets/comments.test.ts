@@ -1,10 +1,9 @@
 import { faker } from '@faker-js/faker'
+import type { TestProject, TestUser, TestTicket, TestTicketComment } from '../../helper'
 import { 
-  testPaginationRoutes, TestProject, TestUser, 
-  TestTicket, TestTicketComment, closeDbConnections, 
-  createTestUser, createTicketComment, 
+  testPaginationRoutes, createTestUser, createTicketComment, 
   createNewUserAndAddThemToProject, createTicketComments, 
-  createPmAndProjectWithTicket
+  createPmAndProjectWithTicket, closeDbConnections
 } from '../../helper'
 
 afterAll(async () => {
@@ -18,7 +17,7 @@ describe('Project Ticket Comment Routes', () => {
 
   beforeAll(async () => {
     ({ pm, project, ticket } = await createPmAndProjectWithTicket())
-    await createTicketComments(20, ticket.id, pm.id)
+    await createTicketComments(ticket.id, pm.id, 20)
   })
 
   describe('GET /projects/:projectId/tickets/:ticketId/comments', () => { 
@@ -34,9 +33,11 @@ describe('Project Ticket Comment Routes', () => {
   })
 
   describe('POST /projects/:projectId/tickets/:ticketId/comments', () => {
+    const url = `/projects/${project.id}/tickets/${ticket.id}/comments`
+
     it('should 201 when a project member creates a ticket comment', async () => {
       await pm.agent
-        .post(`/projects/${project.id}/tickets/${ticket.id}/comments`)
+        .post(url)
         .send({ message: faker.random.words(50) })
         .expect(201)
     })
@@ -45,7 +46,7 @@ describe('Project Ticket Comment Routes', () => {
       const dev = await createTestUser('developer')
 
       await dev.agent
-        .post(`/projects/${project.id}/tickets/${ticket.id}/comments`)
+        .post(url)
         .send({ message: faker.random.words(50) })
         .expect(403)
     })

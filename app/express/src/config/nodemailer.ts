@@ -1,34 +1,19 @@
-import { createTestAccount, createTransport, getTestMessageUrl } from 'nodemailer'
+import { createTransport, createTestAccount } from 'nodemailer'
 
 export async function createTransporter() {
-  const testAccount = await createTestAccount()
+  let user = process.env.SMTP_USER
+  let pass = process.env.SMTP_PASS
 
-  if (process.env.NODE_ENV === 'production') throw new Error('sendMail() TODO')
+  if (process.env.NODE_ENV !== 'production') {
+    const testAccount = await createTestAccount()
+    user = testAccount.user
+    pass = testAccount.pass
+  }
 
   return createTransport({
-    host: 'smtp.ethereal.email',
-    port: 587,
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
     secure: false,
-    auth: {
-      user: testAccount.user,
-      pass: testAccount.pass
-    }
+    auth: { user, pass }
   })
-}
-
-export async function sendEmail(to: string, subject: string, html: string) {
-  try {
-    const transporter = await createTransporter()
-
-    const res = await transporter.sendMail({
-      from: 'no-reply@example.com',
-      to,
-      subject,
-      html
-    })
-
-    if (process.env.NODE_ENV !== 'production') console.log('preview URL', getTestMessageUrl(res))
-  } catch(error) {
-    console.error(error)
-  }
 }

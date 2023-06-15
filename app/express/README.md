@@ -3,74 +3,65 @@
 > Express, Typescript, Jest, REST, GraphQL, Postgres (no ORM), Docker, K8s, Terraform
 > This bug tracker helps an organization keep track of different bugs across various projects.
 
-## User Roles
+The API basically works like this
 
-Admins can manage users, projects, tickets, and comments.
+> routes (including middlewares) -> controllers -> services -> repositories
 
-Project Managers (PMs) can manage projects they create.
+My models are anemic and most of the logic is in the services. Mainly because I built this api without classes originally.
 
-- PMs can add and remove people from a projects
-- The only PM that can add/remove another pm is an admin or the project owner (the PM/admin who created the project)
+I'll do a more DDD approach in the other version of this api.
 
-Devs assigned to a project can manage and comment on all its tickets
+## Bug Tracker User Roles
 
-Contributors can manage tickets they created but they can only comment on other tickets
+There's four main roles
+
+Admins can manage everything (users, projects, tickets, and comments).
+
+Project Managers (PMs) can manage projects they create and who's allowed to work in them.
+
+Developers can be assigned to a project or a ticket.
+
+Contributors are developers with less priviledges.
 
 ## Workflow
 
-1. The user signs in with their email and password
-2. They're brought to the dashboard
+1. User signup/login
+2. User creates a project if they're a PM, or they get invited to join an existing project.
+3. User creates tickets in their assigned projects
+4. User (dev) closes tickets when they're done working on them.
 
-Every user starts off as a contributor until they've been granted higher privileges by an admin.
-An admin or PM is responsible for creating a project and then adding users to it.
+## Dashboard
 
-3. The dashboard has a bunch of tabs
+### Home
 
-- Home
+ticket statistics + search bar for viewing projects/tickets they're assigned.
 
-  - Ticket statistics and a searchbar for viewing tickets/projects that have been assigned to them.
-  - Searching removes the statistics from view, which they can bring back with a button.
-  - The search bar can be used to jump to a project (/projects/:projectId), or ticket (/projects/:projectName/tickets/:ticketId)
+### Profile
 
-- Profile
+Profile page where a user change their username, email and password.
 
-  - lets a user change their username, email and password.
+### Workspace
 
-- Created tickets
-- Assigned tickets
-- Assigned projects
+For viewing all the projects/tickets they created, and all the projects/tickets they're assigned to.
 
-4. The admin dashboard would look like this
+### User Management (Admin Only)
 
-- Home
-- Profile
-- Tickets (all)
-- Projects (all)
-- User Management
-
-## Frontend
-
-Dashboard has ticket statistics, but when they search something the stats disappear to make way for search results.
-Button for clearing the search results
+For promoting users privileges or removing them from stuff.
 
 ## Commands
 
 ```sh
-pnpm ddev
-pnpm test
+pnpm ddev # pgadmin on 8080
+pnpm test # ignore redis connect errors on first startup
 ```
 
 ## Debugging (vscode)
 
-You can debug code by running the test case for that code in Jest
+You can debug code using jest.
 
 1. Download the Jest Runner extension (as specified in the .vscode folder)
 2. Add the breakpoints wherever you want in the application
-3. Go to the test case that runs that calls your breakpoint and click "debug"
-
-You might be able to also run the following 
-
->Debug: JavaScript Debug Terminal
+3. Go to the test case that tests the route you wanna test and hit debug
 
 ## Attribution
 

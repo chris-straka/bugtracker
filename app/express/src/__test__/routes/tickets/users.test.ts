@@ -1,12 +1,16 @@
+import type { TestUser, TestProject, TestTicket } from '../../helper'
 import { 
-  TestUser, TestProject, TestTicket,
   createPmAndProjectWithTicket,
   createNewUsersAndAddThemToTicket,
-  testPaginationRoutes,
-  createTestUser,
+  testPaginationRoutes, createTestUser,
   createNewUserAndAddThemToProject,
-  createNewUserAndAddThemToTicket
+  createNewUserAndAddThemToTicket,
+  closeDbConnections
 } from '../../helper'
+
+afterAll(async () => {
+  await closeDbConnections()
+})
 
 describe('User route for finding a ticket\'s assigned users', () => {
   let pm: TestUser
@@ -15,7 +19,7 @@ describe('User route for finding a ticket\'s assigned users', () => {
 
   beforeAll(async () => {
     ({ pm, project, ticket } = await createPmAndProjectWithTicket())
-    await createNewUsersAndAddThemToTicket(20, project.id, ticket.id)
+    await createNewUsersAndAddThemToTicket(project.id, ticket.id, 20)
   })
 
   describe('GET /projects/:projectId/tickets/:ticketId/users', () => {

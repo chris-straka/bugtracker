@@ -1,13 +1,14 @@
 import { Router } from 'express'
 import { body, oneOf, param } from 'express-validator'
 import { ProjectStatusArray } from '../../models/Project'
-import { isAuthenticated, isAuthorized, isProjectMemberOrAdmin, validateInput } from '../../middleware'
+import { isActive, isAuthenticated, isAuthorized, isProjectMemberOrAdmin, validateInput } from '../../middleware'
 import * as ProjectController from '../../controllers/project'
 
 const router = Router()
 
 router.get('/projects/:projectId', 
   isAuthenticated, 
+  isActive,
   param('projectId').isInt().withMessage('Project ID must be an integer'),
   validateInput,
   isProjectMemberOrAdmin,
@@ -16,6 +17,7 @@ router.get('/projects/:projectId',
 
 router.post('/projects', 
   isAuthenticated, 
+  isActive,
   isAuthorized(['project_manager', 'admin']),
   [
     body('name').isString().trim().isLength({ min: 4, max: 100 }).withMessage('Name must be string between 4 and 100 characters'),
@@ -27,6 +29,7 @@ router.post('/projects',
 
 router.put('/projects/:projectId', 
   isAuthenticated, 
+  isActive,
   isAuthorized(['project_manager', 'admin']),
   [
     param('projectId').isInt().withMessage('Project ID must be an integer'),
@@ -49,6 +52,7 @@ router.put('/projects/:projectId',
 
 router.delete('/projects/:projectId', 
   isAuthenticated, 
+  isActive,
   isAuthorized(['project_manager', 'admin']),
   param('projectId').isInt().withMessage('Project ID must be an integer'),
   validateInput,

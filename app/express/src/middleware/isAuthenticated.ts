@@ -6,6 +6,7 @@ import { UserIsNotAuthenticatedError } from '../errors'
  * so you can't check for req.session otherwise the user will always be authenticated
  */
 export function isAuthenticated (req: Request, _: Response, next: NextFunction) {
-  if (req.session?.userId) next()
-  else next(new UserIsNotAuthenticatedError())
+  if (req.session?.userId) return next()
+  else return next(new UserIsNotAuthenticatedError())
 }
+

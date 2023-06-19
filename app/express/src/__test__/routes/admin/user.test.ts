@@ -1,3 +1,4 @@
+import type { UserAccountStatus, UserRole } from '../../../models/User'
 import type { TestUser } from '../../helper'
 import { createTestUser, closeDbConnections } from '../../helper'
 
@@ -9,118 +10,144 @@ describe('Admin User Management Routes', () => {
   let admin: TestUser
 
   beforeAll(async () => {
-    (admin = await createTestUser('admin'))
-  })
-
-  describe('PUT /admin/users/:userId', () => {
-    it('should 200 when changing user details', async () => {
-      const contributor = await createTestUser('contributor')
-
-      await admin.agent
-        .put(`/admin/users/${contributor.id}`)
-        .send({ role: 'developer' })
-        .expect(200)
-    })
-
-    it('should 401 when changing another admin', async () => {
-      const otherAdmin = await createTestUser('admin')
-
-      await admin.agent
-        .put(`/admin/users/${otherAdmin.id}`)
-        .send({ role: 'developer' })
-        .expect(401)
-    })
-
-    it('should 401 when upgrading to admin', async () => {
-      const dev = await createTestUser('developer')
-
-      await admin.agent
-        .put(`/admin/users/${dev.id}`)
-        .send({ role: 'admin' })
-        .expect(401)
-    })
-
-    it('should 401 when upgrading to owner', async () => {
-      const dev = await createTestUser('developer')
-
-      await admin.agent
-        .put(`/admin/users/${dev.id}`)
-        .send({ role: 'owner' })
-        .expect(401)
-    })
-
-    it('should 401 when downgrading an owner', async () => {
-      const owner = await createTestUser('owner')
-
-      await admin.agent
-        .put(`/admin/users/${owner.id}`)
-        .send({ role: 'developer' })
-        .expect(401)
-    })
-
-    it('should 400 when request is empty', async () => {
-      const dev = await createTestUser('developer')
-
-      await admin.agent
-        .put(`/admin/users/${dev.id}`)
-        .send({})
-        .expect(400)
-    })
+    admin = await createTestUser('admin')
   })
 
   describe('PUT /admin/users/:userId/role', () => {
-    it('should 200 when upgrading the privileges of a user', async () => {
-      const contributor = await createTestUser('contributor')
+    let user: TestUser
+    let url: string
+
+    beforeAll(async () => {
+      user = await createTestUser('contributor')
+      url = `/admin/users/${user.id}/role`
+    })
+
+    it('should 200 when an admin changes a contributor to a developer', async () => {
+      const newRole: UserRole = 'developer' 
 
       await admin.agent
-        .put(`/admin/users/${contributor.id}`)
-        .send({ role: 'developer' })
+        .put(url)
+        .send({ newRole })
         .expect(200)
     })
 
-    it('should 401 when changing another admin', async () => {
-      const otherAdmin = await createTestUser('admin')
-
-      await admin.agent
-        .put(`/admin/users/${otherAdmin.id}`)
-        .send({ role: 'developer' })
-        .expect(401)
-    })
-
-    it('should 401 when upgrading to admin', async () => {
-      const dev = await createTestUser('developer')
-
-      await admin.agent
-        .put(`/admin/users/${dev.id}`)
-        .send({ role: 'admin' })
-        .expect(401)
-    })
-
-    it('should 401 when upgrading to owner', async () => {
-      const dev = await createTestUser('developer')
-
-      await admin.agent
-        .put(`/admin/users/${dev.id}`)
-        .send({ role: 'owner' })
-        .expect(401)
-    })
-
-    it('should 401 when downgrading an owner', async () => {
-      const owner = await createTestUser('owner')
-
-      await admin.agent
-        .put(`/admin/users/${owner.id}`)
-        .send({ role: 'developer' })
-        .expect(401)
-    })
-
     it('should 400 when request is empty', async () => {
-      const dev = await createTestUser('developer')
-
       await admin.agent
-        .put(`/admin/users/${dev.id}`)
+        .put(url)
         .send({})
         .expect(400)
+    })
+
+    it('should 403 when upgrading someone to an admin', async () => {
+      const newRole: UserRole = 'admin' 
+
+      await admin.agent
+        .put(url)
+        .send({ newRole })
+        .expect(403)
+    })
+
+    it('should 403 when upgrading someone to an owner', async () => {
+      const newRole: UserRole = 'owner' 
+
+      await admin.agent
+        .put(url)
+        .send({ newRole })
+        .expect(403)
+    })
+
+    it('should 403 when an admin tries to change the role of another admin', async () => {
+      const otherAdmin = await createTestUser('admin')
+      const url = `/admin/users/${otherAdmin.id}/role`
+      const newRole: UserRole = 'developer' 
+
+      await admin.agent
+        .put(url)
+        .send({ newRole })
+        .expect(403)
+    })
+
+    it('should 403 when an admin tries to change the role of an owner', async () => {
+      const owner = await createTestUser('owner')
+      const url = `/admin/users/${owner.id}/role`
+      const newRole: UserRole = 'developer' 
+
+      await admin.agent
+        .put(url)
+        .send({ newRole })
+        .expect(403)
+    })
+  })
+
+  describe('PUT /admin/users/:userId/account-status', () => {
+    let user: TestUser
+    let url: string
+
+    beforeAll(async () => {
+      user = await createTestUser('contributor')
+      url = `/admin/users/${user.id}/account-status`
+    })
+
+    it('should 200 when an admin tries to change a user\'s account status', async () => {
+      const newAccountStatus: UserAccountStatus = 'disabled' 
+
+      await admin.agent
+        .put(url)
+        .send({ newAccountStatus })
+        .expect(200)
+    })
+
+    it('should 204 when a disabled user tries to sign out', async () => {
+      const newAccountStatus: UserAccountStatus = 'disabled' 
+
+      await admin.agent
+        .put(url)
+        .send({ newAccountStatus })
+
+      await user.agent
+        .delete('/sessions')
+        .expect(204)
+    })
+
+    it('should 400 when the request is empty', async () => {
+      await admin.agent
+        .put(url)
+        .send({})
+        .expect(400)
+    })
+
+    it('should 403 when a disabled user tries to sign in', async () => {
+      const newAccountStatus: UserAccountStatus = 'disabled' 
+
+      await admin.agent
+        .put(url)
+        .send({ newAccountStatus })
+
+      await user.agent
+        .delete('/sessions')
+        .expect(204)
+    })
+
+    it('should 403 when changing the account status of another admin', async () => {
+      const otherAdmin = await createTestUser('admin')
+      const url = `/admin/users/${otherAdmin.id}/account-status`
+      const newAccountStatus: UserAccountStatus = 'disabled'
+
+      await admin.agent
+        .put(url)
+        .send({ newAccountStatus })
+        .expect(403)
+    })
+
+    it('should 403 when changing the account status of an owner', async () => {
+      const owner = await createTestUser('owner')
+      const url = `/admin/users/${owner.id}/account-status`
+      const newAccountStatus: UserAccountStatus = 'disabled'
+
+      await admin.agent
+        .put(url)
+        .send({ newAccountStatus })
+        .expect(403)
     })
   })
 
@@ -133,67 +160,20 @@ describe('Admin User Management Routes', () => {
         .expect(204)
     })
 
-    it('should 401 when deleting an admin', async () => {
+    it('should 403 when deleting an admin', async () => {
       const admin = await createTestUser('admin')
 
       await admin.agent
         .delete(`/admin/users/${admin.id}`)
-        .expect(401)
+        .expect(403)
     })
 
-    it('should 401 when deleting an owner', async () => {
+    it('should 403 when deleting an owner', async () => {
       const owner = await createTestUser('owner')
 
       await admin.agent
         .delete(`/admin/users/${owner.id}`)
         .expect(401)
-    })
-  })
-})
-
-describe('Super Admin User Management Routes', () => {
-  let owner: TestUser
-
-  beforeAll(async () => {
-    owner = await createTestUser('owner')
-  })
-
-  describe('PUT /admin/users/:userId', () => {
-    it('should 200 when changing an admin', async () => {
-      const admin = await createTestUser('admin')
-
-      await owner.agent
-        .put(`/admin/users/${admin.id}`)
-        .send({ role: 'developer' })
-        .expect(200)
-    })
-
-    it('should 200 when upgrading to admin', async () => {
-      const dev = await createTestUser('developer')
-
-      await owner.agent
-        .put(`/admin/users/${dev.id}`)
-        .send({ role: 'admin' })
-        .expect(200)
-    })
-
-    it('should 400 when request is empty', async () => {
-      const dev = await createTestUser('developer')
-
-      await owner.agent
-        .put(`/admin/users/${dev.id}`)
-        .send({})
-        .expect(400)
-    })
-  })
-
-  describe('DELETE /admin/users/:userId', () => {
-    it('should 204 when deleting an admin', async () => {
-      const admin = await createTestUser('admin')
-
-      await owner.agent
-        .delete(`/admin/users/${admin.id}`)
-        .expect(204)
     })
   })
 })

@@ -20,13 +20,7 @@ export class UserAlreadyExistsError extends AppError {
   }
 }
 
-export class UserIsSuspended extends AppError {
-  constructor() {
-    super('User is suspended', 403)
-  }
-}
-
-export class UserIsDisabled extends AppError {
+export class UserIsDisabledError extends AppError {
   constructor() {
     super('User is disabled', 403)
   }

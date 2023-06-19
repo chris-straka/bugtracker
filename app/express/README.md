@@ -70,5 +70,4 @@ You can debug code using jest.
 - [Snyk Docker Best Practices](https://snyk.io/blog/10-best-practices-to-containerize-nodejs-web-applications-with-docker/)
 - [Error](https://stackoverflow.com/questions/783818)
 - [Node Green](https://node.green/)
-- [tdd video](https://www.youtube.com/watch?v=M44umyYPiuo)
 - [Bug Tracker App That I'm Cloning](https://www.youtube.com/watch?v=vG824vBdYY8)

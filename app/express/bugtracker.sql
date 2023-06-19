@@ -3,7 +3,7 @@ CREATE TYPE ticket_type AS ENUM('bug', 'feature_request', 'task', 'documentation
 CREATE TYPE ticket_status AS ENUM('open', 'in_progress', 'closed', 'additional_info_required');
 
 CREATE TYPE user_role AS ENUM('owner', 'admin', 'project_manager', 'developer', 'tester', 'quality_assurance', 'contributor');
-CREATE TYPE user_account_status AS ENUM('active', 'suspended', 'disabled');
+CREATE TYPE user_account_status AS ENUM('active', 'disabled');
 CREATE TYPE project_status AS ENUM('active', 'completed', 'archived');
 
 CREATE TABLE app_user (

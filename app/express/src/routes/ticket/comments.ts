@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { param, body } from 'express-validator'
-import { isAuthenticated, isProjectMemberOrAdmin, validateInput } from '../../middleware'
+import { isActive, isAuthenticated, isProjectMemberOrAdmin, validateInput } from '../../middleware'
 import * as TicketCommentController from '../../controllers/ticket/comments'
 
 const router = Router()
@@ -8,6 +8,7 @@ const router = Router()
 // ticket comments
 router.get('/projects/:projectId/tickets/:ticketId/comments',
   isAuthenticated,
+  isActive,
   [
     param('projectId').isInt().withMessage('Project ID must be an integer'),
     param('ticketId').isInt().withMessage('Ticket ID must be an integer'),
@@ -20,6 +21,7 @@ router.get('/projects/:projectId/tickets/:ticketId/comments',
 
 router.post('/projects/:projectId/tickets/:ticketId/comments',
   isAuthenticated,
+  isActive,
   [
     param('projectId').isInt().withMessage('Project ID must be an integer'),
     param('ticketId').isInt().withMessage('Ticket ID must be an integer'),
@@ -31,6 +33,7 @@ router.post('/projects/:projectId/tickets/:ticketId/comments',
 
 router.put('/projects/:projectId/tickets/:ticketId/comments/:commentId',
   isAuthenticated,
+  isActive,
   [
     param('projectId').isInt().withMessage('Project ID must be an integer'),
     param('ticketId').isInt().withMessage('Ticket ID must be an integer'),
@@ -44,6 +47,7 @@ router.put('/projects/:projectId/tickets/:ticketId/comments/:commentId',
 
 router.delete('/projects/:projectId/tickets/:ticketId/comments/:commentId',
   isAuthenticated,
+  isActive,
   [
     param('projectId').isInt().withMessage('Project ID must be an integer'),
     param('ticketId').isInt().withMessage('Ticket ID must be an integer'),

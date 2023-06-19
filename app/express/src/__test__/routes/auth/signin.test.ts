@@ -5,8 +5,6 @@ import { closeDbConnections } from '../../helper/db'
 import { userService } from '../../../services'
 import app from '../../../config/server'
 
-const url = '/sessions'
-
 afterAll(async () => {
   await closeDbConnections()
 })
@@ -16,6 +14,8 @@ describe('User sign in routes', () => {
   const email = faker.internet.email()
   const password = faker.internet.password()
   const role: UserRole = 'contributor'
+
+  const url = '/sessions'
 
   beforeAll(async () => {
     await userService.createUser(username, email, password)
@@ -72,6 +72,7 @@ describe('User sign in routes', () => {
   describe('DELETE /sessions', () => {
     it('should 204 on logout', async () => {
       const agent = request.agent(app)
+
       await agent
         .post(url)
         .send({ email, password })

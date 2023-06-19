@@ -16,7 +16,8 @@ describe('User sign up routes', () => {
       const email    = faker.internet.email()
       const username = faker.internet.userName()
       const password = faker.internet.password()
-      const role     = 'contributor' as UserRole
+
+      const role: UserRole = 'contributor' 
 
       const res = await request(app)
         .post(url)

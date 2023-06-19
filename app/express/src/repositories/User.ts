@@ -1,5 +1,5 @@
 import type { Pool } from 'pg'
-import type { BaseUser, AuthUser, UserAccountStatus, UserRole } from '../models/User'
+import type { BaseUser, AuthUser, UserAccountStatus, UserAccountStatusObject, UserRole  } from '../models/User'
 import { UserNotFoundError } from '../errors'
 
 export interface IUserRepository {
@@ -7,7 +7,7 @@ export interface IUserRepository {
   
   getUserEmail(userId: string): Promise<string>
   getUserBy(field: 'id' | 'email' | 'username', value: string): Promise<BaseUser>
-  getUserAccountStatus(userId: string): Promise<UserAccountStatus>
+  getUserAccountStatus(userId: string): Promise<UserAccountStatusObject>
   getUserForAuthentication(email: string): Promise<AuthUser>
 
   userExistsBy(field: 'id' | 'email' | 'username', value: string): Promise<boolean>
@@ -17,6 +17,7 @@ export interface IUserRepository {
   changeEmail(oldEmail: string, newEmail?: string): Promise<BaseUser>
   changePassword(id: string, newPasswordHash: string): Promise<boolean>
   changeRole(id: string, newRole: UserRole): Promise<BaseUser>
+  changeAccountStatus(id: string, newAccountStatus: UserAccountStatus): Promise<UserAccountStatusObject>
 
   deleteUserBy(field: 'id' | 'email' | 'username', value: string): Promise<boolean>
 }
@@ -89,7 +90,7 @@ export class UserRepository implements IUserRepository {
   }
 
   async getUserAccountStatus(userId: string) {
-    const data = await this.#pool.query<UserAccountStatus>({
+    const data = await this.#pool.query<UserAccountStatusObject>({
       name: 'user_is_active',
       text: 'SELECT account_status FROM app_user WHERE id = $1;', 
       values: [userId]
@@ -170,6 +171,21 @@ export class UserRepository implements IUserRepository {
       values: [id, newRole]
     })
     return data.rows[0]
+  }
+
+  async changeAccountStatus(id: string, newAccountStatus: UserAccountStatus) {
+    try {
+      const data = await this.#pool.query<UserAccountStatusObject>({
+        name: 'change_account_status',
+        text: 'UPDATE app_user SET account_status = $2 WHERE id = $1 RETURNING account_status;',
+        values: [id, newAccountStatus]
+      })
+      
+      return data.rows[0]
+    } catch (error) {
+      console.error(error)
+      throw Error('oh fuk')
+    }
   }
 
   async deleteUserBy(field: 'id' | 'email' | 'username', value: string) {

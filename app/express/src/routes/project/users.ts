@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { body, param } from 'express-validator'
-import { isAuthenticated, isAuthorized, validateInput, isProjectMemberOrAdmin } from '../../middleware'
+import { isActive, isAuthenticated, isAuthorized, validateInput, isProjectMemberOrAdmin } from '../../middleware'
 import * as ProjectUserController from '../../controllers/project'
 
 const router = Router()
@@ -8,6 +8,7 @@ const router = Router()
 // project users
 router.get('/projects/:projectId/users',
   isAuthenticated, 
+  isActive,
   param('projectId').isInt().withMessage('Project ID must be an integer'),
   validateInput,
   isProjectMemberOrAdmin,
@@ -16,6 +17,7 @@ router.get('/projects/:projectId/users',
 
 router.post('/projects/:projectId/users', 
   isAuthenticated, 
+  isActive,
   isAuthorized(['project_manager', 'admin']),
   [
     param('projectId').isInt().withMessage('Project ID must be an integer'),
@@ -28,6 +30,7 @@ router.post('/projects/:projectId/users',
 
 router.delete('/projects/:projectId/users/:userId', 
   isAuthenticated, 
+  isActive,
   isAuthorized(['project_manager', 'admin']),
   [
     param('projectId').isInt().withMessage('Project ID must be an integer'),

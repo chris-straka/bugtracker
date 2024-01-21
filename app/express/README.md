@@ -1,15 +1,17 @@
-# Express Monolith Backend API
+# Express Backend API
+
+```sh
+pnpm ddev # pgadmin on 8080
+pnpm test # ignore redis connect errors on first startup
+```
 
 > Express, Typescript, Jest, REST, GraphQL, Postgres (no ORM), Docker, K8s, Terraform
 > This bug tracker helps an organization keep track of different bugs across various projects.
+> routes -> middlewares -> controllers -> services -> repositories
 
-The API basically works like this
+My models are anemic (basically DTOs) and most of the logic is in the services. Mainly because I built this api using functions originally.
 
-> routes (including middlewares) -> controllers -> services -> repositories
-
-My models are anemic and most of the logic is in the services. Mainly because I built this api without classes originally.
-
-I'll do a more DDD approach in the other version of this api.
+I'll do a more DDD/OOP approach in the other version of this api.
 
 ## Bug Tracker User Roles
 
@@ -29,31 +31,6 @@ Contributors are developers with less priviledges.
 2. User creates a project if they're a PM, or they get invited to join an existing project.
 3. User creates tickets in their assigned projects
 4. User (dev) closes tickets when they're done working on them.
-
-## Dashboard
-
-### Home
-
-ticket statistics + search bar for viewing projects/tickets they're assigned.
-
-### Profile
-
-Profile page where a user change their username, email and password.
-
-### Workspace
-
-For viewing all the projects/tickets they created, and all the projects/tickets they're assigned to.
-
-### User Management (Admin Only)
-
-For promoting users privileges or removing them from stuff.
-
-## Commands
-
-```sh
-pnpm ddev # pgadmin on 8080
-pnpm test # ignore redis connect errors on first startup
-```
 
 ## Debugging (vscode)
 

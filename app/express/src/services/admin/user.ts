@@ -1,6 +1,6 @@
-import type { UserAccountStatus, UserRole } from '../../models/User'
+import type { AdminRole, UserAccountStatus, UserRole } from '../../models/User'
 import type { IUserRepository } from '../../repositories'
-import { UserNotFoundError, UserIsNotAuthorizedError } from '../../errors'
+import { UserNotFoundError, UserIsNotAssignedToThisProjectError } from '../../errors'
 
 export class AdminUserService {
   #userDb: IUserRepository
@@ -11,61 +11,52 @@ export class AdminUserService {
 
   async changeRole(
     userId: string, 
-    adminRole: UserRole,
     newRole: UserRole, 
+    adminRole: AdminRole
   ) {
-    const user = await this.#userDb.getUserBy('id', userId)
+    const user = await this.#userDb.getUserById(userId)
     if (!user) throw new UserNotFoundError()
 
+    // the owner can not be changed, and there can't be new owners
+    if (user.role === 'owner' || newRole === 'owner') throw new UserIsNotAssignedToThisProjectError()
+
+    // an admin can't change another admin and can't create new admins
     if (adminRole === 'admin') {
-      // an admin can't change the role of another admin
-      if (user.role === 'admin') throw new UserIsNotAuthorizedError()
-
-      // an admin can't change the role of an owner
-      if (user.role === 'owner') throw new UserIsNotAuthorizedError()
-
-      // an admin can't create new admins or owners
-      if (newRole === 'admin' || newRole === 'owner') throw new UserIsNotAuthorizedError()
+      if (user.role === 'admin' || newRole === 'admin') throw new UserIsNotAssignedToThisProjectError()
     }
     
-    return await this.#userDb.changeRole(userId, newRole)
+    return this.#userDb.changeRole(userId, newRole)
   }
 
   async changeAccountStatus(
     userId: string, 
-    adminRole: UserRole,
-    newRole: UserAccountStatus, 
+    newAccountStatus: UserAccountStatus, 
+    adminRole: AdminRole
   ) {
-    const user = await this.#userDb.getUserBy('id', userId)    
+    const user = await this.#userDb.getUserById(userId)    
     if (!user) throw new UserNotFoundError()
 
-    if (adminRole === 'admin') {
-      // an admin can't change the status of another admin
-      if (user.role === 'admin') throw new UserIsNotAuthorizedError()
+    // the owner account_status can't be changed
+    if (user.role === 'owner') throw new UserIsNotAssignedToThisProjectError()
 
-      // an admin can't change the status of an owner
-      if (user.role === 'owner') throw new UserIsNotAuthorizedError()
-    }
+    // an admin can't change the account status of another admin
+    if (adminRole === 'admin' && user.role === 'admin') throw new UserIsNotAssignedToThisProjectError()
 
-    return await this.#userDb.changeAccountStatus(userId, newRole)
+    return this.#userDb.changeAccountStatus(userId, newAccountStatus)
   }
 
-  async deleteUserBy(field: 'id' | 'email' | 'username', adminRole: 'admin' | 'owner', userId: string) {
-    const user = await this.#userDb.getUserBy(field, userId)
+  async deleteUserById(userId: string, adminRole: AdminRole) {
+    const user = await this.#userDb.getUserById(userId)
     if (!user) throw new UserNotFoundError()
 
-    if (adminRole === 'admin') {
-      // an admin can't delete an admin
-      if (user.role === 'admin') {
-        throw new UserIsNotAuthorizedError()
-      }
+    // the owner can't be deleted
+    if (user.role === 'owner') throw new UserIsNotAssignedToThisProjectError()
 
-      // an admin can't delete an owner
-      if (user.role === 'owner') { 
-        throw new UserIsNotAuthorizedError()
-      }
+    // an admin can't delete another admin 
+    if (adminRole === 'admin' && user.role === 'admin') {
+      throw new UserIsNotAssignedToThisProjectError() 
     }
 
-    return await this.#userDb.deleteUserBy('id', userId)
+    return this.#userDb.deleteUserById(userId)
   }
 }

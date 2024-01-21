@@ -1,11 +1,12 @@
 import { faker } from '@faker-js/faker'
-import type { TestProject, TestUser } from '../../../helper'
+import type { TestUser } from '../../../helper'
 import { 
   createPmAndProjects, testPaginationRoutes, 
   createNewUserAndAddThemToProject, 
   createPmAndProject, createTestUser,
   closeDbConnections
 } from '../../../helper'
+import type { Project } from '../../../../models/Project'
 
 afterAll(async () => {
   await closeDbConnections()
@@ -31,14 +32,16 @@ describe('Admin project routes', () => {
 
   describe('PUT /admin/project/:projectId/owner', () => {
     let originalPm: TestUser
-    let project: TestProject
+    let project: Project
+    let projectId: string
 
     beforeEach(async () => {
       ({ pm: originalPm, project } = await createPmAndProject(project.name, project.description))
+      projectId = project.id.toString()
     })
 
     it('should 200 when an admin changes project ownership to a new pm', async () => {
-      const pm = await createNewUserAndAddThemToProject(project.id, 'project_manager')
+      const pm = await createNewUserAndAddThemToProject(projectId, 'project_manager')
 
       await admin.agent
         .put(`/admin/project/${project.id}/owner`)
@@ -47,7 +50,7 @@ describe('Admin project routes', () => {
     })
 
     it('should show the new pm when fetching project details after the change', async () => {
-      const pm = await createNewUserAndAddThemToProject(project.id, 'project_manager')
+      const pm = await createNewUserAndAddThemToProject(projectId, 'project_manager')
 
       await admin.agent
         .put(`/admin/project/${project.id}/owner`)
@@ -61,7 +64,7 @@ describe('Admin project routes', () => {
     })
 
     it('should show the new pm in the list of assigned users for that project', async () => {
-      const pm = await createNewUserAndAddThemToProject(project.id, 'project_manager')
+      const pm = await createNewUserAndAddThemToProject(projectId, 'project_manager')
 
       await admin.agent
         .put(`/admin/project/${project.id}/owner`)
@@ -75,7 +78,7 @@ describe('Admin project routes', () => {
     })
 
     it('should 204 when the new pm tries to remove the old pm from the project after changing ownership', async () => {
-      const pm = await createNewUserAndAddThemToProject(project.id, 'project_manager')
+      const pm = await createNewUserAndAddThemToProject(projectId, 'project_manager')
 
       await admin.agent
         .put(`/admin/project/${project.id}/owner`)
@@ -95,7 +98,7 @@ describe('Admin project routes', () => {
     })
 
     it('should 403 when the admin tries to make a developer the new project owner', async () => {
-      const dev = await createNewUserAndAddThemToProject(project.id, 'developer')
+      const dev = await createNewUserAndAddThemToProject(projectId, 'developer')
 
       await admin.agent
         .put(`/admin/project/${project.id}/owner`)
@@ -104,7 +107,7 @@ describe('Admin project routes', () => {
     })
 
     it('should 404 when the project is not found', async () => {
-      const pm = await createNewUserAndAddThemToProject(project.id, 'project_manager')
+      const pm = await createNewUserAndAddThemToProject(projectId, 'project_manager')
 
       await admin.agent
         .put('/admin/project/000/owner')

@@ -3,43 +3,16 @@ import type { Ticket, TicketPriority, TicketStatus, TicketType } from '../../mod
 import type { TicketStatistic } from '../../models/TicketStatistics'
 
 export interface ITicketRepository {
-  createTicket(
-    projectId: string, 
-    ownerId: string, 
-    name: string, 
-    description: string, 
-    priority: TicketPriority, 
-    type: TicketType, 
-    status?: TicketStatus
-  ): Promise<Ticket>
-
-  getTicketById(id: string): Promise<Ticket>
-
+  createTicket(projectId: string, ownerId: string, name: string, description: string, priority: TicketPriority, type: TicketType, status?: TicketStatus): Promise<Ticket>
+  getTicketById(ticketId: string): Promise<Ticket>
+  getTicketOwnerId(ticketId: string): Promise<string>
+  ticketExistsById(ticketId: string): Promise<boolean>
+  ticketExistsByName(name: string): Promise<boolean>
   getProjectTickets(projectId: string): Promise<Ticket[]>
-
-  getUserAssignedTickets(
-    userId: string, 
-    cursor?: string, 
-    limit?: string
-  ): Promise<Ticket[]>
-
-  getUserCreatedTickets(
-    userId: string, 
-    cursor?: string, 
-    limit?: string
-  ): Promise<Ticket[]>
-
+  getUserAssignedTickets(userId: string, cursor?: string, limit?: string): Promise<Ticket[]>
+  getUserCreatedTickets(userId: string, cursor?: string, limit?: string): Promise<Ticket[]>
   getUserAssignedTicketStatistics(userId: string): Promise<TicketStatistic[]>
-
-  updateTicket(
-    ticketId: string, 
-    name?: string, 
-    description?: string, 
-    priority?: TicketPriority, 
-    type?: TicketType, 
-    status?: TicketStatus
-  ): Promise<Ticket>
-
+  updateTicket(ticketId: string, name?: string, description?: string, priority?: TicketPriority, type?: TicketType, status?: TicketStatus): Promise<Ticket>
   deleteTicket(ticketId: string): Promise<boolean>
 }
 
@@ -67,17 +40,48 @@ export class TicketRepository implements ITicketRepository {
       `,
       values: [projectId, ownerId, name, description, priority, type, status],
     })
+
     return result.rows[0]
+  }
+
+  async ticketExistsById(id: string) {
+    const result = await this.#pool.query<Ticket>({
+      name: 'get_ticket_by_name',
+      text: 'SELECT 1 FROM ticket WHERE id = $1;',
+      values: [id]
+    })
+
+    return result.rowCount > 0
+  }
+
+  async ticketExistsByName(name: string) {
+    const result = await this.#pool.query<Ticket>({
+      name: 'get_ticket_by_name',
+      text: 'SELECT 1 FROM ticket WHERE name = $1;',
+      values: [name]
+    })
+
+    return result.rowCount > 0
   }
 
   async getTicketById(id: string) {
     const result = await this.#pool.query<Ticket>({
-      name: 'get_ticket_by',
+      name: 'get_ticket_by_id',
       text: 'SELECT * FROM ticket WHERE id = $1;',
       values: [id],
     })
 
     return result.rows[0]
+  }
+
+  async getTicketOwnerId(ticketId: string) {
+    const result = await this.#pool.query<{ owner_id: number }>({
+      name: 'get_ticket_owner_id',
+      text: 'SELECT owner_id FROM ticket WHERE id = $1;',
+      values: [ticketId]
+    })
+
+    return result.rows[0].owner_id.toString()
   }
 
   async getProjectTickets(projectId: string) {
@@ -161,12 +165,6 @@ export class TicketRepository implements ITicketRepository {
       counter++
     }
 
-    if (status !== undefined) {
-      fields.push(`status = $${counter}`)
-      values.push(status)
-      counter++
-    }
-
     if (priority !== undefined) {
       fields.push(`priority = $${counter}`)
       values.push(priority)
@@ -181,18 +179,17 @@ export class TicketRepository implements ITicketRepository {
 
     if (status !== undefined) {
       fields.push(`status = $${counter}`)
-      values.push(type)
+      values.push(status)
       counter++
     }
 
     if (fields.length === 0) throw new Error('Nothing was specified')
 
     const result = await this.#pool.query<Ticket>({
-      name: 'update_ticket',
       text: `
         UPDATE ticket
         SET ${fields.join(', ')} 
-        WHERE ticket_id = $1;
+        WHERE id = $1
         RETURNING *;
       `,
       values: [ticketId, ...values],

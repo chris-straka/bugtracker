@@ -13,32 +13,32 @@ export class TicketUserService {
   }
 
   async getTicketUsers(projectId: string, ticketId: string) {
-    const project = await this.#projectDb.getProjectBy('id', projectId)
+    const project = await this.#projectDb.getProjectById(projectId)
     if (!project) throw new ProjectNotFoundError()
 
     const ticket = await this.#ticketDb.getTicketById(ticketId)
     if (!ticket) throw new TicketNotFoundError()
 
-    return await this.#tickerUserDb.getTicketUsers(ticketId)
+    return this.#tickerUserDb.getTicketUsers(ticketId)
   }
 
   async addUserToTicket(projectId: string, ticketId: string, userId: string) {
-    const project = await this.#projectDb.getProjectBy('id', projectId)
+    const project = await this.#projectDb.getProjectById(projectId)
     if (!project) throw new ProjectNotFoundError()
 
     const ticket = await this.#ticketDb.getTicketById(ticketId)
     if (!ticket) throw new TicketNotFoundError()
 
-    return await this.#tickerUserDb.addUserToTicket(ticketId, userId)
+    return this.#tickerUserDb.addUserToTicket(ticketId, userId)
   }
 
   async removeUserFromTicket(projectId: string, ticketId: string, userId: string) {
-    const project = await this.#projectDb.getProjectBy('id', projectId)
+    const project = await this.#projectDb.getProjectById(projectId)
     if (!project) throw new ProjectNotFoundError()
 
     const ticket = await this.#ticketDb.getTicketById(ticketId)
     if (!ticket) throw new TicketNotFoundError()
 
-    return await this.#tickerUserDb.removeUserFromTicket(ticketId, userId)
+    return this.#tickerUserDb.removeUserFromTicket(ticketId, userId)
   }
 }

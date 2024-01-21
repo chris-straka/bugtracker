@@ -3,7 +3,9 @@ import type { ProjectComment } from '../../models/ProjectComment'
 
 export interface IProjectCommentRepository {
   createProjectComment(projectId: string, ownerId: string, comment: string): Promise<ProjectComment>,
+  projectCommentExists(commentId: string): Promise<boolean>,
   getProjectCommentById(commentId: string): Promise<ProjectComment>,
+  getProjectCommentOwnerId(commentId: string): Promise<number>,
   getProjectComments(projectId: string): Promise<ProjectComment[]>,
   updateProjectComment(commentId: string, newComment: string): Promise<ProjectComment>,
   deleteProjectComment(commentId: string): Promise<boolean>
@@ -30,6 +32,16 @@ export class ProjectCommentRepository implements IProjectCommentRepository {
     return data.rows[0]
   }
 
+  async projectCommentExists(commentId: string) {
+    const data = await this.#pool.query<ProjectComment>({
+      name: 'project_comment_exists',
+      text: 'SELECT 1 FROM project_comment WHERE id = $1;',
+      values: [commentId]
+    })
+
+    return data.rowCount > 0
+  }
+
   async getProjectCommentById(commentId: string) {
     const data = await this.#pool.query<ProjectComment>({
       name: 'get_project_comment_by_id',
@@ -37,6 +49,16 @@ export class ProjectCommentRepository implements IProjectCommentRepository {
       values: [commentId]
     })
     return data.rows[0]
+  }
+
+  async getProjectCommentOwnerId(commentId: string) {
+    const data = await this.#pool.query<{ owner_id: number }>({
+      name: 'get_project_comment_owner_id',
+      text: 'SELECT owner_id FROM project_comment WHERE id = $1;',
+      values: [commentId],
+    })
+
+    return data.rows[0].owner_id
   }
 
   async getProjectComments(projectId: string) {
@@ -56,7 +78,7 @@ export class ProjectCommentRepository implements IProjectCommentRepository {
   async updateProjectComment(commentId: string, newComment: string) {
     const data = await this.#pool.query<ProjectComment>({
       name: 'update_project_comment',
-      text: 'UPDATE project_comment SET comment = $2 WHERE comment_id = $1 RETURNING *;',
+      text: 'UPDATE project_comment SET comment = $2 WHERE id = $1 RETURNING *;',
       values: [commentId, newComment]
     })
 

@@ -13,17 +13,17 @@ export class TicketCommentService {
   }
 
   async createTicketComment(projectId: string, ticketId: string, userId: string, comment: string) {
-    const project = await this.#projectDb.getProjectBy('id', projectId)
+    const project = await this.#projectDb.getProjectById(projectId)
     if (!project) throw new ProjectNotFoundError()
 
     const ticket = await this.#ticketDb.getTicketById(ticketId)
     if (!ticket) throw new TicketNotFoundError()
 
-    return await this.#ticketCommentDb.createTicketComment(projectId, userId, comment)
+    return this.#ticketCommentDb.createTicketComment(projectId, userId, comment)
   }
 
   async getTicketComments(projectId: string, ticketId: string) {
-    const project = await this.#projectDb.getProjectBy('id', projectId)
+    const project = await this.#projectDb.getProjectById(projectId)
     if (!project) throw new ProjectNotFoundError()
 
     const ticket = await this.#ticketDb.getTicketById(ticketId)
@@ -31,7 +31,7 @@ export class TicketCommentService {
   }
 
   async updateTicketComment(projectId: string, ticketId: string, commentId: string, comment: string) {
-    const project = await this.#projectDb.getProjectBy('id', projectId)
+    const project = await this.#projectDb.getProjectById(projectId)
     if (!project) throw new ProjectNotFoundError()
 
     const ticket = await this.#ticketDb.getTicketById(ticketId)
@@ -44,7 +44,7 @@ export class TicketCommentService {
   }
 
   async deleteTicketComment(projectId: string, ticketId: string, commentId: string) {
-    const project = await this.#projectDb.getProjectBy('id', projectId)
+    const project = await this.#projectDb.getProjectById(projectId)
     if (!project) throw new ProjectNotFoundError()
 
     const ticket = await this.#ticketDb.getTicketById(ticketId)

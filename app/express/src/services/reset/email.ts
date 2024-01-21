@@ -14,7 +14,7 @@ export class EmailResetService {
   }
 
   async grabEmailsFromToken(token: string) {
-    return await this.#emailResetDb.grabEmailsWithToken(token)
+    return this.#emailResetDb.grabEmailsWithToken(token)
   }
 
   async changeEmail(oldEmail: string, newEmail: string) {

@@ -3,12 +3,18 @@ import type { Project, ProjectStatus } from '../../models/Project'
 
 export interface IProjectRepository {
   createProject(ownerId: string, name: string, description: string): Promise<Project>,
-  getProjectBy(field: 'id' | 'name', value: string): Promise<Project>,
+
+  projectExistsById(projectId: string): Promise<boolean>,
+  getProjectById(projectId: string): Promise<Project>,
+  getProjectByName(name: string): Promise<Project>,
+  getProjectOwnerId(projectId: string): Promise<number>,
   getUserAssignedProjects(userId: string, cursor?: string, limit?: string): Promise<Project[]>,
   getUserCreatedProjects(userId: string, cursor?: string, limit?: string): Promise<Project[]>,
   searchAllProjects(search: string, cursor?: string, limit?: string): Promise<Project[]>,
+
   updateProject(projectId: string, name?: string, description?: string, status?: ProjectStatus): Promise<Project>,
   changeProjectOwner(projectId: string, newOwnerId: string): Promise<boolean>,
+
   deleteProject(projectId: string): Promise<boolean>,
 }
 
@@ -52,26 +58,44 @@ export class ProjectRepository implements IProjectRepository {
     }
   }
 
-  async getProjectBy(field: 'id' | 'name', value: string) {
-    let query: string
-
-    switch (field) {
-      case 'id':
-        query = 'SELECT * FROM project WHERE id = $1;'
-        break
-      case 'name':
-        query = 'SELECT * FROM project WHERE name = $1;'
-        break
-      default:
-        throw new Error('Invalid field')
-    }
-
-    const result = await this.#pool.query<Project>({
-      name: 'get_ticket_by',
-      text: query,
-      values: [value],
+  async projectExistsById(projectId: string) {
+    const data = await this.#pool.query({
+      name: 'project_exists',
+      text: 'SELECT 1 FROM project WHERE id = $1;',
+      values: [projectId]
     })
+
+    return data.rowCount > 0
+  }
+
+  async getProjectById(id: string) {
+    const result = await this.#pool.query<Project>({
+      name: 'get_project_by_id',
+      text: 'SELECT * FROM project WHERE id = $1;',
+      values: [id]
+    })
+
     return result.rows[0]
+  }
+
+  async getProjectByName(name: string) {
+    const result = await this.#pool.query<Project>({
+      name: 'get_project_by_name',
+      text: 'SELECT * FROM project WHERE name = $1;',
+      values: [name]
+    })
+
+    return result.rows[0]
+  }
+
+  async getProjectOwnerId(projectId: string) {
+    const data = await this.#pool.query<{ owner_id: number }>({
+      name: 'get_project_owner_id',
+      text: 'SELECT owner_id FROM project WHERE id = $1;',
+      values: [projectId]
+    })  
+
+    return data.rows[0].owner_id
   }
 
   async getUserAssignedProjects(userId: string, cursor = '0', limit = '10') {

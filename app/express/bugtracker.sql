@@ -75,7 +75,6 @@ CREATE TABLE project_history (
   change_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-
 CREATE TABLE ticket (
   id SERIAL PRIMARY KEY,
   project_id INTEGER NOT NULL REFERENCES project(id), 

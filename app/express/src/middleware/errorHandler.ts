@@ -5,6 +5,7 @@ export function errorHandler(error: Error, req: Request, res: Response, _: NextF
   if (error instanceof AppError) {
     res.status(error.statusCode).send(error.message)
   } else {
+    console.log('Error', error)
     console.error(error)
     res.status(500).send('Something went wrong')
   }

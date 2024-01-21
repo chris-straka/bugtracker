@@ -1,7 +1,7 @@
 import type { IProjectRepository, ITicketRepository, IUserRepository } from '../../repositories'
 import type { TicketPriority, TicketStatus, TicketType } from '../../models/Ticket'
 import type { UserRole } from '../../models/User'
-import { ProjectNotFoundError, TicketNotFoundError, UserIsNotAuthorizedError, UserNotFoundError } from '../../errors'
+import { ProjectNotFoundError, TicketAlreadyExistsError, UserIsNotAuthorizedError, UserNotFoundError } from '../../errors'
 
 export class TicketService {
   #projectDb: IProjectRepository
@@ -19,21 +19,24 @@ export class TicketService {
     ownerId: string, 
     name: string, 
     description: string, 
-    priority: TicketPriority,
-    type: TicketType, 
-    status?: TicketStatus
+    priority: TicketPriority = 'none',
+    type: TicketType = 'bug', 
+    status: TicketStatus = 'open'
   ) {
-    return await this.#ticketDb.createTicket(projectId, ownerId, name, description, priority, type, status)
+    const ticketAlreadyExists = await this.#ticketDb.ticketExistsByName(name)
+    if (ticketAlreadyExists) throw new TicketAlreadyExistsError()
+
+    return this.#ticketDb.createTicket(projectId, ownerId, name, description, priority, type, status)
   }
 
   async getProjectTickets(projectId: string) {
-    const project = await this.#projectDb.getProjectBy('id', projectId)
+    const project = await this.#projectDb.getProjectById(projectId)
     if (!project) throw new ProjectNotFoundError()
-    return await this.#ticketDb.getProjectTickets(projectId)
+    return this.#ticketDb.getProjectTickets(projectId)
   }
 
   async getUserAssignedTickets(userId: string, cursor?: string, limit?: string) {
-    const user = await this.#userDb.userExistsBy('id', userId)
+    const user = await this.#userDb.userExistsById(userId)
     if (!user) throw new UserNotFoundError()
 
     const tickets = await this.#ticketDb.getUserAssignedTickets(userId, cursor, limit)
@@ -43,7 +46,7 @@ export class TicketService {
   }
 
   async getUserCreatedTickets(userId: string, cursor?: string, limit?: string) {
-    const user = await this.#userDb.userExistsBy('id', userId)
+    const user = await this.#userDb.userExistsById(userId)
     if (!user) throw new UserNotFoundError()
 
     const tickets = await this.#ticketDb.getUserCreatedTickets(userId, cursor, limit)
@@ -52,7 +55,7 @@ export class TicketService {
     return { tickets, newCursor }
   }
 
-  async updateProjectTicket(
+  async updateTicket(
     ticketId: string,
     userId: string,
     userRole: UserRole,
@@ -62,37 +65,29 @@ export class TicketService {
     type?: TicketType,
     status?: TicketStatus
   ) {
-    const ticket = await this.#ticketDb.getTicketById(ticketId)
-    if (!ticket) throw new TicketNotFoundError()
+    // These users can edit any ticket they want 
+    const rolesWithFullAccess: UserRole[] = ['developer', 'project_manager', 'admin', 'owner']
+    const hasFullAccess = rolesWithFullAccess.includes(userRole)
 
-    const isTicketOwner = ticket.owner_id.toString() === userId
+    const ticketOwnerId = await this.#ticketDb.getTicketOwnerId(ticketId)
+    const isTicketOwner = userId === ticketOwnerId
 
-    if (isTicketOwner && userRole === 'contributor') {
-      return await this.#ticketDb.updateTicket(ticketId, name, description, priority, type, status)
-    }
+    const isContributorAndTicketOwner = userRole === 'contributor' && isTicketOwner
 
-    // if you're not the owner, only the dev/pm/admin can update
-    if (
-      userRole !== 'developer' && 
-    userRole !== 'project_manager' &&
-    userRole !== 'admin'
-    ) {
-      throw new UserIsNotAuthorizedError()
-    }
+    if (hasFullAccess || isContributorAndTicketOwner) return this.#ticketDb.updateTicket(ticketId, name, description, priority, type, status)
 
-    return await this.#ticketDb.updateTicket(ticketId, name, description, priority, type, status)
+    throw new UserIsNotAuthorizedError()
   }
 
-  async deleteProjectTicket(ticketId: string, userId: string, userRole: UserRole) {
-    const ticket = await this.#ticketDb.getTicketById(ticketId)
-    if (!ticket) throw new TicketNotFoundError()
+  async deleteTicket(ticketId: string, userId: string, userRole: UserRole) {
+    const ticketOwnerId = await this.#ticketDb.getTicketOwnerId(ticketId)
+    const isTicketOwner = userId === ticketOwnerId
 
-    const isTicketOwner = ticket.owner_id.toString() === userId
+    const rolesWithFullAccess: UserRole[] = ['project_manager', 'admin', 'owner']
+    const hasFullAccess = rolesWithFullAccess.includes(userRole)
 
-    if (!isTicketOwner || userRole !== 'admin' && userRole !== 'project_manager') {
-      throw new UserIsNotAuthorizedError()
-    }
+    if (isTicketOwner || hasFullAccess) return this.#ticketDb.deleteTicket(ticketId)
 
-    await this.#ticketDb.deleteTicket(ticketId)
+    throw new UserIsNotAuthorizedError()
   }
 }

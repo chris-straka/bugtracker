@@ -11,16 +11,20 @@ export async function createTicket(
   type: TicketType = 'bug',
   status: TicketStatus = 'open'
 ) {
-  const ticket = await ticketRepository.createTicket(projectId, ownerId, name, description, priority, type, status)
-  return { ...ticket, id: ticket.id.toString() }
+  return ticketRepository.createTicket(projectId, ownerId, name, description, priority, type, status)
 }
 
-export async function createTickets(projectId: string, ownerId: string, numberOfTickets: number, description?: string) {
+export async function createTickets(
+  projectId: string, 
+  ownerId: string, 
+  numberOfTickets: number, 
+  description?: string
+) {
   const promises = Array.from(
     { length: numberOfTickets }, 
     () => createTicket(projectId, ownerId, faker.lorem.sentence(), description)
   )
   
-  return await Promise.all(promises)
+  return Promise.all(promises)
 }
 

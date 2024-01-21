@@ -2,11 +2,11 @@ import { Router } from 'express'
 import { adminProjectRouter, adminTicketRouter, adminUserRouter } from './admin'
 import { projectCommentRouter, projectRouter, projectUserRouter } from './project'
 import { ticketCommentRouter, ticketRouter, ticketUserRouter } from './ticket'
-import authRouter from './auth'
-import emailRouter from './email'
+import authRouter from './auth/auth'
+import emailRouter from './auth/emailReset'
 import meRouter from './me'
-import passwordRouter from './password'
-import userRouter from './user'
+import passwordRouter from './auth/passwordReset'
+import userRouter from './auth/signup'
 
 const router = Router()
 

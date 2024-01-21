@@ -6,8 +6,7 @@ export async function createTicketComment(
   ownerId: string,
   message: string = faker.random.words(30)
 ) {
-  const ticketComment = await ticketCommentRepository.createTicketComment(ticketId, ownerId, message)
-  return { ...ticketComment, id: ticketComment.id.toString() }
+  return ticketCommentRepository.createTicketComment(ticketId, ownerId, message)
 }
 
 export async function createTicketComments(ticketId: string, ownerId: string, numberOfTicketComments: number) {

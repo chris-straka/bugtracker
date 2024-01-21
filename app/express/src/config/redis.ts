@@ -27,5 +27,5 @@ export const redisStore = new RedisStore({ client: redisClient })
 redisStore.on('error', err => console.log('Reddis Store Error', err))
 
 export async function closeRedisConnection() {
-  return await redisClient.quit()
+  return redisClient.quit()
 }

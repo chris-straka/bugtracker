@@ -17,7 +17,6 @@ import { AuthService } from './auth'
 import { UserService } from './user'
 
 // Service instances
-
 export const adminProjectService = new AdminProjectService(userRepository, projectRepository)
 export const adminTicketService = new AdminTicketService(ticketRepository)
 export const adminUserService = new AdminUserService(userRepository)
@@ -37,4 +36,4 @@ export const ticketUserService = new TicketUserService(projectRepository, ticket
 
 export const activityService = new ActivityService(ticketRepository)
 export const authService = new AuthService(userRepository)
-export const userService = new UserService(userRepository, emailResetRepository, passwordResetRepository)
+export const userService = new UserService(userRepository, passwordResetRepository)

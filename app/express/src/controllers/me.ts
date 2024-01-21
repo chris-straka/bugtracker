@@ -7,7 +7,7 @@ export async function getUserActivity(req: Request, res: Response, next: NextFun
   const userId = req.session.userId as string
 
   try {
-    const activity = activityService.getUserActivity(userId)
+    const activity = await activityService.getUserActivity(userId)
     res.status(200).send(activity)
   } catch (error) {
     return next(error) 
@@ -21,7 +21,7 @@ export async function getUserCreatedTickets(req: Request, res: Response, next: N
   const limit = req.query.limit as string | undefined
 
   try {
-    const userCreatedTickets = ticketService.getUserCreatedTickets(userId, cursor, limit)
+    const userCreatedTickets = await ticketService.getUserCreatedTickets(userId, cursor, limit)
     res.status(200).send(userCreatedTickets)
   } catch (error) {
     return next(error)
@@ -50,7 +50,7 @@ export async function getUserCreatedProjects(req: Request, res: Response, next: 
   const limit = req.query.limit as string | undefined
 
   try {
-    const results = projectService.getUserCreatedProjects(userId, cursor, limit)
+    const results = await projectService.getUserCreatedProjects(userId, cursor, limit)
     res.status(200).send(results)
   } catch (error) {
     return next(error)
@@ -111,7 +111,7 @@ export async function deleteCurrentUser(req: Request, res: Response, next: NextF
   const userId = req.session.userId as string
 
   try {
-    await userService.deleteUserBy('id', userId)
+    await userService.deleteCurrentUserById(userId)
     res.status(204).send()
   } catch (error) {
     return next(error) 

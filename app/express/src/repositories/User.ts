@@ -5,12 +5,17 @@ import { UserNotFoundError } from '../errors'
 export interface IUserRepository {
   createUser(username: string, email: string, hashedPassword: string, role: UserRole): Promise<BaseUser>
   
+  getUserById(id: string): Promise<BaseUser>
+  getUserByEmail(email: string): Promise<BaseUser>
+  getUserByUsername(username: string): Promise<BaseUser>
+
   getUserEmail(userId: string): Promise<string>
-  getUserBy(field: 'id' | 'email' | 'username', value: string): Promise<BaseUser>
   getUserAccountStatus(userId: string): Promise<UserAccountStatusObject>
   getUserForAuthentication(email: string): Promise<AuthUser>
 
-  userExistsBy(field: 'id' | 'email' | 'username', value: string): Promise<boolean>
+  userExistsById(id: string): Promise<boolean>
+  userExistsByEmail(email: string): Promise<boolean>
+  userExistsByUsername(username: string): Promise<boolean>
   userExistsByEmailOrUsername(email: string, username: string): Promise<boolean>
 
   changeUsername(id: string, newUsername: string): Promise<BaseUser>
@@ -19,7 +24,9 @@ export interface IUserRepository {
   changeRole(id: string, newRole: UserRole): Promise<BaseUser>
   changeAccountStatus(id: string, newAccountStatus: UserAccountStatus): Promise<UserAccountStatusObject>
 
-  deleteUserBy(field: 'id' | 'email' | 'username', value: string): Promise<boolean>
+  deleteUserById(id: string): Promise<boolean>
+  deleteUserByEmail(email: string): Promise<boolean>
+  deleteUserByUsername(username: string): Promise<boolean>
 }
 
 export class UserRepository implements IUserRepository {
@@ -42,12 +49,33 @@ export class UserRepository implements IUserRepository {
     return data.rows[0]
   }
 
-  async getUserForAuthentication(email: string) {
-    const data = await this.#pool.query<AuthUser>({
-      name: 'get_user_for_authentication',
-      text: 'SELECT id, username, email, password, role FROM app_user WHERE email = $1;',
+
+  async getUserById(id: string) {
+    const data = await this.#pool.query<BaseUser>({
+      name: 'get_user_by_id',
+      text: 'SELECT id, username, email, role FROM app_user WHERE id = $1;',
+      values: [id]
+    }) 
+
+    return data.rows[0]
+  }
+
+  async getUserByEmail(email: string) {
+    const data = await this.#pool.query<BaseUser>({
+      name: 'get_user_by_id',
+      text: 'SELECT id, username, email, role FROM app_user WHERE email = $1;',
       values: [email]
-    })    
+    }) 
+
+    return data.rows[0]
+  }
+
+  async getUserByUsername(username: string) {
+    const data = await this.#pool.query<BaseUser>({
+      name: 'get_user_by_id',
+      text: 'SELECT id, username, email, role FROM app_user WHERE username = $1;',
+      values: [username]
+    }) 
 
     return data.rows[0]
   }
@@ -63,32 +91,6 @@ export class UserRepository implements IUserRepository {
     throw new UserNotFoundError()
   }
 
-  async getUserBy(field: 'id' | 'email' | 'username', value: string) {
-    let query: string
-
-    switch (field) {
-      case 'id':
-        query = 'SELECT id, username, email, role FROM app_user WHERE id = $1;'
-        break
-      case 'email':
-        query = 'SELECT id, username, email, role FROM app_user WHERE email = $1;'
-        break
-      case 'username':
-        query = 'SELECT id, username, email, role FROM app_user WHERE username = $1;'
-        break
-      default:
-        throw new Error('Invalid field')
-    }
-
-    const data = await this.#pool.query<BaseUser>({
-      name: 'get_user_by',
-      text: query,
-      values: [value]
-    })
-
-    return data.rows[0]
-  }
-
   async getUserAccountStatus(userId: string) {
     const data = await this.#pool.query<UserAccountStatusObject>({
       name: 'user_is_active',
@@ -99,30 +101,41 @@ export class UserRepository implements IUserRepository {
     return data.rows[0]
   }
 
-  async userExistsBy(field: 'id' | 'email' | 'username', value: string) {
-    let query: string
+  async getUserForAuthentication(email: string) {
+    const data = await this.#pool.query<AuthUser>({
+      name: 'get_user_for_authentication',
+      text: 'SELECT id, username, email, password, role, account_status FROM app_user WHERE email = $1;',
+      values: [email]
+    })    
 
-    switch (field) {
-      case 'id':
-        query = 'SELECT 1 FROM app_user WHERE id = $1;'
-        break
-      case 'email':
-        query = 'SELECT 1 FROM app_user WHERE email = $1;'
-        break
-      case 'username':
-        query = 'SELECT 1 FROM app_user WHERE username = $1;'
-        break
-      default:
-        throw new Error('Invalid field')
-    }
+    return data.rows[0]
+  }
 
+  async userExistsById(id: string) {
     const data = await this.#pool.query({
-      name: 'user_exists_by',
-      text: query,
-      values: [value]
+      name: 'user_exists_by_id',
+      text: 'SELECT 1 FROM app_user WHERE id = $1;',
+      values: [id]
     })
+    return data.rowCount > 0
+  }
 
-    return data.rows.length > 0
+  async userExistsByEmail(email: string) {
+    const data = await this.#pool.query({
+      name: 'user_exists_by_email',
+      text: 'SELECT 1 FROM app_user WHERE email = $1;',
+      values: [email]
+    })
+    return data.rowCount > 0
+  }
+
+  async userExistsByUsername(username: string) {
+    const data = await this.#pool.query({
+      name: 'user_exists_by_username',
+      text: 'SELECT 1 FROM app_user WHERE username = $1;',
+      values: [username]
+    })
+    return data.rowCount > 0
   }
 
   async userExistsByEmailOrUsername(email: string, username: string) {
@@ -132,7 +145,7 @@ export class UserRepository implements IUserRepository {
       values: [email, username]
     })
 
-    return data.rows.length > 0
+    return data.rowCount > 0
   }
 
   async changeUsername(userId: string, username: string) {
@@ -174,41 +187,40 @@ export class UserRepository implements IUserRepository {
   }
 
   async changeAccountStatus(id: string, newAccountStatus: UserAccountStatus) {
-    try {
-      const data = await this.#pool.query<UserAccountStatusObject>({
-        name: 'change_account_status',
-        text: 'UPDATE app_user SET account_status = $2 WHERE id = $1 RETURNING account_status;',
-        values: [id, newAccountStatus]
-      })
+    const data = await this.#pool.query<UserAccountStatusObject>({
+      name: 'change_account_status',
+      text: 'UPDATE app_user SET account_status = $2 WHERE id = $1 RETURNING account_status;',
+      values: [id, newAccountStatus]
+    })
       
-      return data.rows[0]
-    } catch (error) {
-      console.error(error)
-      throw Error('oh fuk')
-    }
+    return data.rows[0]
   }
 
-  async deleteUserBy(field: 'id' | 'email' | 'username', value: string) {
-    let query: string
-
-    switch (field) {
-      case 'id':
-        query = 'DELETE FROM app_user WHERE id = $1;'
-        break
-      case 'email':
-        query = 'DELETE FROM app_user WHERE email = $1;'
-        break
-      case 'username':
-        query = 'DELETE FROM app_user WHERE username = $1;'
-        break
-      default:
-        throw new Error('Invalid field')
-    }
-
+  async deleteUserById(id: string) {
     const data = await this.#pool.query({
-      name: 'delete_user_by',
-      text: query,
-      values: [value]
+      name: 'delete_user_by_id',
+      text: 'DELETE FROM app_user WHERE id = $1;',
+      values: [id]
+    })
+
+    return data.rowCount > 0
+  }
+
+  async deleteUserByEmail(email: string) {
+    const data = await this.#pool.query({
+      name: 'delete_user_by_email',
+      text: 'DELETE FROM app_user WHERE email = $1;',
+      values: [email]
+    })
+
+    return data.rowCount > 0
+  }
+
+  async deleteUserByUsername(username: string) {
+    const data = await this.#pool.query({
+      name: 'delete_user_by_email',
+      text: 'DELETE FROM app_user WHERE username = $1;',
+      values: [username]
     })
 
     return data.rowCount > 0

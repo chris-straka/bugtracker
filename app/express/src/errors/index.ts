@@ -50,21 +50,39 @@ export class UserIsNotAuthorizedError extends AppError {
   }
 }
 
+export class UserIsNotAssignedToThisProjectError extends AppError {
+  constructor() {
+    super('User is not assigned to this project', 403) 
+  }
+}
+
+export class UserIsNotTheOwnerOfThisProjectError extends AppError {
+  constructor() {
+    super('User is not the owner of this project', 403) 
+  }
+}
+
+export class UserIsNotTheOwnerOfThisCommentError extends AppError {
+  constructor() {
+    super('User does not own this comment', 403)
+  }
+}
+
 export class UserIsAlreadyAssignedToThisProjectError extends AppError {
   constructor() {
     super('User is already assigned to this project', 409) 
   }
 }
 
-export class UserIsNotAssignedToThisProjectError extends AppError {
-  constructor() {
-    super('User is not assigned to this project', 404) 
-  }
-}
-
 export class InvalidOrMissingTokenError extends AppError {
   constructor() {
     super('The reset token is invalid or missing', 400) 
+  }
+}
+
+export class UserIsTheProjectOwnerAndCantBeRemovedError extends AppError {
+  constructor() {
+    super('This user owns the project and can not be removed, please change the project owner instead', 403)
   }
 }
 
@@ -94,10 +112,14 @@ export class TicketNotFoundError extends AppError {
   }
 }
 
+export class TicketAlreadyExistsError extends AppError {
+  constructor() {
+    super('A ticket already exists with that name', 409) 
+  }
+}
+
 export class TicketCommentNotFoundError extends AppError {
   constructor() {
     super('Ticket comment not found', 404) 
   }
 }
-
-// URI

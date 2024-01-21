@@ -12,6 +12,6 @@
     "esModuleInterop": true,
   },
   "include": [
-    "src/**/*", "docs/__safety",
+    "src/**/*", "docs/__safety", "src/__test__",
   ],
 }

@@ -1,21 +1,21 @@
 import type { UserRole } from '../../../models/User'
-import type { TestProject } from '..'
+import type { Project } from '../../../models/Project'
 import { createTestUser } from '../user'
 import { projectUserRepository } from '../../../repositories'
 
 export async function addUserToProject(projectId: string, userId: string) {
-  return await projectUserRepository.addUserToProject(projectId, userId)
+  return projectUserRepository.addUserToProject(projectId, userId)
 }
 
-export async function addUserToProjects(userId: string, projects: TestProject[]) {
+export async function addUserToProjects(userId: string, projects: Project[]) {
   for(const project of projects) {
-    await projectUserRepository.addUserToProject(project.id, userId)
+    await projectUserRepository.addUserToProject(project.id.toString(), userId)
   }
 }
 
 export async function createNewUserAndAddThemToProject(projectId: string, userRole: UserRole = 'developer') {
   const user = await createTestUser(userRole)
-  await projectUserRepository.addUserToProject(projectId, user.id)
+  await projectUserRepository.addUserToProject(projectId, user.id.toString())
   return user 
 }
 

@@ -18,11 +18,7 @@ export async function getProjectTickets(req: Request, res: Response, next: NextF
 export async function createProjectTicket(req: Request, res: Response, next: NextFunction) {
   const projectId = req.params.projectId
   const userId = req.session.userId as string
-  const name = req.body.name
-  const description = req.body.description
-  const type = req.body.type
-  const priority = req.body.priority
-  const status = req.body.status
+  const { name, description, type, priority, status } = req.body
 
   try {
     const ticket = await ticketService.createProjectTicket(projectId, userId, name, description, priority, type, status)
@@ -44,7 +40,7 @@ export async function updateProjectTicket(req: Request, res: Response, next: Nex
   const status = req.body.status
 
   try {
-    const ticket = ticketService.updateProjectTicket(ticketId, userId, userRole, name, description, type, priority, status)
+    const ticket = await ticketService.updateTicket(ticketId, userId, userRole, name, description, type, priority, status)
     res.status(200).send(ticket)
   } catch (error) {
     return next(error) 
@@ -58,7 +54,7 @@ export async function deleteProjectTicket(req: Request, res: Response, next: Nex
   const userRole = req.session.userRole as UserRole
 
   try {
-    await ticketService.deleteProjectTicket(ticketId, userId, userRole)
+    await ticketService.deleteTicket(ticketId, userId, userRole)
     res.status(204).send()
   } catch (error) {
     return next(error) 

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { param, body } from 'express-validator'
-import { validateInput, isActive, isAuthenticated, isProjectMemberOrAdmin } from '../../middleware'
+import { validateInput, isActive, isAuthenticated, isProjectMemberOrAdmin, projectExists, projectCommentExists } from '../../middleware'
 import * as ProjectCommentController from '../../controllers/project'
 
 const router = Router()
@@ -23,6 +23,7 @@ router.post('/projects/:projectId/comments',
     body('comment').isString().isLength({ min: 1, max: 500 }).withMessage('Project comment must be a string of 1-500 characters')
   ],
   validateInput,
+  projectExists,
   isProjectMemberOrAdmin,
   ProjectCommentController.createProjectComment
 )
@@ -36,6 +37,8 @@ router.put('/projects/:projectId/comments/:commentId',
     body('comment').isString().isLength({ min: 1, max: 500 }).withMessage('Project comment must be a string of 1-500 characters')
   ],
   validateInput,
+  projectExists,
+  projectCommentExists,
   isProjectMemberOrAdmin,
   ProjectCommentController.updateProjectComment
 )
@@ -48,6 +51,8 @@ router.delete('/projects/:projectId/comments/:commentId',
     param('commentId').isInt().withMessage('Comment ID must be an integer'),
   ],
   validateInput,
+  projectExists,
+  projectCommentExists,
   isProjectMemberOrAdmin,
   ProjectCommentController.deleteProjectComment
 )

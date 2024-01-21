@@ -1,9 +1,5 @@
-import type { UserRole } from '../../models/User'
 import type { IProjectRepository, IProjectUserRepository } from '../../repositories'
-import { 
-  ProjectNotFoundError, UserIsNotAuthorizedError, 
-  UserIsAlreadyAssignedToThisProjectError, UserIsNotAssignedToThisProjectError 
-} from '../../errors'
+import { ProjectNotFoundError, UserIsAlreadyAssignedToThisProjectError, UserIsNotAssignedToThisProjectError, UserIsTheProjectOwnerAndCantBeRemovedError } from '../../errors'
 
 export class ProjectUserService {
   #projectDb: IProjectRepository
@@ -15,10 +11,10 @@ export class ProjectUserService {
   }
 
   async getProjectUsers(projectId: string) {
-    const project = await this.#projectDb.getProjectBy('id', projectId)
+    const project = await this.#projectDb.getProjectById(projectId)
     if (!project) throw new ProjectNotFoundError()
 
-    return await this.#projectUserDb.getProjectUsers(projectId)
+    return this.#projectUserDb.getProjectUsers(projectId)
   }
 
   async addUserToProject(projectId: string, userId: string) {
@@ -30,24 +26,14 @@ export class ProjectUserService {
 
   async removeUserFromProject(
     projectId: string, 
-    userId: string, 
-    userRole: UserRole, 
-    userToRemoveId: string) 
+    userId: string) 
   {
-    const userAssignment = await this.#projectUserDb.checkIfUserIsAssignedToProject(projectId, userToRemoveId)
-    if (!userAssignment) throw new UserIsNotAssignedToThisProjectError()
+    const userIsAssigned = await this.#projectUserDb.checkIfUserIsAssignedToProject(projectId, userId)
+    if (!userIsAssigned) throw new UserIsNotAssignedToThisProjectError()
 
-    if (userRole === 'admin' || userRole === 'owner') {
-      return await this.#projectUserDb.removeUserFromProject(projectId, userToRemoveId)
-    }
+    const projectOwnerId = await this.#projectDb.getProjectOwnerId(projectId)
+    if (userId === projectOwnerId.toString()) throw new UserIsTheProjectOwnerAndCantBeRemovedError()
 
-    const project = await this.#projectDb.getProjectBy('id', projectId)
-
-    const isProjectOwner = userId === project.owner_id.toString() 
-    const isRemovingTheProjectOwner = userToRemoveId === project.owner_id.toString() 
-
-    if (!isProjectOwner && isRemovingTheProjectOwner) throw new UserIsNotAuthorizedError()
-
-    return await this.#projectUserDb.removeUserFromProject(projectId, userToRemoveId)
+    return this.#projectUserDb.removeUserFromProject(projectId, userId)
   }
 }

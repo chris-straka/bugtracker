@@ -8,15 +8,15 @@ export class EmailService {
   passwordResetPath = join(__dirname, './templates/password-reset.html')
 
   async getEmailTemplate(path: string) {
-    return await readFile(path, 'utf-8')
+    return readFile(path, 'utf-8')
   }
 
   async getEmailResetTemplate() {
-    return await this.getEmailTemplate(this.emailResetPath)
+    return this.getEmailTemplate(this.emailResetPath)
   }
 
   async getPasswordResetTemplate() {
-    return await this.getEmailTemplate(this.passwordResetPath)
+    return this.getEmailTemplate(this.passwordResetPath)
   }
 
   async embedTokenInEmailTemplate(token: string, template: string) {

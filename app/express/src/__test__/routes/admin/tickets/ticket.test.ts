@@ -18,7 +18,7 @@ describe('User route for checking all the tickets they\'re assigned to', () => {
   beforeAll(async () => {
     ({ tickets } = await createPmAndProjectWithTickets(20))
     dev = await createTestUser('developer')
-    await addUserToTickets(dev.id, tickets)
+    await addUserToTickets(dev.id.toString(), tickets)
   })
 
   describe('GET /admin/tickets', () => {

@@ -22,7 +22,7 @@ COPY . .
 RUN pnpm build
 
 # Grab the production app from build and only install the production dependencies
-FROM base as prod
+FROM base AS prod
 WORKDIR /usr/src/app
 ENV NODE_ENV=production
 COPY --chown=node:node --from=build ./usr/src/app/build .

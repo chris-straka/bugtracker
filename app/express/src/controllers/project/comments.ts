@@ -45,9 +45,9 @@ export async function updateProjectComment(req: Request, res: Response, next: Ne
 
 // DELETE /projects/:projectId/comments/:commentId
 export async function deleteProjectComment(req: Request, res: Response, next: NextFunction) {
-  const commentId = req.params.commentId 
   const userId = req.session.userId as string
   const userRole = req.session.userRole as UserRole
+  const commentId = req.params.commentId 
 
   try {
     await projectCommentService.deleteProjectComment(commentId, userId, userRole)

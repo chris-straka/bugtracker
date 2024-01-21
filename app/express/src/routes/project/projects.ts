@@ -1,22 +1,14 @@
 import { Router } from 'express'
 import { body, oneOf, param } from 'express-validator'
 import { ProjectStatusArray } from '../../models/Project'
-import { isActive, isAuthenticated, isAuthorized, isProjectMemberOrAdmin, validateInput } from '../../middleware'
+import { projectExists, isActive, isAuthenticated, isAuthorized, isProjectMemberOrAdmin, validateInput } from '../../middleware'
 import * as ProjectController from '../../controllers/project'
+import { isProjectOwnerOrAdmin } from '../../middleware/isProjectOwnerOrAdmin'
 
 const router = Router()
 
-router.get('/projects/:projectId', 
-  isAuthenticated, 
-  isActive,
-  param('projectId').isInt().withMessage('Project ID must be an integer'),
-  validateInput,
-  isProjectMemberOrAdmin,
-  ProjectController.getProject
-)
-
-router.post('/projects', 
-  isAuthenticated, 
+router.post('/projects',
+  isAuthenticated,
   isActive,
   isAuthorized(['project_manager', 'admin']),
   [
@@ -27,10 +19,18 @@ router.post('/projects',
   ProjectController.createProject
 )
 
+router.get('/projects/:projectId', 
+  isAuthenticated, 
+  isActive,
+  param('projectId').isInt().withMessage('Project ID must be an integer'),
+  validateInput,
+  ProjectController.getProject
+)
+
 router.put('/projects/:projectId', 
   isAuthenticated, 
   isActive,
-  isAuthorized(['project_manager', 'admin']),
+  isAuthorized(['project_manager', 'admin', 'owner']),
   [
     param('projectId').isInt().withMessage('Project ID must be an integer'),
     body('name').optional().isString().isLength({ min: 5, max: 100 }).withMessage('Name must be string between 5 and 100 characters'),
@@ -46,13 +46,16 @@ router.put('/projects/:projectId',
     )
   ],
   validateInput,
+  projectExists,
   isProjectMemberOrAdmin,
-  ProjectController.updateProject 
+  ProjectController.updateProject
 )
 
 router.delete('/projects/:projectId', 
   isAuthenticated, 
   isActive,
+  projectExists,
+  isProjectOwnerOrAdmin,
   isAuthorized(['project_manager', 'admin']),
   param('projectId').isInt().withMessage('Project ID must be an integer'),
   validateInput,

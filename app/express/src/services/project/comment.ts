@@ -1,5 +1,5 @@
 import type { IProjectCommentRepository } from '../../repositories'
-import { ProjectCommentNotFoundError, UserIsNotAuthorizedError } from '../../errors'
+import { UserIsNotAssignedToThisProjectError, UserIsNotTheOwnerOfThisCommentError } from '../../errors'
 import { UserRole } from '../../models/User'
 
 export class ProjectCommentService {
@@ -10,33 +10,47 @@ export class ProjectCommentService {
   }
   
   async createProjectComment(projectId: string, userId: string, comment: string) {
-    return await this.#projectCommentDb.createProjectComment(projectId, userId, comment)
+    return this.#projectCommentDb.createProjectComment(projectId, userId, comment)
   }
 
   async getProjectComments(projectId: string) {
-    return await this.#projectCommentDb.getProjectComments(projectId)
+    return this.#projectCommentDb.getProjectComments(projectId)
   }
 
   async updateProjectComment(commentId: string, userId: string, userRole: UserRole, newComment: string) {
-    const projectComment = await this.#projectCommentDb.getProjectCommentById(commentId)
-    if (!projectComment) throw new ProjectCommentNotFoundError()
+    // admins should be able to update all comments
+    if (userRole === 'admin' || userRole === 'owner') {
+      return this.#projectCommentDb.updateProjectComment(commentId, newComment)
+    }
 
-    if (userRole === 'admin') return await this.#projectCommentDb.updateProjectComment(commentId, newComment)
-    if (userRole === 'project_manager') return await this.#projectCommentDb.updateProjectComment(commentId, newComment)
+    // project_managers should be able to update all comments too
+    if (userRole === 'project_manager') {
+      return this.#projectCommentDb.updateProjectComment(commentId, newComment)
+    }
 
-    const isCommentOwner = userId === projectComment.owner_id.toString()
-    if (!isCommentOwner) throw new UserIsNotAuthorizedError()
+    const projectCommentOwnerId = await this.#projectCommentDb.getProjectCommentOwnerId(commentId)
+    const isCommentOwner = userId === projectCommentOwnerId.toString()
+    if (!isCommentOwner) throw new UserIsNotTheOwnerOfThisCommentError()
 
-    return await this.#projectCommentDb.updateProjectComment(commentId, newComment)
+    return this.#projectCommentDb.updateProjectComment(commentId, newComment)
   }
 
   async deleteProjectComment(commentId: string, userId: string, userRole: UserRole) {
-    if (userRole === 'admin') await this.#projectCommentDb.deleteProjectComment(commentId)
-    if (userRole === 'project_manager') await this.#projectCommentDb.deleteProjectComment(commentId)
+    // admins should be able to delete comments
+    if (userRole === 'admin' || userRole === 'owner') {
+      return this.#projectCommentDb.deleteProjectComment(commentId)
+    }
 
-    const projectComment = await this.#projectCommentDb.getProjectCommentById(commentId)
-    const isProjectCommentOwner = userId === projectComment.owner_id.toString()
-    if (!isProjectCommentOwner) throw new UserIsNotAuthorizedError()
+    // project managers should be able to delete comments
+    if (userRole === 'project_manager') {
+      return this.#projectCommentDb.deleteProjectComment(commentId)
+    }
+
+    const projectCommentOwnerId = await this.#projectCommentDb.getProjectCommentOwnerId(commentId)
+    console.log('projectCommentOwnerId', projectCommentOwnerId)
+
+    const isProjectCommentOwner = userId === projectCommentOwnerId.toString()
+    if (!isProjectCommentOwner) throw new UserIsNotAssignedToThisProjectError()
 
     await this.#projectCommentDb.deleteProjectComment(commentId)
   }

@@ -125,7 +125,11 @@ describe('Admin User Management Routes', () => {
 
       await user.agent
         .delete('/sessions')
-        .expect(204)
+      
+      await user.agent
+        .post('/sessions')
+        .send({ email: user.email, password: user.password })
+        .expect(403)
     })
 
     it('should 403 when changing the account status of another admin', async () => {
@@ -173,7 +177,7 @@ describe('Admin User Management Routes', () => {
 
       await admin.agent
         .delete(`/admin/users/${owner.id}`)
-        .expect(401)
+        .expect(403)
     })
   })
 })

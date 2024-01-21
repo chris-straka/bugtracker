@@ -7,7 +7,7 @@ export function testPaginationRoutes(
   baseQuery: Record<string, string> = {}, 
 ) {
   async function searchWithQuery(query: Record<string, string> = {}, statusCode = 200) {
-    return await agent.get(endpoint).query(query).expect(statusCode)
+    return agent.get(endpoint).query(query).expect(statusCode)
   }
 
   it(`should 200 and return a list of ${resource} with the nextCursor`, async () => {

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { createRequest, createResponse } from 'node-mocks-http'
 import type { UserRole } from '../../models/User'
-import { UserIsNotAuthorizedError } from '../../errors'
+import { UserIsNotAssignedToThisProjectError } from '../../errors'
 import { isAuthorized } from '../../middleware'
 
 describe('isAuthorized()', () => {
@@ -39,6 +39,6 @@ describe('isAuthorized()', () => {
     isAuthorized(authorizedRoles)(req, res, next)
 
     expect(next).toHaveBeenCalledTimes(1)
-    expect(next).toHaveBeenCalledWith(expect.any(UserIsNotAuthorizedError))
+    expect(next).toHaveBeenCalledWith(expect.any(UserIsNotAssignedToThisProjectError))
   })
 })

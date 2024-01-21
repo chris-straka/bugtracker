@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { body, param } from 'express-validator'
-import { isActive, isAuthenticated, isProjectMemberOrAdmin, validateInput } from '../../middleware'
+import { body, param, oneOf } from 'express-validator'
+import { isActive, isAuthenticated, isProjectMemberOrAdmin, projectExists, ticketExists, validateInput } from '../../middleware'
 import { TicketPriorityArray, TicketStatusArray, TicketTypeArray } from '../../models/Ticket'
 import * as TicketController from '../../controllers/ticket/tickets'
 
@@ -22,11 +22,12 @@ router.post('/projects/:projectId/tickets',
     param('projectId').isInt().withMessage('Project ID must be an integer'),
     body('name').isString().isLength({ min: 1, max: 100 }).withMessage('Name must be a string between 1 and 100 characters'),
     body('description').isString().isLength({ min: 1, max: 500 }).withMessage('Description must be a string between 1 and 500 characters'),
-    body('type').isString().trim().isIn(TicketTypeArray),
-    body('priority').isString().trim().isIn(TicketPriorityArray),
+    body('type').optional().isString().trim().isIn(TicketTypeArray),
+    body('priority').optional().isString().trim().isIn(TicketPriorityArray),
     body('status').optional().isString().trim().isIn(TicketStatusArray)
   ],
   validateInput,
+  projectExists,
   isProjectMemberOrAdmin,
   TicketController.createProjectTicket
 )
@@ -37,13 +38,25 @@ router.put('/projects/:projectId/tickets/:ticketId',
   [
     param('projectId').isInt().withMessage('Project ID must be an integer'),
     param('ticketId').isInt().withMessage('Ticket ID must be an integer'),
-    body('name').isString().isLength({ min: 1, max: 100 }).withMessage('Name must be a string between 1 and 100 characters'),
-    body('description').isString().isLength({ min: 1, max: 500 }).withMessage('Description must be a string between 1 and 500 characters'),
-    body('type').isString().trim().isIn(TicketTypeArray),
-    body('priority').isString().trim().isIn(TicketPriorityArray),
-    body('status').optional().isString().trim().isIn(TicketStatusArray)
+    body('name').optional().isString().isLength({ min: 1, max: 100 }).withMessage('Name must be a string between 1 and 100 characters'),
+    body('description').optional().isString().isLength({ min: 1, max: 500 }).withMessage('Description must be a string between 1 and 500 characters'),
+    body('type').optional().isString().trim().isIn(TicketTypeArray),
+    body('priority').optional().isString().trim().isIn(TicketPriorityArray),
+    body('status').optional().isString().trim().isIn(TicketStatusArray),
+    oneOf(
+      [
+        body('name').exists(),
+        body('description').exists(),
+        body('type').exists(),
+        body('priority').exists(),
+        body('status').exists()
+      ], 
+      { message: 'You need to specify either a new name, description, or status' }
+    )
   ],
   validateInput,
+  projectExists,
+  ticketExists,
   isProjectMemberOrAdmin,
   TicketController.updateProjectTicket
 )
@@ -56,6 +69,8 @@ router.delete('/projects/:projectId/tickets/:ticketId',
     param('ticketId').isInt().withMessage('Ticket ID must be an integer'),
   ],
   validateInput,
+  projectExists,
+  ticketExists,
   isProjectMemberOrAdmin,
   TicketController.deleteProjectTicket
 )

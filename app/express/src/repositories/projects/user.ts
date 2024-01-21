@@ -4,6 +4,7 @@ import type { BaseUser } from '../../models/User'
 export interface IProjectUserRepository {
   getProjectUsers(projectId: string): Promise<BaseUser[]>,
   checkIfUserIsAssignedToProject(projectId: string, userId: string): Promise<boolean>,
+  checkIfUserIsOwnerOfProject(projectId: string, userId: string): Promise<boolean>, 
   addUserToProject(projectId: string, userId: string): Promise<boolean>,
   removeUserFromProject(projectId: string, userId: string): Promise<boolean>,
 }
@@ -37,9 +38,23 @@ export class ProjectUserRepository implements IProjectUserRepository {
         FROM project_user
         WHERE project_id = $1 AND user_id = $2;
       `,
-      values: [userId, projectId]
+      values: [projectId, userId]
     })
-    return data.rowCount > 1
+    return data.rowCount > 0
+  }
+
+  async checkIfUserIsOwnerOfProject(projectId: string, userId: string) {
+    const data = await this.#pool.query({
+      name: 'check_if_user_is_owner_of_project',
+      text: `
+        SELECT 1
+        FROM project
+        WHERE id = $1 AND owner_id = $2;
+      `,
+      values: [projectId, userId]
+    }) 
+
+    return data.rowCount > 0
   }
 
   async addUserToProject(projectId: string, userId: string) {
@@ -54,7 +69,7 @@ export class ProjectUserRepository implements IProjectUserRepository {
 
   async removeUserFromProject(projectId: string, userId: string) {
     const res = await this.#pool.query({
-      name: 'add_user_to_project',
+      name: 'remove_user_from_project',
       text: 'DELETE FROM project_user WHERE project_id = $1 AND user_id = $2;',
       values: [projectId, userId]
     }) 

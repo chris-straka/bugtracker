@@ -21,7 +21,7 @@ export async function createProject(req: Request, res: Response, next: NextFunct
 
   try {
     const project = await projectService.createProject(userId, name, description)
-    res.status(201).send(project)
+    res.status(201).send({ project })
   } catch (error) {
     return next(error) 
   }
@@ -34,7 +34,7 @@ export async function updateProject(req: Request, res: Response, next: NextFunct
 
   try {
     const project = await projectService.updateProject(projectId, name, description, status) 
-    res.status(200).send(project)
+    res.status(200).send({ project })
   } catch (error) {
     return next(error) 
   }

@@ -8,7 +8,6 @@ export interface ITicketCommentRepository {
   getTicketComments(ticketId: string): Promise<TicketComment[]>
 
   updateTicketComment(commentId: string, comment: string): Promise<TicketComment>
-
   deleteTicketComment(commentId: string): Promise<boolean>
 }
 

@@ -9,4 +9,3 @@ export function isAuthenticated (req: Request, _: Response, next: NextFunction) 
   if (req.session?.userId) return next()
   else return next(new UserIsNotAuthenticatedError())
 }
-

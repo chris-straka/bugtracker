@@ -1,5 +1,5 @@
 import type { IUserRepository, IProjectRepository } from '../../repositories'
-import { UserNotFoundError, UserIsNotAuthorizedError } from '../../errors'
+import { UserNotFoundError, UserIsNotAssignedToThisProjectError } from '../../errors'
 
 export class AdminProjectService {
   #userDb: IUserRepository
@@ -10,24 +10,21 @@ export class AdminProjectService {
     this.#projectDb = projectDb 
   }
 
-  async changeProjectOwner(adminRole: 'admin' | 'owner', projectId: string, newOwnerId: string) {
-    const user = await this.#userDb.getUserBy('id', newOwnerId)
+  async changeProjectOwner(projectId: string, newOwnerId: string, adminRole: 'admin' | 'owner') {
+    const user = await this.#userDb.getUserById(newOwnerId)
     if (!user) throw new UserNotFoundError()
 
-    // an admin can't remove another admin from their project
-    if (adminRole === 'admin' && user.role === 'admin') {
-      throw new UserIsNotAuthorizedError()
-    }
-
-    // an admin can't remove an owner from their project
-    if (adminRole === 'admin' && user.role === 'owner') {
-      throw new UserIsNotAuthorizedError()
+    // an admin can't remove an admin or an owner from their own project
+    if (adminRole === 'admin') {
+      if (user.role === 'admin' || user.role === 'owner') {
+        throw new UserIsNotAssignedToThisProjectError()
+      }
     }
 
     await this.#projectDb.changeProjectOwner(projectId, newOwnerId)
   }
 
   async searchAllProjects(search: string, cursor?: string, limit?: string) {
-    return await this.#projectDb.searchAllProjects(search, cursor, limit)
+    return this.#projectDb.searchAllProjects(search, cursor, limit)
   }
 }

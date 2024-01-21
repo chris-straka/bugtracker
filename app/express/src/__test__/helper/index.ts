@@ -6,4 +6,3 @@ export * from './user'
 // Folders
 export * from './project'
 export * from './tickets'
-export * from './types'

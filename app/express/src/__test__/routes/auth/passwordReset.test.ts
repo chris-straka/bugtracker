@@ -83,7 +83,7 @@ describe('Reset Password Routes', () => {
     const newPassword = faker.internet.password()
 
     beforeEach(async () => {
-      await passwordResetRepository.storePasswordResetTokenUnderUserId(token, user.id)
+      await passwordResetRepository.storePasswordResetTokenUnderUserId(token, user.id.toString())
     })
 
     it('should 200 and update the password when given a correct token and a new password', async () => {

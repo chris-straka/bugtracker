@@ -2,6 +2,24 @@
 
 This template should help get you started developing with Vue 3 in Vite.
 
+## Dashboard
+
+### Home
+
+ticket statistics + search bar for viewing projects/tickets they're assigned.
+
+### Profile
+
+Profile page where a user change their username, email and password.
+
+### Workspace
+
+For viewing all the projects/tickets they created, and all the projects/tickets they're assigned to.
+
+### User Management (Admin Only)
+
+For promoting users privileges or removing them from stuff.
+
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).

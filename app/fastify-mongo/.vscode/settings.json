@@ -1,7 +1,0 @@
-// Use eslint's default formatter
-{
-  "eslint.format.enable": true,
-  "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-  },
-}

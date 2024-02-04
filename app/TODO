@@ -1,0 +1,3 @@
+Bring in Prettier and use that to format code instead of eslint
+
+Read the user's role from the session and not the user object, I think

@@ -2,20 +2,14 @@
 
 > Please jump straight to /app/express, it's the only thing with code right now.
 
-/app has the monolith versions for the backend.
+/app has the express API backend. 
 
-/services has the microservices version of the backend.
-
-/frontend has the frontends for the backend.
+/frontend will contain the frontend once the backend is ironed out. 
 
 ## Workflow
 
-A project manager creates a project and then adds users to that project
+There are different types of users in this app. 
 
-Those users can then create and edit tickets and comments
+A project manager creates a project and then adds users to that project.
 
-## Helpful
-
-https://www.reddit.com/r/docker/comments/k0v3os/separate_dockerfiles_for_development_and
-
-[I'm cloning this](https://www.youtube.com/watch?v=vG824vBdYY8)
+Those users can then create and edit tickets and comments.

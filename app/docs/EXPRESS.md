@@ -35,7 +35,7 @@ Offset is simple and you can use it to jump arbitrary pages (page 1 to page 230)
 - It's unreliable because data can be added to the DB while you're searching
 - It's not performant, especially when your offset becomes large
 
-Cursor is performant and reliable
+Cursor is complex, performant and reliable
 - Clients need to traverse the page one by one and can't jump arbitrarily
 - Clients need to keep track of the cursor value
 - Records need to be added sequentially to the DB

@@ -2,7 +2,6 @@
 
 > Please jump straight to /app/express, it's the only thing with code right now.
 
-
 /app has the monolith versions for the backend.
 
 /services has the microservices version of the backend.

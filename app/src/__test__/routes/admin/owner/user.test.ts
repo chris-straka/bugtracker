@@ -19,10 +19,7 @@ describe('Super Admin User Management Routes', () => {
       const url = `/admin/users/${user.id}/role`
       const newRole: UserRole = 'developer'
 
-      await owner.agent
-        .put(url)
-        .send({ newRole })
-        .expect(200)
+      await owner.agent.put(url).send({ newRole }).expect(200)
     })
 
     it('should 200 when upgrading a developer to an admin', async () => {
@@ -30,20 +27,14 @@ describe('Super Admin User Management Routes', () => {
       const url = `/admin/users/${user.id}/role`
       const newRole: UserRole = 'admin'
 
-      await owner.agent
-        .put(url)
-        .send({ newRole })
-        .expect(200)
+      await owner.agent.put(url).send({ newRole }).expect(200)
     })
 
     it('should 400 when request is empty', async () => {
       const user = await createTestUser('developer')
       const url = `/admin/users/${user.id}/role`
 
-      await owner.agent
-        .put(url)
-        .send({})
-        .expect(400)
+      await owner.agent.put(url).send({}).expect(400)
     })
 
     it('should 403 when upgrading someone to an owner', async () => {
@@ -51,10 +42,7 @@ describe('Super Admin User Management Routes', () => {
       const url = `/admin/users/${user.id}/role`
       const newRole: UserRole = 'owner'
 
-      await owner.agent
-        .put(url)
-        .send({ newRole })
-        .expect(403)
+      await owner.agent.put(url).send({ newRole }).expect(403)
     })
   })
 
@@ -64,10 +52,7 @@ describe('Super Admin User Management Routes', () => {
       const url = `/admin/users/${user.id}/account-status`
       const newAccountStatus: UserAccountStatus = 'disabled'
 
-      await owner.agent
-        .put(url)
-        .send({ newAccountStatus })
-        .expect(200)
+      await owner.agent.put(url).send({ newAccountStatus }).expect(200)
     })
 
     it('should 200 when disabling a non-admin', async () => {
@@ -75,20 +60,14 @@ describe('Super Admin User Management Routes', () => {
       const url = `/admin/users/${user.id}/account-status`
       const newAccountStatus: UserAccountStatus = 'disabled'
 
-      await owner.agent
-        .put(url)
-        .send({ newAccountStatus })
-        .expect(200)
+      await owner.agent.put(url).send({ newAccountStatus }).expect(200)
     })
 
     it('should 400 when request is empty', async () => {
       const user = await createTestUser('developer')
       const url = `/admin/users/${user.id}/account-status`
 
-      await owner.agent
-        .put(url)
-        .send({})
-        .expect(400)
+      await owner.agent.put(url).send({}).expect(400)
     })
 
     it('should 403 when a disabled admin tries to access an admin route', async () => {
@@ -96,10 +75,8 @@ describe('Super Admin User Management Routes', () => {
       const url = `/admin/users/${admin.id}/account-status`
       const newAccountStatus: UserAccountStatus = 'disabled'
 
-      await owner.agent
-        .put(url)
-        .send({ newAccountStatus })
-      
+      await owner.agent.put(url).send({ newAccountStatus })
+
       await admin.agent
         .put(`/admin/users/${admin.id}/account-status`)
         .send({ newAccountStatus: 'active' })
@@ -112,27 +89,21 @@ describe('Super Admin User Management Routes', () => {
       const admin = await createTestUser('admin')
       const url = `/admin/users/${admin.id}`
 
-      await owner.agent
-        .delete(url)
-        .expect(204)
+      await owner.agent.delete(url).expect(204)
     })
 
     it('should 204 when deleting a non-admin', async () => {
       const user = await createTestUser('developer')
       const url = `/admin/users/${user.id}`
 
-      await owner.agent
-        .delete(url)
-        .expect(204)
+      await owner.agent.delete(url).expect(204)
     })
 
     it('should 403 when deleting an owner', async () => {
       const otherOwner = await createTestUser('owner')
       const url = `/admin/users/${otherOwner.id}`
 
-      await owner.agent
-        .delete(url)
-        .expect(403)
+      await owner.agent.delete(url).expect(403)
     })
   })
 })

@@ -4,9 +4,12 @@ import { isPortReachable } from '../helper/db'
 import { execSync } from 'child_process'
 
 async function globalSetup() {
-  const isDBReachable = await isPortReachable(5432)
+  const isDBReachable = await isPortReachable(Number(process.env.PGPORT ?? 5432))
 
   if (!isDBReachable) {
+    // Remember that we were the ones who started the containers, so teardown
+    // only stops what it started. CI supplies its own Postgres/Redis.
+    process.env.JEST_STARTED_DOCKER = 'true'
     execSync('pnpm dddev')
 
     let retries = 10
@@ -19,12 +22,11 @@ async function globalSetup() {
         // pg_isready comes with postgres
         execSync('docker exec postgres_container pg_isready')
         isReady = true
-      } catch (error) {
+      } catch {
         retries--
       }
     }
-  } 
-
+  }
 }
 
 export default globalSetup

@@ -1,6 +1,6 @@
 # Full Text Search
 
-`tsvector` transforms data into a format optimized for full-text search. 
+`tsvector` transforms data into a format optimized for full-text search.
 `tsquery` is a text query that can be applied against a `tsvector` to find stuff.
 
 https://www.postgresql.org/docs/current/datatype-textsearch.html

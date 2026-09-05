@@ -1,9 +1,10 @@
 import type { Request, Response, NextFunction } from 'express'
 import { emailResetService } from '../../services'
+import { routeParam } from '../../utility'
 
 // PUT /emails/:emailResetToken
-export async function changeEmailViaResetToken(req: Request, res: Response, next: NextFunction) { 
-  const { emailResetToken } = req.params
+export async function changeEmailViaResetToken(req: Request, res: Response, next: NextFunction) {
+  const emailResetToken = routeParam(req.params.emailResetToken)
 
   try {
     const { oldEmail, newEmail } = await emailResetService.grabEmailsFromToken(emailResetToken)

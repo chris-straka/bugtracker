@@ -15,3 +15,6 @@
 **/test/
 
 postman.http
+**/build/
+**/.env
+**/coverage/

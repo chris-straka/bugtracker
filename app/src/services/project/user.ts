@@ -1,5 +1,10 @@
 import type { IProjectRepository, IProjectUserRepository } from '../../repositories'
-import { ProjectNotFoundError, UserIsAlreadyAssignedToThisProjectError, UserIsNotAssignedToThisProjectError, UserIsTheProjectOwnerAndCantBeRemovedError } from '../../errors'
+import {
+  ProjectNotFoundError,
+  UserIsAlreadyAssignedToThisProjectError,
+  UserIsNotAssignedToThisProjectError,
+  UserIsTheProjectOwnerAndCantBeRemovedError,
+} from '../../errors'
 
 export class ProjectUserService {
   #projectDb: IProjectRepository
@@ -24,10 +29,7 @@ export class ProjectUserService {
     await this.#projectUserDb.addUserToProject(projectId, userId)
   }
 
-  async removeUserFromProject(
-    projectId: string, 
-    userId: string) 
-  {
+  async removeUserFromProject(projectId: string, userId: string) {
     const userIsAssigned = await this.#projectUserDb.checkIfUserIsAssignedToProject(projectId, userId)
     if (!userIsAssigned) throw new UserIsNotAssignedToThisProjectError()
 

@@ -17,9 +17,9 @@ describe('isAuthenticated()', () => {
   it('should 200 if the user is logged in', () => {
     req = createRequest({
       session: {
-        userId: '1'
-      } as SessionData
-    }) 
+        userId: '1',
+      } as SessionData,
+    })
 
     isAuthenticated(req, res, next)
 

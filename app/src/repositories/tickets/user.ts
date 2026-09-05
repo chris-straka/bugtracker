@@ -3,15 +3,16 @@ import type { BaseUser } from '../../models/User'
 
 export interface ITicketUserRepository {
   getTicketUsers(ticketId: string): Promise<BaseUser[]>
+  checkIfUserIsAssignedToTicket(ticketId: string, userId: string): Promise<boolean>
   addUserToTicket(ticketId: string, userId: string): Promise<boolean>
-  removeUserFromTicket(projectId: string, userId: string): Promise<boolean>
+  removeUserFromTicket(ticketId: string, userId: string): Promise<boolean>
 }
 
 export class TicketUserRepository implements ITicketUserRepository {
   #pool: Pool
 
   constructor(dbPool: Pool) {
-    this.#pool = dbPool 
+    this.#pool = dbPool
   }
 
   async getTicketUsers(ticketId: string) {
@@ -23,7 +24,7 @@ export class TicketUserRepository implements ITicketUserRepository {
         JOIN ticket_user tu ON u.id = tu.user_id
         WHERE tu.ticket_id = $1;
       `,
-      values: [ticketId]
+      values: [ticketId],
     })
     return data.rows
   }
@@ -32,19 +33,29 @@ export class TicketUserRepository implements ITicketUserRepository {
     const res = await this.#pool.query({
       name: 'add_user_to_ticket',
       text: 'INSERT INTO ticket_user(ticket_id, user_id) VALUES ($1, $2);',
-      values: [ticketId, userId]
-    }) 
+      values: [ticketId, userId],
+    })
 
-    return res.rowCount > 0
+    return (res.rowCount ?? 0) > 0
   }
 
-  async removeUserFromTicket(projectId: string, userId: string) {
+  async checkIfUserIsAssignedToTicket(ticketId: string, userId: string) {
+    const res = await this.#pool.query({
+      name: 'check_if_user_is_assigned_to_ticket',
+      text: 'SELECT 1 FROM ticket_user WHERE ticket_id = $1 AND user_id = $2;',
+      values: [ticketId, userId],
+    })
+
+    return (res.rowCount ?? 0) > 0
+  }
+
+  async removeUserFromTicket(ticketId: string, userId: string) {
     const res = await this.#pool.query({
       name: 'remove_user_from_ticket',
       text: 'DELETE FROM ticket_user WHERE ticket_id = $1 AND user_id = $2;',
-      values: [projectId, userId]
-    }) 
+      values: [ticketId, userId],
+    })
 
-    return res.rowCount > 0
+    return (res.rowCount ?? 0) > 0
   }
 }

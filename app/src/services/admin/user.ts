@@ -9,11 +9,7 @@ export class AdminUserService {
     this.#userDb = userDb
   }
 
-  async changeRole(
-    userId: string, 
-    newRole: UserRole, 
-    adminRole: AdminRole
-  ) {
+  async changeRole(userId: string, newRole: UserRole, adminRole: AdminRole) {
     const user = await this.#userDb.getUserById(userId)
     if (!user) throw new UserNotFoundError()
 
@@ -24,16 +20,12 @@ export class AdminUserService {
     if (adminRole === 'admin') {
       if (user.role === 'admin' || newRole === 'admin') throw new UserIsNotAssignedToThisProjectError()
     }
-    
+
     return this.#userDb.changeRole(userId, newRole)
   }
 
-  async changeAccountStatus(
-    userId: string, 
-    newAccountStatus: UserAccountStatus, 
-    adminRole: AdminRole
-  ) {
-    const user = await this.#userDb.getUserById(userId)    
+  async changeAccountStatus(userId: string, newAccountStatus: UserAccountStatus, adminRole: AdminRole) {
+    const user = await this.#userDb.getUserById(userId)
     if (!user) throw new UserNotFoundError()
 
     // the owner account_status can't be changed
@@ -52,9 +44,9 @@ export class AdminUserService {
     // the owner can't be deleted
     if (user.role === 'owner') throw new UserIsNotAssignedToThisProjectError()
 
-    // an admin can't delete another admin 
+    // an admin can't delete another admin
     if (adminRole === 'admin' && user.role === 'admin') {
-      throw new UserIsNotAssignedToThisProjectError() 
+      throw new UserIsNotAssignedToThisProjectError()
     }
 
     return this.#userDb.deleteUserById(userId)

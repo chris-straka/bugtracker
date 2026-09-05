@@ -1,13 +1,15 @@
-import { SuperAgentTest } from 'supertest'
+import type { Agent } from 'supertest'
 
 export function testPaginationRoutes(
-  agent: SuperAgentTest,
+  // Taken lazily: call sites pass an agent created in `beforeAll`, which has not
+  // run yet while the surrounding `describe` body is being collected.
+  agent: () => Agent,
   endpoint: string,
   resource: string,
-  baseQuery: Record<string, string> = {}, 
+  baseQuery: Record<string, string> = {},
 ) {
   async function searchWithQuery(query: Record<string, string> = {}, statusCode = 200) {
-    return agent.get(endpoint).query(query).expect(statusCode)
+    return agent().get(endpoint).query(query).expect(statusCode)
   }
 
   it(`should 200 and return a list of ${resource} with the nextCursor`, async () => {

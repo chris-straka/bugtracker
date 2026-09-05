@@ -1,6 +1,6 @@
 import type { UserRole } from '../models/User'
 import type { IUserRepository, IPasswordResetRepository } from '../repositories'
-import { UserNotFoundError, UserAlreadyExistsError , InvalidOrMissingTokenError } from '../errors'
+import { UserNotFoundError, UserAlreadyExistsError, InvalidOrMissingTokenError } from '../errors'
 import { toHashWithSalt } from '../utility'
 
 export class UserService {

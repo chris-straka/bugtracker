@@ -7,37 +7,40 @@ import * as AdminUserController from '../../controllers/admin/user'
 
 const router = Router()
 
-router.put('/admin/users/:userId/role',
+router.put(
+  '/admin/users/:userId/role',
   isAuthenticated,
   isActive,
   isAuthorized(['admin', 'owner'] as UserRole[]),
-  [ 
+  [
     param('userId').isInt().withMessage('User ID must be an integer'),
     body('newRole', 'Invalid role').isIn(UserRolesArray),
   ],
-  validateInput, 
-  AdminUserController.changeUserRole
+  validateInput,
+  AdminUserController.changeUserRole,
 )
 
-router.put('/admin/users/:userId/account-status',
+router.put(
+  '/admin/users/:userId/account-status',
   isAuthenticated,
   isActive,
   isAuthorized(['admin', 'owner'] as UserRole[]),
-  [ 
+  [
     param('userId').isInt().withMessage('User ID must be an integer'),
     body('newAccountStatus', 'Invalid account status status').isIn(UserAccountStatusArray),
   ],
-  validateInput, 
-  AdminUserController.changeAccountStatus
+  validateInput,
+  AdminUserController.changeAccountStatus,
 )
 
-router.delete('/admin/users/:userId',
+router.delete(
+  '/admin/users/:userId',
   isAuthenticated,
   isActive,
   isAuthorized(['admin', 'owner'] as UserRole[]),
   param('userId').isInt().withMessage('User ID must be an integer'),
-  validateInput, 
-  AdminUserController.deleteUser
+  validateInput,
+  AdminUserController.deleteUser,
 )
 
 export default router

@@ -15,7 +15,7 @@ export class TicketCommentRepository implements ITicketCommentRepository {
   #pool: Pool
 
   constructor(dbPool: Pool) {
-    this.#pool = dbPool 
+    this.#pool = dbPool
   }
 
   async createTicketComment(ticketId: string, ownerId: string, comment: string) {
@@ -26,7 +26,7 @@ export class TicketCommentRepository implements ITicketCommentRepository {
         VALUES ($1, $2, $3)
         RETURNING *;
       `,
-      values: [ticketId, ownerId, comment]
+      values: [ticketId, ownerId, comment],
     })
     return result.rows[0]
   }
@@ -34,8 +34,8 @@ export class TicketCommentRepository implements ITicketCommentRepository {
   async getTicketCommentById(commentId: string) {
     const data = await this.#pool.query<TicketComment>({
       name: 'get_ticket_comment_by_id',
-      text: 'SELECT 1 FROM ticket_comment WHERE id = $1;',
-      values: [commentId]
+      text: 'SELECT * FROM ticket_comment WHERE id = $1;',
+      values: [commentId],
     })
     return data.rows[0]
   }
@@ -49,7 +49,7 @@ export class TicketCommentRepository implements ITicketCommentRepository {
       JOIN app_user u ON u.id = tc.owner_id
       WHERE tc.id = $1;
     `,
-      values: [ticketId]
+      values: [ticketId],
     })
     return data.rows
   }
@@ -58,7 +58,7 @@ export class TicketCommentRepository implements ITicketCommentRepository {
     const result = await this.#pool.query<TicketComment>({
       name: 'update_ticket_comment',
       text: 'UPDATE ticket_comment SET comment = $2 WHERE id = $1 RETURNING *;',
-      values: [commentId, comment]
+      values: [commentId, comment],
     })
     return result.rows[0]
   }
@@ -67,8 +67,8 @@ export class TicketCommentRepository implements ITicketCommentRepository {
     const result = await this.#pool.query({
       name: 'delete_ticket_comment',
       text: 'DELETE FROM ticket_comment WHERE id = $1;',
-      values: [commentId]
+      values: [commentId],
     })
-    return result.rowCount > 0
+    return (result.rowCount ?? 0) > 0
   }
 }

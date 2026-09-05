@@ -2,20 +2,25 @@ import type { Pool } from 'pg'
 import type { Project, ProjectStatus } from '../../models/Project'
 
 export interface IProjectRepository {
-  createProject(ownerId: string, name: string, description: string): Promise<Project>,
+  createProject(ownerId: string, name: string, description: string): Promise<Project>
 
-  projectExistsById(projectId: string): Promise<boolean>,
-  getProjectById(projectId: string): Promise<Project>,
-  getProjectByName(name: string): Promise<Project>,
-  getProjectOwnerId(projectId: string): Promise<number>,
-  getUserAssignedProjects(userId: string, cursor?: string, limit?: string): Promise<Project[]>,
-  getUserCreatedProjects(userId: string, cursor?: string, limit?: string): Promise<Project[]>,
-  searchAllProjects(search: string, cursor?: string, limit?: string): Promise<Project[]>,
+  projectExistsById(projectId: string): Promise<boolean>
+  getProjectById(projectId: string): Promise<Project>
+  getProjectByName(name: string): Promise<Project>
+  getProjectOwnerId(projectId: string): Promise<number>
+  getUserAssignedProjects(userId: string, cursor?: string, limit?: string): Promise<Project[]>
+  getUserCreatedProjects(userId: string, cursor?: string, limit?: string): Promise<Project[]>
+  searchAllProjects(search: string, cursor?: string, limit?: string): Promise<Project[]>
 
-  updateProject(projectId: string, name?: string, description?: string, status?: ProjectStatus): Promise<Project>,
-  changeProjectOwner(projectId: string, newOwnerId: string): Promise<boolean>,
+  updateProject(
+    projectId: string,
+    name?: string,
+    description?: string,
+    status?: ProjectStatus,
+  ): Promise<Project>
+  changeProjectOwner(projectId: string, newOwnerId: string): Promise<boolean>
 
-  deleteProject(projectId: string): Promise<boolean>,
+  deleteProject(projectId: string): Promise<boolean>
 }
 
 export class ProjectRepository implements IProjectRepository {
@@ -63,17 +68,17 @@ export class ProjectRepository implements IProjectRepository {
     const data = await this.#pool.query({
       name: 'project_exists',
       text: 'SELECT 1 FROM project WHERE id = $1;',
-      values: [projectId]
+      values: [projectId],
     })
 
-    return data.rowCount > 0
+    return (data.rowCount ?? 0) > 0
   }
 
   async getProjectById(id: string) {
     const result = await this.#pool.query<Project>({
       name: 'get_project_by_id',
       text: 'SELECT * FROM project WHERE id = $1;',
-      values: [id]
+      values: [id],
     })
 
     return result.rows[0]
@@ -83,7 +88,7 @@ export class ProjectRepository implements IProjectRepository {
     const result = await this.#pool.query<Project>({
       name: 'get_project_by_name',
       text: 'SELECT * FROM project WHERE name = $1;',
-      values: [name]
+      values: [name],
     })
 
     return result.rows[0]
@@ -93,8 +98,8 @@ export class ProjectRepository implements IProjectRepository {
     const data = await this.#pool.query<{ owner_id: number }>({
       name: 'get_project_owner_id',
       text: 'SELECT owner_id FROM project WHERE id = $1;',
-      values: [projectId]
-    })  
+      values: [projectId],
+    })
 
     return data.rows[0].owner_id
   }
@@ -110,7 +115,7 @@ export class ProjectRepository implements IProjectRepository {
         ORDER BY p.id ASC
         LIMIT $3;
       `,
-      values: [userId, cursor, limit]
+      values: [userId, cursor, limit],
     })
     return data.rows
   }
@@ -126,7 +131,7 @@ export class ProjectRepository implements IProjectRepository {
         ORDER BY p.id ASC
         LIMIT $3;
       `,
-      values: [userId, cursor, limit]
+      values: [userId, cursor, limit],
     })
     return data.rows
   }
@@ -142,7 +147,7 @@ export class ProjectRepository implements IProjectRepository {
         ORDER BY rank DESC, id ASC
         LIMIT $3;
       `,
-      values: [search, cursor, limit]
+      values: [search, cursor, limit],
     })
     return data.rows
   }
@@ -188,22 +193,22 @@ export class ProjectRepository implements IProjectRepository {
     return result.rows[0]
   }
 
-  async changeProjectOwner(projectId: string, newOwnerId: string) { 
+  async changeProjectOwner(projectId: string, newOwnerId: string) {
     const res = await this.#pool.query({
       name: 'admin_change_project_owner',
       text: 'UPDATE project SET owner_id = $2 WHERE id = $1',
-      values: [projectId, newOwnerId]
+      values: [projectId, newOwnerId],
     })
 
-    return res.rowCount > 0
+    return (res.rowCount ?? 0) > 0
   }
 
   async deleteProject(projectId: string) {
     const data = await this.#pool.query({
       name: 'delete_project',
       text: 'DELETE FROM project WHERE id = $1;',
-      values: [projectId]
+      values: [projectId],
     })
-    return data.rowCount > 0
+    return (data.rowCount ?? 0) > 0
   }
 }

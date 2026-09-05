@@ -6,61 +6,63 @@ import * as MeController from '../../controllers/me'
 
 const router = Router()
 
-router.get('/me/activity',
-  isAuthenticated,
-  isActive,
-  MeController.getUserActivity
-)
+router.get('/me/activity', isAuthenticated, isActive, MeController.getUserActivity)
 
-router.get('/me/my-tickets',
-  isAuthenticated,
-  isActive,
-  MeController.getUserCreatedTickets
-)
-
-router.get('/me/assigned-tickets',
+router.get(
+  '/me/my-tickets',
   isAuthenticated,
   isActive,
   cursorPaginationValidators,
   validateInput,
-  MeController.getUserAssignedTickets
+  MeController.getUserCreatedTickets,
 )
 
-router.get('/me/my-projects',
+router.get(
+  '/me/assigned-tickets',
+  isAuthenticated,
+  isActive,
+  cursorPaginationValidators,
+  validateInput,
+  MeController.getUserAssignedTickets,
+)
+
+router.get(
+  '/me/my-projects',
   isAuthenticated,
   isActive,
   isAuthorized(['project_manager', 'admin', 'owner']),
-  MeController.getUserCreatedProjects 
+  cursorPaginationValidators,
+  validateInput,
+  MeController.getUserCreatedProjects,
 )
 
-router.get('/me/assigned-projects',
+router.get(
+  '/me/assigned-projects',
   isAuthenticated,
   isActive,
   cursorPaginationValidators,
   validateInput,
-  MeController.getUserAssignedProjects
+  MeController.getUserAssignedProjects,
 )
 
-router.put('/me/username',
+router.put(
+  '/me/username',
   isAuthenticated,
   isActive,
   body('newUsername', 'Username is not valid').isString(),
   validateInput,
-  MeController.changeUserUsername
+  MeController.changeUserUsername,
 )
 
-router.post('/me/email-reset-requests', 
+router.post(
+  '/me/email-reset-requests',
   isAuthenticated,
   isActive,
   body('newEmail', 'New email is not valid').isEmail(),
   validateInput,
-  MeController.requestEmailReset
+  MeController.requestEmailReset,
 )
 
-router.delete('/me',
-  isAuthenticated,
-  isActive,
-  MeController.deleteCurrentUser
-)
+router.delete('/me', isAuthenticated, isActive, MeController.deleteCurrentUser)
 
 export default router

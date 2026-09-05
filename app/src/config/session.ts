@@ -24,10 +24,12 @@ const sessionConfig: SessionOptions = {
   rolling: true,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false }
+  cookie: { secure: false },
 }
 
-if (process.env.NODE_ENV === 'production' && sessionConfig.cookie != null) {
+// express-session 1.19 widened `cookie` to also allow a factory function, so
+// narrow to the object form before touching it.
+if (process.env.NODE_ENV === 'production' && typeof sessionConfig.cookie === 'object') {
   sessionConfig.cookie.secure = true
 }
 

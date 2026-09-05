@@ -1,5 +1,12 @@
 import type { Request, Response, NextFunction } from 'express'
-import { activityService, userService, projectService, ticketService, emailService, emailResetService } from '../services'
+import {
+  activityService,
+  userService,
+  projectService,
+  ticketService,
+  emailService,
+  emailResetService,
+} from '../services'
 import { createResetToken } from '../utility'
 
 // GET /me/activity
@@ -10,7 +17,7 @@ export async function getUserActivity(req: Request, res: Response, next: NextFun
     const activity = await activityService.getUserActivity(userId)
     res.status(200).send(activity)
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }
 
@@ -30,16 +37,15 @@ export async function getUserCreatedTickets(req: Request, res: Response, next: N
 
 // GET /me/assigned-tickets ?cursor=&limit=
 export async function getUserAssignedTickets(req: Request, res: Response, next: NextFunction) {
-  const userId = req.session.userId as string 
+  const userId = req.session.userId as string
   const cursor = req.query.cursor as string | undefined
   const limit = req.query.limit as string | undefined
 
   try {
-    const { tickets, newCursor } = await ticketService.getUserAssignedTickets(userId, cursor, limit)
-    res.status(200).send({ tickets, newCursor })
-    res.status(200).send({ tickets, newCursor })
+    const { tickets, nextCursor } = await ticketService.getUserAssignedTickets(userId, cursor, limit)
+    res.status(200).send({ tickets, nextCursor })
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }
 
@@ -64,23 +70,23 @@ export async function getUserAssignedProjects(req: Request, res: Response, next:
   const limit = req.query.limit as string | undefined
 
   try {
-    const { projects, newCursor } = await projectService.getUserAssignedProjects(userId, cursor, limit)
-    res.status(200).send({ projects, newCursor })
+    const { projects, nextCursor } = await projectService.getUserAssignedProjects(userId, cursor, limit)
+    res.status(200).send({ projects, nextCursor })
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }
 
-// PUT /me/users/username
+// PUT /me/username
 export async function changeUserUsername(req: Request, res: Response, next: NextFunction) {
-  const userId = req.params.userId
-  const { newUsername } = req.body 
+  const userId = req.session.userId as string
+  const { newUsername } = req.body
 
   try {
     await userService.changeUsername(userId, newUsername)
     res.status(200).send({ username: newUsername })
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }
 
@@ -114,6 +120,6 @@ export async function deleteCurrentUser(req: Request, res: Response, next: NextF
     await userService.deleteCurrentUserById(userId)
     res.status(204).send()
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }

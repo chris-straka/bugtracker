@@ -3,7 +3,7 @@ import { adminProjectService } from '../../services'
 
 // GET /admin/projects
 export async function searchAllProjects(req: Request, res: Response, next: NextFunction) {
-  const search = req.query.search as string 
+  const search = req.query.search as string
   const cursor = req.query.cursor as string | undefined
   const limit = req.query.limit as string | undefined
 
@@ -11,7 +11,7 @@ export async function searchAllProjects(req: Request, res: Response, next: NextF
     const projects = await adminProjectService.searchAllProjects(search, cursor, limit)
     res.status(200).send(projects)
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }
 
@@ -25,6 +25,6 @@ export async function changeProjectOwner(req: Request, res: Response, next: Next
     const user = await adminProjectService.changeProjectOwner(adminRole, projectId, newOwnerId)
     res.status(200).send(user)
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }

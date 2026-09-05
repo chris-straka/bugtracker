@@ -6,14 +6,14 @@ export class ActivityService {
   #ticketDb: ITicketRepository
 
   constructor(ticketDb: ITicketRepository) {
-    this.#ticketDb = ticketDb 
+    this.#ticketDb = ticketDb
   }
 
-  async getUserActivity(userId: string) { 
+  async getUserActivity(userId: string) {
     const ticketStatistics: {
-      priority: Record<TicketPriority, number>,
-      type: Record<TicketType, number>,
-      status: Record<TicketStatus, number>,
+      priority: Record<TicketPriority, number>
+      type: Record<TicketType, number>
+      status: Record<TicketStatus, number>
       project: Record<string, number>
     } = {
       priority: {
@@ -21,7 +21,7 @@ export class ActivityService {
         low: 0,
         medium: 0,
         high: 0,
-        critical: 0
+        critical: 0,
       },
       type: {
         bug: 0,
@@ -29,18 +29,18 @@ export class ActivityService {
         task: 0,
         documentation: 0,
         improvement: 0,
-        question: 0
+        question: 0,
       },
       status: {
         open: 0,
         in_progress: 0,
         closed: 0,
-        additional_info_required: 0
+        additional_info_required: 0,
       },
-      project: {} 
+      project: {},
     }
 
-    const tickets = await this.#ticketDb.getUserAssignedTicketStatistics(userId) 
+    const tickets = await this.#ticketDb.getUserAssignedTicketStatistics(userId)
 
     for (const ticket of tickets) {
       ticketStatistics.priority[ticket.priority]++

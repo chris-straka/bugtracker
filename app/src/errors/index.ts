@@ -40,25 +40,25 @@ export class UserProvidedTheWrongPasswordError extends AppError {
 
 export class UserIsNotAuthenticatedError extends AppError {
   constructor() {
-    super('User is not authenticated', 401) 
+    super('User is not authenticated', 401)
   }
 }
 
 export class UserIsNotAuthorizedError extends AppError {
   constructor() {
-    super('User is not authorized to access this resource', 403) 
+    super('User is not authorized to access this resource', 403)
   }
 }
 
 export class UserIsNotAssignedToThisProjectError extends AppError {
   constructor() {
-    super('User is not assigned to this project', 403) 
+    super('User is not assigned to this project', 403)
   }
 }
 
 export class UserIsNotTheOwnerOfThisProjectError extends AppError {
   constructor() {
-    super('User is not the owner of this project', 403) 
+    super('User is not the owner of this project', 403)
   }
 }
 
@@ -70,13 +70,13 @@ export class UserIsNotTheOwnerOfThisCommentError extends AppError {
 
 export class UserIsAlreadyAssignedToThisProjectError extends AppError {
   constructor() {
-    super('User is already assigned to this project', 409) 
+    super('User is already assigned to this project', 409)
   }
 }
 
 export class InvalidOrMissingTokenError extends AppError {
   constructor() {
-    super('The reset token is invalid or missing', 400) 
+    super('The reset token is invalid or missing', 400)
   }
 }
 
@@ -101,25 +101,25 @@ export class ProjectNotFoundError extends AppError {
 
 export class ProjectCommentNotFoundError extends AppError {
   constructor() {
-    super('Project comment not found', 404) 
+    super('Project comment not found', 404)
   }
 }
 
 // TICKET
 export class TicketNotFoundError extends AppError {
   constructor() {
-    super('Project comment not found', 404) 
+    super('Project comment not found', 404)
   }
 }
 
 export class TicketAlreadyExistsError extends AppError {
   constructor() {
-    super('A ticket already exists with that name', 409) 
+    super('A ticket already exists with that name', 409)
   }
 }
 
 export class TicketCommentNotFoundError extends AppError {
   constructor() {
-    super('Ticket comment not found', 404) 
+    super('Ticket comment not found', 404)
   }
 }

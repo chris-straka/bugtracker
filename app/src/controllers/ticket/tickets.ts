@@ -1,36 +1,45 @@
 import type { Request, Response, NextFunction } from 'express'
 import type { UserRole } from '../../models/User'
 import { ticketService } from '../../services'
+import { routeParam } from '../../utility'
 
 // GET /projects/:projectId/tickets
 export async function getProjectTickets(req: Request, res: Response, next: NextFunction) {
-  const projectId = req.params.projectId
+  const projectId = routeParam(req.params.projectId)
 
   try {
     const tickets = await ticketService.getProjectTickets(projectId)
     res.status(200).send(tickets)
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }
 
 // POST /projects/:projectId/tickets
 export async function createProjectTicket(req: Request, res: Response, next: NextFunction) {
-  const projectId = req.params.projectId
+  const projectId = routeParam(req.params.projectId)
   const userId = req.session.userId as string
   const { name, description, type, priority, status } = req.body
 
   try {
-    const ticket = await ticketService.createProjectTicket(projectId, userId, name, description, priority, type, status)
+    const ticket = await ticketService.createProjectTicket(
+      projectId,
+      userId,
+      name,
+      description,
+      priority,
+      type,
+      status,
+    )
     res.status(201).send(ticket)
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }
 
 // PUT /projects/:projectId/tickets/:ticketId
 export async function updateProjectTicket(req: Request, res: Response, next: NextFunction) {
-  const ticketId = req.params.ticketId
+  const ticketId = routeParam(req.params.ticketId)
   const userId = req.session.userId as string
   const userRole = req.session.userRole as UserRole
   const name = req.body.name
@@ -40,16 +49,25 @@ export async function updateProjectTicket(req: Request, res: Response, next: Nex
   const status = req.body.status
 
   try {
-    const ticket = await ticketService.updateTicket(ticketId, userId, userRole, name, description, type, priority, status)
+    const ticket = await ticketService.updateTicket(
+      ticketId,
+      userId,
+      userRole,
+      name,
+      description,
+      type,
+      priority,
+      status,
+    )
     res.status(200).send(ticket)
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }
 
 // DELETE /projects/:projectId/tickets/:ticketId
 export async function deleteProjectTicket(req: Request, res: Response, next: NextFunction) {
-  const ticketId = req.params.ticketId
+  const ticketId = routeParam(req.params.ticketId)
   const userId = req.session.userId as string
   const userRole = req.session.userRole as UserRole
 
@@ -57,6 +75,6 @@ export async function deleteProjectTicket(req: Request, res: Response, next: Nex
     await ticketService.deleteTicket(ticketId, userId, userRole)
     res.status(204).send()
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }

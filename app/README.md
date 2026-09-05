@@ -1,18 +1,32 @@
 # Express Backend API
 
+Requires Node >= 22 (the Docker images and CI use Node 24 LTS) and pnpm, which
+comes from the `packageManager` field via `corepack enable`.
+
 ```sh
-pnpm ddev # pgadmin on 8080
-pnpm test # ignore redis connect errors on first startup
+pnpm install
+pnpm ddev   # api + postgres + redis; add pgadmin with `pnpm pgadmin` (port 8080)
+pnpm test   # starts postgres/redis via docker if they are not already up
 ```
 
-> Express, Typescript, Jest, REST, GraphQL, Postgres (no ORM), Docker, K8s, Terraform
+Postgres binds host port 5432 by default. If something else already owns it,
+override the host side: `PG_HOST_PORT=55432 pnpm dddev` (and set `PGPORT` to
+match in your `.env`).
+
+Other scripts: `pnpm lint`, `pnpm format`, `pnpm typecheck`, `pnpm build`.
+
+> Express 5, Typescript, Jest, REST, Postgres (no ORM), Docker, K8s, Terraform
 > This bug tracker helps an organization keep track of different bugs across various projects.
 > routes -> middlewares -> controllers -> services -> repositories
 
-I didn't realize this at the time, but my models are totally anemic (basically DTOs) 
+I didn't realize this at the time, but my models are totally anemic (basically DTOs)
 Most of the logic is in the services. Mainly because I built this api using functions originally.
 
 I'll do a more DDD/OOP approach in the other version of this api.
+
+`@apollo/server`, `graphql` and the `@opentelemetry/*` packages are still in
+package.json but nothing imports them yet, so GraphQL and tracing are aspirational
+rather than implemented.
 
 ## Bug Tracker User Roles
 

@@ -8,7 +8,7 @@ export async function addUserToTicket(userId: string, ticketId: string) {
 }
 
 export async function addUserToTickets(userId: string, tickets: Ticket[]) {
-  for(const ticket of tickets) {
+  for (const ticket of tickets) {
     await ticketUserRepository.addUserToTicket(ticket.id.toString(), userId)
   }
 }
@@ -19,13 +19,21 @@ export async function createNewUserAndAddThemToTicket(projectId: string, ticketI
   return user
 }
 
-export async function createNewUserAndAddThemToTickets(projectId: string, tickets: Ticket[], role?: UserRole) {
+export async function createNewUserAndAddThemToTickets(
+  projectId: string,
+  tickets: Ticket[],
+  role?: UserRole,
+) {
   const user = await createNewUserAndAddThemToProject(projectId, role)
   await addUserToTickets(user.id.toString(), tickets)
   return user
 }
 
-export async function createNewUsersAndAddThemToTicket(projectId: string, ticketId: string, numberOfUsers: number) {
+export async function createNewUsersAndAddThemToTicket(
+  projectId: string,
+  ticketId: string,
+  numberOfUsers: number,
+) {
   const ticketUsers = []
 
   for (let i = 0; i < numberOfUsers; i++) {

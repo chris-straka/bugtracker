@@ -15,10 +15,10 @@ describe('isAuthorized()', () => {
   })
 
   test('When the user has the correct role, they should get passed onto the next middleware', async () => {
-    req = createRequest({ 
-      session: { 
-        userRole: 'admin' 
-      }
+    req = createRequest({
+      session: {
+        userRole: 'admin',
+      },
     })
 
     const authorizedRoles = ['admin'] as UserRole[]
@@ -29,10 +29,10 @@ describe('isAuthorized()', () => {
   })
 
   test('When the user has the wrong role, they should get a 403', async () => {
-    req = createRequest({ 
-      session: { 
-        userRole: 'developer' 
-      }
+    req = createRequest({
+      session: {
+        userRole: 'developer',
+      },
     })
 
     const authorizedRoles = ['admin'] as UserRole[]

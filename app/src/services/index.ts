@@ -1,8 +1,14 @@
 // Repositories
-import { 
-  userRepository, projectRepository, ticketRepository, 
-  emailResetRepository, passwordResetRepository, projectCommentRepository, 
-  projectUserRepository, ticketCommentRepository, ticketUserRepository
+import {
+  userRepository,
+  projectRepository,
+  ticketRepository,
+  emailResetRepository,
+  passwordResetRepository,
+  projectCommentRepository,
+  projectUserRepository,
+  ticketCommentRepository,
+  ticketUserRepository,
 } from '../repositories'
 
 // Service classes
@@ -30,9 +36,18 @@ export const projectUserService = new ProjectUserService(projectRepository, proj
 export const emailResetService = new EmailResetService(emailResetRepository, userRepository)
 export const passwordResetService = new PasswordResetService(passwordResetRepository)
 
-export const ticketCommentService = new TicketCommentService(projectRepository, ticketRepository, ticketCommentRepository)
+export const ticketCommentService = new TicketCommentService(
+  projectRepository,
+  ticketRepository,
+  ticketCommentRepository,
+)
 export const ticketService = new TicketService(projectRepository, ticketRepository, userRepository)
-export const ticketUserService = new TicketUserService(projectRepository, ticketRepository, ticketUserRepository)
+export const ticketUserService = new TicketUserService(
+  projectRepository,
+  projectUserRepository,
+  ticketRepository,
+  ticketUserRepository,
+)
 
 export const activityService = new ActivityService(ticketRepository)
 export const authService = new AuthService(userRepository)

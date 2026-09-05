@@ -23,18 +23,17 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       //   req.session.cookie.expires = false
       // }
 
-      req.session.save((err) => { 
-        if (err) return next(err) 
+      req.session.save((err) => {
+        if (err) return next(err)
 
-        res.status(200).json({ 
-          user: { 
-            id: user.id, 
+        res.status(200).json({
+          user: {
+            id: user.id,
             username: user.username,
-            email: user.email, 
-            role: user.role, 
-          }
+            email: user.email,
+            role: user.role,
+          },
         })
-
       })
     })
   } catch (error) {

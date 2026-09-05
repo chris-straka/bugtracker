@@ -1,6 +1,7 @@
 export * from './isActive'
 export * from './isAuthenticated'
 export * from './isProjectMemberOrAdmin'
+export * from './isProjectOwnerOrAdmin'
 export * from './isAuthorized'
 export * from './projectCommentExists'
 export * from './projectExists'

@@ -2,11 +2,17 @@ export type TicketPriority = 'none' | 'low' | 'medium' | 'high' | 'critical'
 export const TicketPriorityArray = ['none', 'low', 'medium', 'high', 'critical'] as const
 
 export type TicketType = 'bug' | 'feature_request' | 'task' | 'documentation' | 'improvement' | 'question'
-export const TicketTypeArray = ['bug', 'feature_request', 'task', 'documentation', 'improvement', 'question'] as const
+export const TicketTypeArray = [
+  'bug',
+  'feature_request',
+  'task',
+  'documentation',
+  'improvement',
+  'question',
+] as const
 
 export type TicketStatus = 'open' | 'in_progress' | 'closed' | 'additional_info_required'
 export const TicketStatusArray = ['open', 'in_progress', 'closed', 'additional_info_required'] as const
-
 
 export interface Ticket {
   id: number

@@ -1,7 +1,12 @@
 import type { ProjectStatus } from '../../models/Project'
 import type { UserRole } from '../../models/User'
 import type { IProjectRepository, IUserRepository } from '../../repositories'
-import { ProjectAlreadyExistsError,  ProjectNotFoundError, UserIsNotAssignedToThisProjectError, UserNotFoundError } from '../../errors'
+import {
+  ProjectAlreadyExistsError,
+  ProjectNotFoundError,
+  UserIsNotAssignedToThisProjectError,
+  UserNotFoundError,
+} from '../../errors'
 
 export class ProjectService {
   #projectDb: IProjectRepository
@@ -31,19 +36,19 @@ export class ProjectService {
     if (!user) throw new UserNotFoundError()
 
     const projects = await this.#projectDb.getUserAssignedProjects(userId, cursor, limit)
-    const newCursor = projects.length > 0 ? projects[projects.length].id : null
+    const nextCursor = projects.length > 0 ? projects[projects.length - 1].id : null
 
-    return { projects, newCursor }
+    return { projects, nextCursor }
   }
 
   async getUserCreatedProjects(userId: string, cursor?: string, limit?: string) {
     const user = await this.#userDb.userExistsById(userId)
     if (!user) throw new UserNotFoundError()
 
-    const projects = await this.#projectDb.getUserAssignedProjects(userId, cursor, limit)
-    const newCursor = projects.length > 0 ? projects[projects.length].id : null
+    const projects = await this.#projectDb.getUserCreatedProjects(userId, cursor, limit)
+    const nextCursor = projects.length > 0 ? projects[projects.length - 1].id : null
 
-    return { projects, newCursor }
+    return { projects, nextCursor }
   }
 
   async updateProject(projectId: string, name: string, description: string, status: ProjectStatus) {

@@ -1,10 +1,10 @@
 import type { Pool } from 'pg'
-import type { BaseUser, AuthUser, UserAccountStatus, UserAccountStatusObject, UserRole  } from '../models/User'
+import type { BaseUser, AuthUser, UserAccountStatus, UserAccountStatusObject, UserRole } from '../models/User'
 import { UserNotFoundError } from '../errors'
 
 export interface IUserRepository {
   createUser(username: string, email: string, hashedPassword: string, role: UserRole): Promise<BaseUser>
-  
+
   getUserById(id: string): Promise<BaseUser>
   getUserByEmail(email: string): Promise<BaseUser>
   getUserByUsername(username: string): Promise<BaseUser>
@@ -44,18 +44,17 @@ export class UserRepository implements IUserRepository {
         VALUES ($1, $2, $3, $4) 
         RETURNING id, username, email, role;
       `,
-      values: [username, email, hashedPassword, role]
+      values: [username, email, hashedPassword, role],
     })
     return data.rows[0]
   }
-
 
   async getUserById(id: string) {
     const data = await this.#pool.query<BaseUser>({
       name: 'get_user_by_id',
       text: 'SELECT id, username, email, role FROM app_user WHERE id = $1;',
-      values: [id]
-    }) 
+      values: [id],
+    })
 
     return data.rows[0]
   }
@@ -64,8 +63,8 @@ export class UserRepository implements IUserRepository {
     const data = await this.#pool.query<BaseUser>({
       name: 'get_user_by_id',
       text: 'SELECT id, username, email, role FROM app_user WHERE email = $1;',
-      values: [email]
-    }) 
+      values: [email],
+    })
 
     return data.rows[0]
   }
@@ -74,8 +73,8 @@ export class UserRepository implements IUserRepository {
     const data = await this.#pool.query<BaseUser>({
       name: 'get_user_by_id',
       text: 'SELECT id, username, email, role FROM app_user WHERE username = $1;',
-      values: [username]
-    }) 
+      values: [username],
+    })
 
     return data.rows[0]
   }
@@ -84,7 +83,7 @@ export class UserRepository implements IUserRepository {
     const data = await this.#pool.query<BaseUser>({
       name: 'get_user_email',
       text: 'SELECT email FROM app_user WHERE id = $1;',
-      values: [userId]
+      values: [userId],
     })
 
     if (data.rows[0]) return data.rows[0].email
@@ -94,8 +93,8 @@ export class UserRepository implements IUserRepository {
   async getUserAccountStatus(userId: string) {
     const data = await this.#pool.query<UserAccountStatusObject>({
       name: 'user_is_active',
-      text: 'SELECT account_status FROM app_user WHERE id = $1;', 
-      values: [userId]
+      text: 'SELECT account_status FROM app_user WHERE id = $1;',
+      values: [userId],
     })
 
     return data.rows[0]
@@ -105,8 +104,8 @@ export class UserRepository implements IUserRepository {
     const data = await this.#pool.query<AuthUser>({
       name: 'get_user_for_authentication',
       text: 'SELECT id, username, email, password, role, account_status FROM app_user WHERE email = $1;',
-      values: [email]
-    })    
+      values: [email],
+    })
 
     return data.rows[0]
   }
@@ -115,37 +114,37 @@ export class UserRepository implements IUserRepository {
     const data = await this.#pool.query({
       name: 'user_exists_by_id',
       text: 'SELECT 1 FROM app_user WHERE id = $1;',
-      values: [id]
+      values: [id],
     })
-    return data.rowCount > 0
+    return (data.rowCount ?? 0) > 0
   }
 
   async userExistsByEmail(email: string) {
     const data = await this.#pool.query({
       name: 'user_exists_by_email',
       text: 'SELECT 1 FROM app_user WHERE email = $1;',
-      values: [email]
+      values: [email],
     })
-    return data.rowCount > 0
+    return (data.rowCount ?? 0) > 0
   }
 
   async userExistsByUsername(username: string) {
     const data = await this.#pool.query({
       name: 'user_exists_by_username',
       text: 'SELECT 1 FROM app_user WHERE username = $1;',
-      values: [username]
+      values: [username],
     })
-    return data.rowCount > 0
+    return (data.rowCount ?? 0) > 0
   }
 
   async userExistsByEmailOrUsername(email: string, username: string) {
     const data = await this.#pool.query({
       name: 'check_if_user_exists_by_email_or_username',
       text: 'SELECT 1 FROM app_user WHERE email = $1 OR username = $2;',
-      values: [email, username]
+      values: [email, username],
     })
 
-    return data.rowCount > 0
+    return (data.rowCount ?? 0) > 0
   }
 
   async changeUsername(userId: string, username: string) {
@@ -162,7 +161,7 @@ export class UserRepository implements IUserRepository {
     const data = await this.#pool.query<BaseUser>({
       name: 'admin_update_user',
       text: 'UPDATE app_user SET email = $2 WHERE email = $1 RETURNING id, username, email, role;',
-      values: [oldEmail, newEmail]
+      values: [oldEmail, newEmail],
     })
 
     return data.rows[0]
@@ -172,16 +171,16 @@ export class UserRepository implements IUserRepository {
     const data = await this.#pool.query({
       name: 'change_password',
       text: 'UPDATE app_user SET password = $2 WHERE id = $1;',
-      values: [id, newPasswordHash]
+      values: [id, newPasswordHash],
     })
-    return data.rowCount > 0
+    return (data.rowCount ?? 0) > 0
   }
 
   async changeRole(id: string, newRole: UserRole) {
     const data = await this.#pool.query<BaseUser>({
       name: 'change_email',
       text: 'UPDATE app_user SET role = $2 WHERE id = $1 RETURNING id, username, email, role;',
-      values: [id, newRole]
+      values: [id, newRole],
     })
     return data.rows[0]
   }
@@ -190,9 +189,9 @@ export class UserRepository implements IUserRepository {
     const data = await this.#pool.query<UserAccountStatusObject>({
       name: 'change_account_status',
       text: 'UPDATE app_user SET account_status = $2 WHERE id = $1 RETURNING account_status;',
-      values: [id, newAccountStatus]
+      values: [id, newAccountStatus],
     })
-      
+
     return data.rows[0]
   }
 
@@ -200,29 +199,29 @@ export class UserRepository implements IUserRepository {
     const data = await this.#pool.query({
       name: 'delete_user_by_id',
       text: 'DELETE FROM app_user WHERE id = $1;',
-      values: [id]
+      values: [id],
     })
 
-    return data.rowCount > 0
+    return (data.rowCount ?? 0) > 0
   }
 
   async deleteUserByEmail(email: string) {
     const data = await this.#pool.query({
       name: 'delete_user_by_email',
       text: 'DELETE FROM app_user WHERE email = $1;',
-      values: [email]
+      values: [email],
     })
 
-    return data.rowCount > 0
+    return (data.rowCount ?? 0) > 0
   }
 
   async deleteUserByUsername(username: string) {
     const data = await this.#pool.query({
       name: 'delete_user_by_email',
       text: 'DELETE FROM app_user WHERE username = $1;',
-      values: [username]
+      values: [username],
     })
 
-    return data.rowCount > 0
+    return (data.rowCount ?? 0) > 0
   }
 }

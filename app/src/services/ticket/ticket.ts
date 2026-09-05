@@ -1,7 +1,12 @@
 import type { IProjectRepository, ITicketRepository, IUserRepository } from '../../repositories'
 import type { TicketPriority, TicketStatus, TicketType } from '../../models/Ticket'
 import type { UserRole } from '../../models/User'
-import { ProjectNotFoundError, TicketAlreadyExistsError, UserIsNotAuthorizedError, UserNotFoundError } from '../../errors'
+import {
+  ProjectNotFoundError,
+  TicketAlreadyExistsError,
+  UserIsNotAuthorizedError,
+  UserNotFoundError,
+} from '../../errors'
 
 export class TicketService {
   #projectDb: IProjectRepository
@@ -15,13 +20,13 @@ export class TicketService {
   }
 
   async createProjectTicket(
-    projectId: string, 
-    ownerId: string, 
-    name: string, 
-    description: string, 
+    projectId: string,
+    ownerId: string,
+    name: string,
+    description: string,
     priority: TicketPriority = 'none',
-    type: TicketType = 'bug', 
-    status: TicketStatus = 'open'
+    type: TicketType = 'bug',
+    status: TicketStatus = 'open',
   ) {
     const ticketAlreadyExists = await this.#ticketDb.ticketExistsByName(name)
     if (ticketAlreadyExists) throw new TicketAlreadyExistsError()
@@ -40,9 +45,9 @@ export class TicketService {
     if (!user) throw new UserNotFoundError()
 
     const tickets = await this.#ticketDb.getUserAssignedTickets(userId, cursor, limit)
-    const newCursor = tickets.length > 0 ? tickets[tickets.length].id : null
+    const nextCursor = tickets.length > 0 ? tickets[tickets.length - 1].id : null
 
-    return { tickets, newCursor }
+    return { tickets, nextCursor }
   }
 
   async getUserCreatedTickets(userId: string, cursor?: string, limit?: string) {
@@ -50,9 +55,9 @@ export class TicketService {
     if (!user) throw new UserNotFoundError()
 
     const tickets = await this.#ticketDb.getUserCreatedTickets(userId, cursor, limit)
-    const newCursor = tickets.length > 0 ? tickets[tickets.length].id : null
+    const nextCursor = tickets.length > 0 ? tickets[tickets.length - 1].id : null
 
-    return { tickets, newCursor }
+    return { tickets, nextCursor }
   }
 
   async updateTicket(
@@ -63,9 +68,9 @@ export class TicketService {
     description?: string,
     priority?: TicketPriority,
     type?: TicketType,
-    status?: TicketStatus
+    status?: TicketStatus,
   ) {
-    // These users can edit any ticket they want 
+    // These users can edit any ticket they want
     const rolesWithFullAccess: UserRole[] = ['developer', 'project_manager', 'admin', 'owner']
     const hasFullAccess = rolesWithFullAccess.includes(userRole)
 
@@ -74,7 +79,8 @@ export class TicketService {
 
     const isContributorAndTicketOwner = userRole === 'contributor' && isTicketOwner
 
-    if (hasFullAccess || isContributorAndTicketOwner) return this.#ticketDb.updateTicket(ticketId, name, description, priority, type, status)
+    if (hasFullAccess || isContributorAndTicketOwner)
+      return this.#ticketDb.updateTicket(ticketId, name, description, priority, type, status)
 
     throw new UserIsNotAuthorizedError()
   }

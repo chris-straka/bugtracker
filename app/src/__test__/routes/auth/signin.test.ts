@@ -10,7 +10,7 @@ afterAll(async () => {
 })
 
 describe('User sign in routes', () => {
-  const username = faker.internet.userName()
+  const username = faker.internet.username()
   const email = faker.internet.email()
   const password = faker.internet.password()
   const role: UserRole = 'contributor'
@@ -23,42 +23,31 @@ describe('User sign in routes', () => {
 
   describe('POST /sessions', () => {
     it('should 200 with data on login', async () => {
-      const res = await request(app)
-        .post(url)
-        .send({ email, password })
-      
-      expect(res).toMatchObject({ 
-        status: 200, 
+      const res = await request(app).post(url).send({ email, password })
+
+      expect(res).toMatchObject({
+        status: 200,
         body: {
-          user: { 
-            id: expect.any(Number), 
-            email, 
-            username, 
-            role
-          } 
-        }
+          user: {
+            id: expect.any(Number),
+            email,
+            username,
+            role,
+          },
+        },
       })
     })
 
     it('should 400 when username is missing', async () => {
-      await request(app)
-        .post(url)
-        .send({ email })
-        .expect(400)
+      await request(app).post(url).send({ email }).expect(400)
     })
 
     it('should 400 when email is missing', async () => {
-      await request(app)
-        .post(url)
-        .send({ username })
-        .expect(400)
+      await request(app).post(url).send({ username }).expect(400)
     })
 
     it('should 401 on wrong password', async () => {
-      await request(app)
-        .post(url)
-        .send({ email, password: faker.internet.password() })
-        .expect(401)
+      await request(app).post(url).send({ email, password: faker.internet.password() }).expect(401)
     })
 
     it('should 401 when user does not exist', async () => {
@@ -73,19 +62,13 @@ describe('User sign in routes', () => {
     it('should 204 on logout', async () => {
       const agent = request.agent(app)
 
-      await agent
-        .post(url)
-        .send({ email, password })
-      
-      await agent
-        .delete(url)
-        .expect(204)
+      await agent.post(url).send({ email, password })
+
+      await agent.delete(url).expect(204)
     })
 
     it('should 401 when not logged in', async () => {
-      await request(app)
-        .delete(url)
-        .expect(401)
+      await request(app).delete(url).expect(401)
     })
   })
 })

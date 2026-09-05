@@ -7,7 +7,7 @@ export async function closeDbConnections() {
   await closeRedisConnection()
 }
 
-export async function isPortReachable (port: number, host = 'localhost'): Promise<boolean> {
+export async function isPortReachable(port: number, host = 'localhost'): Promise<boolean> {
   return new Promise((res) => {
     const socket = new Socket()
 
@@ -27,7 +27,7 @@ export async function isPortReachable (port: number, host = 'localhost'): Promis
   })
 }
 
-export async function cleanupDb() { 
+export async function cleanupDb() {
   if (process.env.NODE_ENV === 'production') throw new Error('Tried to delete the production DB')
   await pool.query('TRUNCATE ticket_history CASCADE')
   await pool.query('TRUNCATE ticket_comment CASCADE')

@@ -1,20 +1,19 @@
-import { createClient } from 'redis'
+import type { AppRedisClient } from '../../config/redis'
 import { InvalidOrMissingTokenError } from '../../errors'
 
 const TOKEN_EXPIRATION_IN_SECONDS = 3600 // 1 hour
 
-type RedisClientType = ReturnType<typeof createClient>
-type Emails = { oldEmail: string, newEmail: string }
+type Emails = { oldEmail: string; newEmail: string }
 
 export interface IEmailResetRepository {
-  storeTokenWithEmails(token: string, currentEmail: string, newEmail: string): Promise<void>,
-  grabEmailsWithToken(token: string): Promise<Emails> 
+  storeTokenWithEmails(token: string, currentEmail: string, newEmail: string): Promise<void>
+  grabEmailsWithToken(token: string): Promise<Emails>
 }
 
 export class EmailResetRepository implements IEmailResetRepository {
-  #redis: RedisClientType
+  #redis: AppRedisClient
 
-  constructor(redisClient: RedisClientType) {
+  constructor(redisClient: AppRedisClient) {
     this.#redis = redisClient
   }
 
@@ -29,14 +28,10 @@ export class EmailResetRepository implements IEmailResetRepository {
   async grabEmailsWithToken(token: string) {
     const key = `reset-email:${token}`
 
-    const result = await this.#redis
-      .multi()
-      .hGetAll(key)
-      .del(key) 
-      .exec()
+    const result = await this.#redis.multi().hGetAll(key).del(key).exec()
 
     // if you didn't delete anything, the key never existed to begin with
-    if (result[1] === 0) throw new InvalidOrMissingTokenError()
+    if (Number(result[1]) === 0) throw new InvalidOrMissingTokenError()
 
     return result[0] as unknown as Emails
   }

@@ -1,21 +1,22 @@
 import type { NextFunction, Request, Response } from 'express'
 import { projectUserService } from '../../services'
+import { routeParam } from '../../utility'
 
 // GET /projects/:projectId/users
 export async function getProjectUsers(req: Request, res: Response, next: NextFunction) {
-  const projectId = req.params.projectId
+  const projectId = routeParam(req.params.projectId)
 
   try {
     const users = await projectUserService.getProjectUsers(projectId)
     res.status(200).send(users)
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }
 
 // POST /projects/:projectId/users
 export async function addProjectUser(req: Request, res: Response, next: NextFunction) {
-  const projectId = req.params.projectId  
+  const projectId = routeParam(req.params.projectId)
   const userId = req.body.userId
 
   try {
@@ -28,13 +29,13 @@ export async function addProjectUser(req: Request, res: Response, next: NextFunc
 
 // DELETE /projects/:projectId/users/:userId
 export async function removeProjectUser(req: Request, res: Response, next: NextFunction) {
-  const projectId = req.params.projectId 
-  const userToRemoveId = req.params.userId
+  const projectId = routeParam(req.params.projectId)
+  const userToRemoveId = routeParam(req.params.userId)
 
   try {
     await projectUserService.removeUserFromProject(projectId, userToRemoveId)
     res.status(204).send()
   } catch (error) {
-    return next(error) 
+    return next(error)
   }
 }

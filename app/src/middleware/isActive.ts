@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from 'express'
 import { UserIsDisabledError, UserIsNotAuthenticatedError } from '../errors'
 import { userRepository } from '../repositories'
 
-/** 
+/**
  * An admin can disable or suspend a user
  * This checks whether or not they're currently disabled
  */

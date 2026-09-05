@@ -4,16 +4,18 @@ import { projectRepository } from '../../../repositories'
 export async function createProject(ownerId: string, name?: string, description?: string) {
   return projectRepository.createProject(
     ownerId,
-    name || faker.company.name(), 
-    description || faker.company.bs(), 
+    name || faker.company.name(),
+    description || faker.company.buzzPhrase(),
   )
 }
 
-export async function createProjects(pmId: string, numberOfProjects: number, description?: string ) {
-  const promises = Array.from(
-    { length: numberOfProjects }, 
-    () => createProject(pmId, faker.company.name(), description)
+export async function createProjects(pmId: string, numberOfProjects: number, description?: string) {
+  const promises = Array.from({ length: numberOfProjects }, () =>
+    createProject(pmId, faker.company.name(), description),
   )
-  
+
   return Promise.all(promises)
 }
+
+/** The shape returned by the project repository, for tests that hold on to one. */
+export type TestProject = Awaited<ReturnType<typeof createProject>>

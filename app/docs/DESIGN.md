@@ -2,7 +2,7 @@
 
 ## Observations on Anemic and Rich Domain Models
 
-1. With an anemic model, I didn't even need a class for my models, interfaces would suffice. 
+1. With an anemic model, I didn't even need a class for my models, interfaces would suffice.
 
 2. With a rich model, I need a class that I have to instantiate somewhere to make use of.
 

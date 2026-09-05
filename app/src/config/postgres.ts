@@ -19,11 +19,8 @@ pool.on('error', (err, client) => {
   process.exit(-1)
 })
 
-async function closePostgresDBConnection () {
+async function closePostgresDBConnection() {
   await pool.end()
 }
 
-export {
-  pool,
-  closePostgresDBConnection
-}
+export { pool, closePostgresDBConnection }

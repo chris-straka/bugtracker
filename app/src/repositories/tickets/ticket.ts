@@ -3,7 +3,15 @@ import type { Ticket, TicketPriority, TicketStatus, TicketType } from '../../mod
 import type { TicketStatistic } from '../../models/TicketStatistics'
 
 export interface ITicketRepository {
-  createTicket(projectId: string, ownerId: string, name: string, description: string, priority: TicketPriority, type: TicketType, status?: TicketStatus): Promise<Ticket>
+  createTicket(
+    projectId: string,
+    ownerId: string,
+    name: string,
+    description: string,
+    priority: TicketPriority,
+    type: TicketType,
+    status?: TicketStatus,
+  ): Promise<Ticket>
   getTicketById(ticketId: string): Promise<Ticket>
   getTicketOwnerId(ticketId: string): Promise<string>
   ticketExistsById(ticketId: string): Promise<boolean>
@@ -12,7 +20,14 @@ export interface ITicketRepository {
   getUserAssignedTickets(userId: string, cursor?: string, limit?: string): Promise<Ticket[]>
   getUserCreatedTickets(userId: string, cursor?: string, limit?: string): Promise<Ticket[]>
   getUserAssignedTicketStatistics(userId: string): Promise<TicketStatistic[]>
-  updateTicket(ticketId: string, name?: string, description?: string, priority?: TicketPriority, type?: TicketType, status?: TicketStatus): Promise<Ticket>
+  updateTicket(
+    ticketId: string,
+    name?: string,
+    description?: string,
+    priority?: TicketPriority,
+    type?: TicketType,
+    status?: TicketStatus,
+  ): Promise<Ticket>
   deleteTicket(ticketId: string): Promise<boolean>
 }
 
@@ -20,17 +35,17 @@ export class TicketRepository implements ITicketRepository {
   #pool: Pool
 
   constructor(dbPool: Pool) {
-    this.#pool = dbPool 
+    this.#pool = dbPool
   }
 
   async createTicket(
     projectId: string,
     ownerId: string,
-    name: string, 
-    description: string, 
+    name: string,
+    description: string,
     priority: TicketPriority,
     type: TicketType,
-    status: TicketStatus = 'open'
+    status: TicketStatus = 'open',
   ) {
     const result = await this.#pool.query<Ticket>({
       name: 'create_ticket',
@@ -48,20 +63,20 @@ export class TicketRepository implements ITicketRepository {
     const result = await this.#pool.query<Ticket>({
       name: 'get_ticket_by_name',
       text: 'SELECT 1 FROM ticket WHERE id = $1;',
-      values: [id]
+      values: [id],
     })
 
-    return result.rowCount > 0
+    return (result.rowCount ?? 0) > 0
   }
 
   async ticketExistsByName(name: string) {
     const result = await this.#pool.query<Ticket>({
       name: 'get_ticket_by_name',
       text: 'SELECT 1 FROM ticket WHERE name = $1;',
-      values: [name]
+      values: [name],
     })
 
-    return result.rowCount > 0
+    return (result.rowCount ?? 0) > 0
   }
 
   async getTicketById(id: string) {
@@ -78,7 +93,7 @@ export class TicketRepository implements ITicketRepository {
     const result = await this.#pool.query<{ owner_id: number }>({
       name: 'get_ticket_owner_id',
       text: 'SELECT owner_id FROM ticket WHERE id = $1;',
-      values: [ticketId]
+      values: [ticketId],
     })
 
     return result.rows[0].owner_id.toString()
@@ -104,7 +119,7 @@ export class TicketRepository implements ITicketRepository {
         ORDER BY t.id ASC
         LIMIT $3;
       `,
-      values: [userId, cursor, limit]
+      values: [userId, cursor, limit],
     })
 
     return result.rows
@@ -119,7 +134,7 @@ export class TicketRepository implements ITicketRepository {
         WHERE t.owner_id = $1 AND t.id > $2
         LIMIT $3;
       `,
-      values: [userId, cursor, limit]
+      values: [userId, cursor, limit],
     })
     return result.rows
   }
@@ -134,7 +149,7 @@ export class TicketRepository implements ITicketRepository {
         JOIN project p ON t.project_id = p.id
         WHERE tu.user_id = $1;
       `,
-      values: [userId]
+      values: [userId],
     })
 
     return result.rows
@@ -146,11 +161,11 @@ export class TicketRepository implements ITicketRepository {
     description?: string,
     priority?: TicketPriority,
     type?: TicketType,
-    status?: TicketStatus
+    status?: TicketStatus,
   ) {
     const fields = []
     const values = []
-    
+
     let counter = 2
 
     if (name !== undefined) {
@@ -205,6 +220,6 @@ export class TicketRepository implements ITicketRepository {
       values: [ticketId],
     })
 
-    return result.rowCount > 0
+    return (result.rowCount ?? 0) > 0
   }
 }

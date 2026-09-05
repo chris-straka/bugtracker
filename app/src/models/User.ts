@@ -6,7 +6,7 @@ export interface BaseUser {
 }
 
 export interface AuthUser extends BaseUser {
-  password: string 
+  password: string
   account_status: string
 }
 
@@ -22,8 +22,17 @@ export interface UserAccountDetails extends BaseUser {
 export type AdminRole = 'owner' | 'admin'
 export const AdminRoleArray = ['owner', 'admin'] as const
 
-export type UserRole = 'owner' | 'admin' | 'project_manager' | 'contributor' | 'developer' | 'tester' | 'quality_assurance' 
-export const UserRolesArray = ['owner', 'admin', 'project_manager', 'contributor', 'developer', 'tester', 'quality_assurance'] as const
+export type UserRole =
+  'owner' | 'admin' | 'project_manager' | 'contributor' | 'developer' | 'tester' | 'quality_assurance'
+export const UserRolesArray = [
+  'owner',
+  'admin',
+  'project_manager',
+  'contributor',
+  'developer',
+  'tester',
+  'quality_assurance',
+] as const
 
 export type UserAccountStatus = 'active' | 'disabled'
 export const UserAccountStatusArray = ['active', 'disabled'] as const

@@ -28,7 +28,7 @@ export class EmailService {
     const from = process.env.EMAIL_FROM
     const res = await transporter.sendMail({ from, to, subject, html })
 
-    if (process.env.NODE_ENV === 'development') { 
+    if (process.env.NODE_ENV === 'development') {
       console.log('preview URL', getTestMessageUrl(res))
     }
   }

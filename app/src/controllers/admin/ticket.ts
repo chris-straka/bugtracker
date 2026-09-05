@@ -9,6 +9,6 @@ export async function searchAllTickets(req: Request, res: Response, next: NextFu
     const projects = await adminTicketService.searchAllTickets(limit, search)
     res.status(200).send(projects)
   } catch (error) {
-    next(error) 
+    next(error)
   }
 }

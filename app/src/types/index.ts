@@ -2,7 +2,7 @@ import type { UserRole } from '../models/User'
 
 declare module 'express-session' {
   interface SessionData {
-    userId: string | null,
+    userId: string | null
     userRole: UserRole | null
   }
 }

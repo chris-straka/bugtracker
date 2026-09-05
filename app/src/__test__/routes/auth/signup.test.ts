@@ -13,39 +13,37 @@ afterAll(async () => {
 describe('User sign up routes', () => {
   describe('POST /users', () => {
     it('should 201 with data on signup', async () => {
-      const email    = faker.internet.email()
-      const username = faker.internet.userName()
+      const email = faker.internet.email()
+      const username = faker.internet.username()
       const password = faker.internet.password()
 
-      const role: UserRole = 'contributor' 
+      const role: UserRole = 'contributor'
 
-      const res = await request(app)
-        .post(url)
-        .send({ 
-          email,
-          username,
-          password,
-        })
+      const res = await request(app).post(url).send({
+        email,
+        username,
+        password,
+      })
 
-      expect(res).toMatchObject({ 
-        status: 201, 
+      expect(res).toMatchObject({
+        status: 201,
         body: {
-          user: { 
-            id: expect.any(Number), 
-            email, 
-            username, 
-            role, 
-          } 
-        } 
+          user: {
+            id: expect.any(Number),
+            email,
+            username,
+            role,
+          },
+        },
       })
     })
 
     it('should 400 when something is missing', async () => {
       await request(app)
         .post(url)
-        .send({ 
-          email: faker.internet.email(), 
-          username: faker.internet.userName() 
+        .send({
+          email: faker.internet.email(),
+          username: faker.internet.username(),
         })
         .expect(400)
     })
@@ -53,10 +51,10 @@ describe('User sign up routes', () => {
     it('should 400 when email is invalid', async () => {
       await request(app)
         .post(url)
-        .send({ 
-          email: 'jeff', 
-          username: faker.internet.userName(),
-          password: faker.internet.password()
+        .send({
+          email: 'jeff',
+          username: faker.internet.username(),
+          password: faker.internet.password(),
         })
         .expect(400)
     })
@@ -66,10 +64,10 @@ describe('User sign up routes', () => {
 
       await request(app)
         .post(url)
-        .send({ 
-          email: currentUser.email, 
-          username: faker.internet.userName(), 
-          password: faker.internet.password() 
+        .send({
+          email: currentUser.email,
+          username: faker.internet.username(),
+          password: faker.internet.password(),
         })
         .expect(409)
     })
@@ -79,10 +77,10 @@ describe('User sign up routes', () => {
 
       await request(app)
         .post(url)
-        .send({ 
-          email: faker.internet.email(), 
-          username: currentUser.username, 
-          password: faker.internet.password() 
+        .send({
+          email: faker.internet.email(),
+          username: currentUser.username,
+          password: faker.internet.password(),
         })
         .expect(409)
     })

@@ -17,7 +17,7 @@ describe('Reset Email Routes', () => {
   const newEmail = faker.internet.email()
 
   beforeAll(async () => {
-    (user = await createTestUser())
+    user = await createTestUser()
   })
 
   describe('POST /me/email-reset-requests', () => {
@@ -31,37 +31,26 @@ describe('Reset Email Routes', () => {
       })
 
       it('should call sendEmail() service with correct arguments', async () => {
-        await user.agent
-          .post(url)
-          .send({ newEmail })
+        await user.agent.post(url).send({ newEmail })
 
         expect(sendEmailSpy).toHaveBeenCalledWith(
           newEmail,
           expect.stringMatching(/email reset/i),
-          expect.stringMatching(/\/emails\/[0-9a-f]{40}/i)
+          expect.stringMatching(/\/emails\/[0-9a-f]{40}/i),
         )
       })
     })
 
     it('should 200 when the user exists and requests a new email', async () => {
-      await user.agent
-        .post(url)
-        .send({ newEmail }) 
-        .expect(200)
+      await user.agent.post(url).send({ newEmail }).expect(200)
     })
 
     it('should 400 if the email is invalid', async () => {
-      await user.agent
-        .post(url)
-        .send({ email: 'jeff' })
-        .expect(400)
+      await user.agent.post(url).send({ email: 'jeff' }).expect(400)
     })
 
     it('should 400 if the email is missing', async () => {
-      await user.agent
-        .post(url)
-        .send({})
-        .expect(400)
+      await user.agent.post(url).send({}).expect(400)
     })
   })
 
@@ -75,40 +64,28 @@ describe('Reset Email Routes', () => {
     })
 
     it('should 200 when updating the email', async () => {
-      await user.agent
-        .put(url)
-        .expect(200)
+      await user.agent.put(url).expect(200)
     })
 
     it('should 200 when logging in with the new email', async () => {
-      await user.agent
-        .put(url)
+      await user.agent.put(url)
 
-      await user.agent
-        .delete('/sessions') 
+      await user.agent.delete('/sessions')
 
-      await user.agent
-        .post('/sessions')
-        .send({ email: newEmail, password: user.password })
-        .expect(200)
+      await user.agent.post('/sessions').send({ email: newEmail, password: user.password }).expect(200)
     })
 
     it('should 400 when attempting to use the same token twice', async () => {
-      await user.agent
-        .put(url)
+      await user.agent.put(url)
 
-      await user.agent
-        .put(url)
-        .expect(400)
+      await user.agent.put(url).expect(400)
     })
 
     it('should 400 when a faulty token is provided', async () => {
       const wrongToken = createResetToken()
       const url = `/emails/${wrongToken}`
 
-      await request(app)
-        .put(url)
-        .expect(400)
+      await request(app).put(url).expect(400)
     })
   })
 })

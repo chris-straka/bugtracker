@@ -1,12 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "sourceMap": false,
+    "sourceMap": false
   },
-  "exclude": [
-    "**/__tests__/*.ts",
-    "**/__test__/*.ts",
-    "node_modules",
-    "**/*.test.ts"
-  ]
+  "exclude": ["node_modules", "src/__test__/**", "**/*.test.ts"]
 }

@@ -5,13 +5,14 @@ import * as AdminTicketController from '../../controllers/admin/ticket'
 
 const router = Router()
 
-router.get('/admin/tickets',
+router.get(
+  '/admin/tickets',
   isAuthenticated,
   isActive,
   isAuthorized(['admin', 'owner']),
   searchPaginationValidators,
   validateInput,
-  AdminTicketController.searchAllTickets
+  AdminTicketController.searchAllTickets,
 )
 
 export default router

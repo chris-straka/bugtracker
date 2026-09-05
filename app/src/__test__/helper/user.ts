@@ -1,15 +1,15 @@
 import { faker } from '@faker-js/faker'
-import request, { SuperAgentTest } from 'supertest'
+import request, { type Agent } from 'supertest'
 import type { UserRole, AuthUser } from '../../models/User'
 import app from '../../config/server'
 import { userService } from '../../services'
 
 export interface TestUser extends Omit<AuthUser, 'account_status'> {
-  agent: SuperAgentTest
+  agent: Agent
 }
 
 export async function createTestUser(role: UserRole = 'developer'): Promise<TestUser> {
-  const username = faker.internet.userName()
+  const username = faker.internet.username()
   const email = faker.internet.email()
   const password = faker.internet.password()
 

@@ -1,9 +1,9 @@
 # Docker
 
-ENV vars in docker-compose.yml !DO NOT! appear in whatever starts docker compose. 
+ENV vars in docker-compose.yml !DO NOT! appear in whatever starts docker compose.
 If `jest` spins up docker compose, it can't see PGHOST and your tests won't work.
 
-You have to use dotenv() inside a globalSetup.ts file to set the ENV vars from docker-compose.yml. 
+You have to use dotenv() inside a globalSetup.ts file to set the ENV vars from docker-compose.yml.
 
 BUT BE CAREFUL! Jest does not understand any of the service names in your docker-compose.yml.
 It's not a part of the docker network, hence -> PGHOST=127.0.0.1 (not PGHOST=my_db).

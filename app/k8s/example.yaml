@@ -11,7 +11,6 @@ spec:
       labels:
         app: backend
     spec:
-      
       # what containers should each pod be running
       containers:
         - name: backend/spring
@@ -31,8 +30,8 @@ spec:
             readOnlyRootFilesystem: true
           image: frontend
           ports:
-          - containerPort: 80
-            protocol: TCP
+            - containerPort: 80
+              protocol: TCP
           # readinessProbe:
           #   initialDelaySeconds: 10
           #   httpGet:

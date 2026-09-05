@@ -5,10 +5,11 @@ import * as EmailResetController from '../../controllers/auth/emailReset'
 
 const router = Router()
 
-router.put('/emails/:emailResetToken', 
+router.put(
+  '/emails/:emailResetToken',
   param('emailResetToken', 'Invalid email reset token').isHexadecimal().isLength({ min: 40, max: 40 }),
   validateInput,
-  EmailResetController.changeEmailViaResetToken
+  EmailResetController.changeEmailViaResetToken,
 )
 
 export default router

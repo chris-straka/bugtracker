@@ -1,18 +1,16 @@
-import { createClient } from 'redis'
+import type { AppRedisClient } from '../../config/redis'
 
 const TOKEN_EXPIRATION_IN_SECONDS = 3600 // 1 hour
 
 export interface IPasswordResetRepository {
-  storePasswordResetTokenUnderUserId(token: string, userId: string): Promise<void>,
+  storePasswordResetTokenUnderUserId(token: string, userId: string): Promise<void>
   validatePasswordResetToken(token: string): Promise<number | null>
 }
 
-type RedisClientType = ReturnType<typeof createClient>
-
 export class PasswordResetRepository implements IPasswordResetRepository {
-  #redis: RedisClientType
+  #redis: AppRedisClient
 
-  constructor(redisClient: RedisClientType) {
+  constructor(redisClient: AppRedisClient) {
     this.#redis = redisClient
   }
 
@@ -24,9 +22,9 @@ export class PasswordResetRepository implements IPasswordResetRepository {
     const userId = await this.#redis.get(`reset-password:${token}`)
 
     if (userId) {
-      await this.#redis.del(`reset-password:${token}`) 
+      await this.#redis.del(`reset-password:${token}`)
       return +userId
-    } 
+    }
 
     return null
   }

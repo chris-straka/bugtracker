@@ -7,7 +7,7 @@ export class AdminProjectService {
 
   constructor(userDb: IUserRepository, projectDb: IProjectRepository) {
     this.#userDb = userDb
-    this.#projectDb = projectDb 
+    this.#projectDb = projectDb
   }
 
   async changeProjectOwner(projectId: string, newOwnerId: string, adminRole: 'admin' | 'owner') {

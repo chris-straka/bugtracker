@@ -1,4 +1,4 @@
-type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}` 
+type SnakeToCamelCase<S extends string> = S extends `${infer T}_${infer U}`
   ? `${Lowercase<T>}${Capitalize<SnakeToCamelCase<U>>}`
   : S
 
@@ -8,7 +8,7 @@ type SnakeToCamelCaseObject<T> = {
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function convertSnakeToCamel(str: string) {
-  return str.replace(/([_]\w)/g, match => match[1].toUpperCase())
+  return str.replace(/([_]\w)/g, (match) => match[1].toUpperCase())
 }
 
 function isObjectLiteral(obj: object | string) {
@@ -17,7 +17,7 @@ function isObjectLiteral(obj: object | string) {
 }
 
 export function changeKeysFromSnakeToCamel<T extends Record<string, any>>(obj: T): SnakeToCamelCaseObject<T> {
-  const newObj: {[key: string]: any} = {}
+  const newObj: { [key: string]: any } = {}
 
   for (const key of Object.keys(obj)) {
     const newKey = convertSnakeToCamel(key)

@@ -8,7 +8,7 @@ export class ProjectCommentService {
   constructor(projectCommentDb: IProjectCommentRepository) {
     this.#projectCommentDb = projectCommentDb
   }
-  
+
   async createProjectComment(projectId: string, userId: string, comment: string) {
     return this.#projectCommentDb.createProjectComment(projectId, userId, comment)
   }

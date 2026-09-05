@@ -1,0 +1,9 @@
+# pnpm 10+ requires dependency build scripts to be explicitly approved.
+allowBuilds:
+  '@apollo/protobufjs': true
+  '@parcel/watcher': true
+  esbuild: true
+  protobufjs: true
+  unrs-resolver: true
+  # Analytics postinstall pulled in via swagger-ui-dist. Not needed to build.
+  '@scarf/scarf': false

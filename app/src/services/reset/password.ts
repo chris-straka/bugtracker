@@ -9,5 +9,5 @@ export class PasswordResetService {
 
   async storePasswordResetTokenUnderUserId(token: string, userId: string) {
     return this.#passwordResetDb.storePasswordResetTokenUnderUserId(token, userId)
-  } 
+  }
 }

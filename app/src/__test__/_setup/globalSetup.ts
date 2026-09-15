@@ -21,6 +21,9 @@ async function globalSetup() {
 
         // pg_isready comes with postgres
         execSync('docker exec postgres_container pg_isready')
+        // redis has no pg_isready equivalent; ping it the same way so
+        // module-load-time clients never race a cold container
+        execSync('docker exec redis_container redis-cli ping')
         isReady = true
       } catch {
         retries--

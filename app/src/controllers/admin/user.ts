@@ -1,10 +1,10 @@
 import type { Request, Response, NextFunction } from 'express'
 import { adminUserService } from '../../services'
-import { routeParam } from '../../utility'
+import { getRequestAuth, routeParam } from '../../utility'
 
 // PUT /admin/users/:userId/role
 export async function changeUserRole(req: Request, res: Response, next: NextFunction) {
-  const adminRole = req.session.userRole as 'admin' | 'owner'
+  const adminRole = getRequestAuth(req)?.userRole as 'admin' | 'owner'
   const userId = routeParam(req.params.userId)
   const { newRole } = req.body
 
@@ -18,7 +18,7 @@ export async function changeUserRole(req: Request, res: Response, next: NextFunc
 
 // PUT /admin/users/:userId/account-status
 export async function changeAccountStatus(req: Request, res: Response, next: NextFunction) {
-  const adminRole = req.session.userRole as 'admin' | 'owner'
+  const adminRole = getRequestAuth(req)?.userRole as 'admin' | 'owner'
   const userId = routeParam(req.params.userId)
   const { newAccountStatus } = req.body
 
@@ -32,7 +32,7 @@ export async function changeAccountStatus(req: Request, res: Response, next: Nex
 
 // DELETE /admin/users/:userId
 export async function deleteUser(req: Request, res: Response, next: NextFunction) {
-  const adminRole = req.session.userRole as 'admin' | 'owner'
+  const adminRole = getRequestAuth(req)?.userRole as 'admin' | 'owner'
   const userId = routeParam(req.params.userId)
 
   try {

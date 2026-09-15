@@ -7,11 +7,11 @@ import {
   emailService,
   emailResetService,
 } from '../services'
-import { createResetToken } from '../utility'
+import { createResetToken, getRequestAuth } from '../utility'
 
 // GET /me/activity
 export async function getUserActivity(req: Request, res: Response, next: NextFunction) {
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
 
   try {
     const activity = await activityService.getUserActivity(userId)
@@ -23,7 +23,7 @@ export async function getUserActivity(req: Request, res: Response, next: NextFun
 
 // GET /me/my-tickets ?cursor=&limit=
 export async function getUserCreatedTickets(req: Request, res: Response, next: NextFunction) {
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
   const cursor = req.query.cursor as string | undefined
   const limit = req.query.limit as string | undefined
 
@@ -37,7 +37,7 @@ export async function getUserCreatedTickets(req: Request, res: Response, next: N
 
 // GET /me/assigned-tickets ?cursor=&limit=
 export async function getUserAssignedTickets(req: Request, res: Response, next: NextFunction) {
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
   const cursor = req.query.cursor as string | undefined
   const limit = req.query.limit as string | undefined
 
@@ -51,7 +51,7 @@ export async function getUserAssignedTickets(req: Request, res: Response, next: 
 
 // GET /me/my-projects ?cursor=&limit=
 export async function getUserCreatedProjects(req: Request, res: Response, next: NextFunction) {
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
   const cursor = req.query.cursor as string | undefined
   const limit = req.query.limit as string | undefined
 
@@ -65,7 +65,7 @@ export async function getUserCreatedProjects(req: Request, res: Response, next: 
 
 // GET /me/assigned-projects ?cursor=&limit=
 export async function getUserAssignedProjects(req: Request, res: Response, next: NextFunction) {
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
   const cursor = req.query.cursor as string | undefined
   const limit = req.query.limit as string | undefined
 
@@ -79,7 +79,7 @@ export async function getUserAssignedProjects(req: Request, res: Response, next:
 
 // PUT /me/username
 export async function changeUserUsername(req: Request, res: Response, next: NextFunction) {
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
   const { newUsername } = req.body
 
   try {
@@ -93,7 +93,7 @@ export async function changeUserUsername(req: Request, res: Response, next: Next
 // POST /me/email-reset-requests
 export async function requestEmailReset(req: Request, res: Response, next: NextFunction) {
   const { newEmail } = req.body
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
 
   try {
     const currentEmail = await userService.getUserEmail(userId)
@@ -114,7 +114,7 @@ export async function requestEmailReset(req: Request, res: Response, next: NextF
 
 // DELETE /me
 export async function deleteCurrentUser(req: Request, res: Response, next: NextFunction) {
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
 
   try {
     await userService.deleteCurrentUserById(userId)

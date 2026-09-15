@@ -28,9 +28,9 @@ export async function createPmAndProjectWithTicket(ticketPriority?: TicketPriori
   return { pm, project, ticket }
 }
 
-export async function createPmAndProjectWithTickets(numberOfTickets: number) {
+export async function createPmAndProjectWithTickets(numberOfTickets: number, description?: string) {
   const { pm, project } = await createPmAndProject()
-  const tickets = await createTickets(project.id.toString(), pm.id.toString(), numberOfTickets)
+  const tickets = await createTickets(project.id.toString(), pm.id.toString(), numberOfTickets, description)
   return { pm, project, tickets }
 }
 

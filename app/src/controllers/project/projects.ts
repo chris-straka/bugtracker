@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import type { UserRole } from '../../models/User'
 import { projectService } from '../../services'
-import { routeParam } from '../../utility'
+import { getRequestAuth, routeParam } from '../../utility'
 
 // GET /projects/:projectId
 export async function getProject(req: Request, res: Response, next: NextFunction) {
@@ -17,7 +17,7 @@ export async function getProject(req: Request, res: Response, next: NextFunction
 
 // POST /projects
 export async function createProject(req: Request, res: Response, next: NextFunction) {
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
   const { name, description } = req.body
 
   try {
@@ -44,8 +44,8 @@ export async function updateProject(req: Request, res: Response, next: NextFunct
 // DELETE /projects/:projectId
 export async function deleteProject(req: Request, res: Response, next: NextFunction) {
   const projectId = routeParam(req.params.projectId)
-  const userId = req.session.userId as string
-  const userRole = req.session.userRole as UserRole
+  const userId = getRequestAuth(req)?.userId as string
+  const userRole = getRequestAuth(req)?.userRole as UserRole
 
   try {
     await projectService.deleteProject(projectId, userId, userRole)

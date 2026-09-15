@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import type { UserRole } from '../../models/User'
 import { ticketCommentService } from '../../services'
-import { routeParam } from '../../utility'
+import { getRequestAuth, routeParam } from '../../utility'
 
 // GET /projects/:projectId/tickets/:ticketId/comments
 export async function getTicketComments(req: Request, res: Response, next: NextFunction) {
@@ -20,7 +20,7 @@ export async function getTicketComments(req: Request, res: Response, next: NextF
 export async function createTicketComment(req: Request, res: Response, next: NextFunction) {
   const projectId = routeParam(req.params.projectId)
   const ticketId = routeParam(req.params.ticketId)
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
   const comment = req.body.comment
 
   try {
@@ -36,8 +36,8 @@ export async function updateTicketComment(req: Request, res: Response, next: Nex
   const projectId = routeParam(req.params.projectId)
   const ticketId = routeParam(req.params.ticketId)
   const commentId = routeParam(req.params.commentId)
-  const userId = req.session.userId as string
-  const userRole = req.session.userRole as UserRole
+  const userId = getRequestAuth(req)?.userId as string
+  const userRole = getRequestAuth(req)?.userRole as UserRole
   const comment = req.body.comment
 
   try {

@@ -25,7 +25,7 @@ describe('User route for checking all the projects they created', () => {
     it('should 403 when a dev tries to see projects they created', async () => {
       const dev = await createTestUser('developer')
 
-      await dev.agent.get('me/my-projects').expect(403)
+      await dev.agent.get('/me/my-projects').expect(403)
     })
   })
 })

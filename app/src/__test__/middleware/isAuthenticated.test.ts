@@ -3,6 +3,7 @@ import { createRequest, createResponse } from 'node-mocks-http'
 import { SessionData } from 'express-session'
 import { UserIsNotAuthenticatedError } from '../../errors'
 import { isAuthenticated } from '../../middleware'
+import { signAccessToken } from '../../utility/jwt'
 
 describe('isAuthenticated()', () => {
   let req: Request
@@ -34,5 +35,39 @@ describe('isAuthenticated()', () => {
 
     expect(next).toHaveBeenCalledTimes(1)
     expect(next).toHaveBeenCalledWith(expect.any(UserIsNotAuthenticatedError))
+  })
+
+  test('A valid Bearer access token authenticates without a session', () => {
+    const token = signAccessToken('7', 'project_manager')
+    req = createRequest({ headers: { authorization: `Bearer ${token}` } })
+
+    isAuthenticated(req, res, next)
+
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(next).toHaveBeenCalledWith()
+    expect(req.auth).toEqual({ userId: '7', userRole: 'project_manager' })
+  })
+
+  test('An invalid Bearer token still returns 401', () => {
+    req = createRequest({ headers: { authorization: 'Bearer bogus' } })
+
+    isAuthenticated(req, res, next)
+
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(next).toHaveBeenCalledWith(expect.any(UserIsNotAuthenticatedError))
+  })
+
+  test('The cookie session still wins when both are present', () => {
+    const token = signAccessToken('7', 'project_manager')
+    req = createRequest({
+      headers: { authorization: `Bearer ${token}` },
+      session: { userId: '3', userRole: 'admin' } as SessionData,
+    })
+
+    isAuthenticated(req, res, next)
+
+    expect(next).toHaveBeenCalledTimes(1)
+    expect(next).toHaveBeenCalledWith()
+    expect(req.auth).toBeUndefined()
   })
 })

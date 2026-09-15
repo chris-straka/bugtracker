@@ -13,33 +13,32 @@ describe('User routes for managing your own account', () => {
     user = await createTestUser()
   })
 
-  describe('PUT /me/email', () => {
-    it('should 200 when a user changes their email', async () => {
-      await user.agent.put('/me/email').send({ email: faker.internet.email() }).expect(200)
+  // Email changes go through the reset-request flow, not a direct update.
+  describe('POST /me/email-reset-requests', () => {
+    it('should 200 when a user requests an email change', async () => {
+      await user.agent.post('/me/email-reset-requests').send({ newEmail: faker.internet.email() }).expect(200)
     })
 
     it('should 400 when the email is invalid', async () => {
-      await user.agent.put('/me/email').send({ email: 'jeff' }).expect(400)
+      await user.agent.post('/me/email-reset-requests').send({ newEmail: 'jeff' }).expect(400)
     })
 
     it('should 400 when the email is missing', async () => {
-      await user.agent.put('/me/email').send({}).expect(400)
-    })
-
-    it('should 409 when the new email already exists', async () => {
-      const { email: alreadyTakenEmail } = await createTestUser()
-
-      await user.agent.put('/me/email').send({ alreadyTakenEmail }).expect(409)
+      await user.agent.post('/me/email-reset-requests').send({}).expect(400)
     })
   })
 
   describe('PUT /me/username', () => {
-    it('should 204 when a user changes their username', async () => {
-      await user.agent.put('/me/username').send({ username: faker.internet.username() }).expect(204)
+    it('should 200 when a user changes their username', async () => {
+      const newUsername = faker.internet.username()
+
+      const res = await user.agent.put('/me/username').send({ newUsername }).expect(200)
+
+      expect(res.body).toMatchObject({ username: newUsername })
     })
 
     it('should 400 when username is invalid', async () => {
-      await user.agent.put('/me/username').send({ username: '' }).expect(400)
+      await user.agent.put('/me/username').send({ newUsername: '' }).expect(400)
     })
 
     it('should 400 when the username is missing', async () => {
@@ -49,7 +48,7 @@ describe('User routes for managing your own account', () => {
     it('should 409 when the new username already exists', async () => {
       const { username: alreadyTakenUsername } = await createTestUser()
 
-      await user.agent.put('/me/username').send({ alreadyTakenUsername }).expect(409)
+      await user.agent.put('/me/username').send({ newUsername: alreadyTakenUsername }).expect(409)
     })
   })
 

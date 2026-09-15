@@ -46,7 +46,7 @@ export class ActivityService {
       ticketStatistics.priority[ticket.priority]++
       ticketStatistics.type[ticket.type]++
       ticketStatistics.status[ticket.status]++
-      ticketStatistics.project[ticket.projectName]++
+      ticketStatistics.project[ticket.projectName] = (ticketStatistics.project[ticket.projectName] ?? 0) + 1
     }
 
     return changeKeysFromSnakeToCamel(ticketStatistics)

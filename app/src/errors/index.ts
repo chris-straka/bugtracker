@@ -80,6 +80,12 @@ export class InvalidOrMissingTokenError extends AppError {
   }
 }
 
+export class RefreshTokenReuseError extends AppError {
+  constructor() {
+    super('Refresh token has already been used', 401)
+  }
+}
+
 export class UserIsTheProjectOwnerAndCantBeRemovedError extends AppError {
   constructor() {
     super('This user owns the project and can not be removed, please change the project owner instead', 403)

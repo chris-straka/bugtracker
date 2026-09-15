@@ -10,7 +10,7 @@ export interface IProjectRepository {
   getProjectOwnerId(projectId: string): Promise<number>
   getUserAssignedProjects(userId: string, cursor?: string, limit?: string): Promise<Project[]>
   getUserCreatedProjects(userId: string, cursor?: string, limit?: string): Promise<Project[]>
-  searchAllProjects(search: string, cursor?: string, limit?: string): Promise<Project[]>
+  searchAllProjects(search?: string, cursor?: string, limit?: string): Promise<Project[]>
 
   updateProject(
     projectId: string,
@@ -136,12 +136,28 @@ export class ProjectRepository implements IProjectRepository {
     return data.rows
   }
 
-  async searchAllProjects(search: string, cursor = '0', limit = '10') {
+  async searchAllProjects(search?: string, cursor = '0', limit = '10') {
+    // No search term: list everything with plain cursor pagination.
+    if (!search) {
+      const data = await this.#pool.query<Project>({
+        name: 'list_all_projects',
+        text: `
+          SELECT *
+          FROM project
+          WHERE id > $1
+          ORDER BY id ASC
+          LIMIT $2;
+        `,
+        values: [cursor, limit],
+      })
+      return data.rows
+    }
+
     const data = await this.#pool.query<Project>({
       name: 'search_all_projects',
       text: `
         SELECT *, ts_rank(project_search_tsv, plainto_tsquery($1)) AS rank
-        FROM project 
+        FROM project
         WHERE project_search_tsv @@ plainto_tsquery($1)
         AND id > $2
         ORDER BY rank DESC, id ASC

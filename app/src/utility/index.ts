@@ -1,4 +1,6 @@
 export * from './base64'
+export * from './jwt'
 export * from './params'
 export * from './password'
+export * from './requestAuth'
 export * from './snakeToCamel'

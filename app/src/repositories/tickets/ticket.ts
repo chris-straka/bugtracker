@@ -19,6 +19,7 @@ export interface ITicketRepository {
   getProjectTickets(projectId: string): Promise<Ticket[]>
   getUserAssignedTickets(userId: string, cursor?: string, limit?: string): Promise<Ticket[]>
   getUserCreatedTickets(userId: string, cursor?: string, limit?: string): Promise<Ticket[]>
+  searchAllTickets(search?: string, cursor?: string, limit?: string): Promise<Ticket[]>
   getUserAssignedTicketStatistics(userId: string): Promise<TicketStatistic[]>
   updateTicket(
     ticketId: string,
@@ -61,7 +62,7 @@ export class TicketRepository implements ITicketRepository {
 
   async ticketExistsById(id: string) {
     const result = await this.#pool.query<Ticket>({
-      name: 'get_ticket_by_name',
+      name: 'ticket_exists_by_id',
       text: 'SELECT 1 FROM ticket WHERE id = $1;',
       values: [id],
     })
@@ -139,11 +140,44 @@ export class TicketRepository implements ITicketRepository {
     return result.rows
   }
 
+  async searchAllTickets(search?: string, cursor = '0', limit = '10') {
+    if (search) {
+      const result = await this.#pool.query<Ticket>({
+        name: 'search_all_tickets',
+        text: `
+          SELECT *
+          FROM ticket
+          WHERE (name ILIKE '%' || $1 || '%' OR description ILIKE '%' || $1 || '%')
+          AND id > $2
+          ORDER BY id ASC
+          LIMIT $3;
+        `,
+        values: [search, cursor, limit],
+      })
+
+      return result.rows
+    }
+
+    const result = await this.#pool.query<Ticket>({
+      name: 'list_all_tickets',
+      text: `
+        SELECT *
+        FROM ticket
+        WHERE id > $1
+        ORDER BY id ASC
+        LIMIT $2;
+      `,
+      values: [cursor, limit],
+    })
+
+    return result.rows
+  }
+
   async getUserAssignedTicketStatistics(userId: string) {
     const result = await this.#pool.query<TicketStatistic>({
       name: 'get_user_assigned_ticket_statistics',
       text: `
-        SELECT t.priority, t.type, t.status, p.name
+        SELECT t.priority, t.type, t.status, p.name AS "projectName"
         FROM ticket t
         JOIN ticket_user tu ON tu.ticket_id = t.id
         JOIN project p ON t.project_id = p.id

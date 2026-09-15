@@ -7,6 +7,7 @@ export const cursorPaginationValidators = [
 
 export const searchPaginationValidators = [
   query('search')
+    .optional()
     .trim()
     .escape()
     .isString()

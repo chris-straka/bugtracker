@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 import type { UserRole } from '../../models/User'
 import { ticketService } from '../../services'
-import { routeParam } from '../../utility'
+import { getRequestAuth, routeParam } from '../../utility'
 
 // GET /projects/:projectId/tickets
 export async function getProjectTickets(req: Request, res: Response, next: NextFunction) {
@@ -18,7 +18,7 @@ export async function getProjectTickets(req: Request, res: Response, next: NextF
 // POST /projects/:projectId/tickets
 export async function createProjectTicket(req: Request, res: Response, next: NextFunction) {
   const projectId = routeParam(req.params.projectId)
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
   const { name, description, type, priority, status } = req.body
 
   try {
@@ -40,8 +40,8 @@ export async function createProjectTicket(req: Request, res: Response, next: Nex
 // PUT /projects/:projectId/tickets/:ticketId
 export async function updateProjectTicket(req: Request, res: Response, next: NextFunction) {
   const ticketId = routeParam(req.params.ticketId)
-  const userId = req.session.userId as string
-  const userRole = req.session.userRole as UserRole
+  const userId = getRequestAuth(req)?.userId as string
+  const userRole = getRequestAuth(req)?.userRole as UserRole
   const name = req.body.name
   const description = req.body.description
   const type = req.body.type
@@ -55,8 +55,8 @@ export async function updateProjectTicket(req: Request, res: Response, next: Nex
       userRole,
       name,
       description,
-      type,
       priority,
+      type,
       status,
     )
     res.status(200).send(ticket)
@@ -68,8 +68,8 @@ export async function updateProjectTicket(req: Request, res: Response, next: Nex
 // DELETE /projects/:projectId/tickets/:ticketId
 export async function deleteProjectTicket(req: Request, res: Response, next: NextFunction) {
   const ticketId = routeParam(req.params.ticketId)
-  const userId = req.session.userId as string
-  const userRole = req.session.userRole as UserRole
+  const userId = getRequestAuth(req)?.userId as string
+  const userRole = getRequestAuth(req)?.userRole as UserRole
 
   try {
     await ticketService.deleteTicket(ticketId, userId, userRole)

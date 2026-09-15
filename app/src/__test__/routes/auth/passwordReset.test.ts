@@ -67,7 +67,9 @@ describe('Reset Password Routes', () => {
   describe('PUT /passwords/:passwordResetToken', () => {
     const token = createResetToken()
     const url = `/passwords/${token}`
-    const newPassword = faker.internet.password()
+    // The route requires a strong password; faker alone does not guarantee
+    // the character classes, so pin them with a fixed suffix.
+    const newPassword = `${faker.internet.password()}Aa1`
 
     beforeEach(async () => {
       await passwordResetRepository.storePasswordResetTokenUnderUserId(token, user.id.toString())
@@ -86,7 +88,7 @@ describe('Reset Password Routes', () => {
     })
 
     it('should 400 when attempting to use the same token twice', async () => {
-      const otherNewPassword = faker.internet.password()
+      const otherNewPassword = `${faker.internet.password()}Aa1`
 
       await user.agent.put(url).send({ newPassword })
 

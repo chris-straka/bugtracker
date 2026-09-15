@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { UserRole } from '../../models/User'
 import { projectCommentService } from '../../services'
-import { routeParam } from '../../utility'
+import { getRequestAuth, routeParam } from '../../utility'
 
 // GET /projects/:projectId/comments
 export async function getProjectComments(req: Request, res: Response, next: NextFunction) {
@@ -18,7 +18,7 @@ export async function getProjectComments(req: Request, res: Response, next: Next
 // POST /projects/:projectId/comments
 export async function createProjectComment(req: Request, res: Response, next: NextFunction) {
   const projectId = routeParam(req.params.projectId)
-  const userId = req.session.userId as string
+  const userId = getRequestAuth(req)?.userId as string
   const comment = req.body.comment
 
   try {
@@ -32,8 +32,8 @@ export async function createProjectComment(req: Request, res: Response, next: Ne
 // PUT /projects/:projectId/comments/:commentId
 export async function updateProjectComment(req: Request, res: Response, next: NextFunction) {
   const commentId = routeParam(req.params.commentId)
-  const userId = req.session.userId as string
-  const userRole = req.session.userRole as UserRole
+  const userId = getRequestAuth(req)?.userId as string
+  const userRole = getRequestAuth(req)?.userRole as UserRole
   const newComment = req.body.comment
 
   try {
@@ -46,8 +46,8 @@ export async function updateProjectComment(req: Request, res: Response, next: Ne
 
 // DELETE /projects/:projectId/comments/:commentId
 export async function deleteProjectComment(req: Request, res: Response, next: NextFunction) {
-  const userId = req.session.userId as string
-  const userRole = req.session.userRole as UserRole
+  const userId = getRequestAuth(req)?.userId as string
+  const userRole = getRequestAuth(req)?.userRole as UserRole
   const commentId = routeParam(req.params.commentId)
 
   try {

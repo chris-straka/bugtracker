@@ -1,0 +1,746 @@
+# Bugtracker API — OpenAPI 3.0 specification.
+#
+# Transcribed from src/routes/**, src/validators/index.ts, src/errors/index.ts,
+# and src/middleware/validateInput.ts. Success codes (200/201/204) match the
+# controllers; error codes match the AppError subclasses. Session cookie auth
+# applies to every operation except the five public auth endpoints.
+openapi: 3.0.3
+info:
+  title: Bugtracker API
+  version: 2.0.0
+  description: Issue tracking with projects, tickets, comments, and role-based access.
+servers:
+  - url: http://localhost:3000
+    description: Local dev (see package.json drun)
+tags:
+  - name: auth
+  - name: me
+  - name: admin
+  - name: projects
+  - name: tickets
+  - name: comments
+  - name: users
+paths:
+  /sessions:
+    post:
+      tags: [auth]
+      summary: Log in, starting an authenticated session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 5, maxLength: 90 }
+      responses:
+        '200': { description: Authenticated }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    delete:
+      tags: [auth]
+      summary: Log out, ending the session
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Logged out }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /users:
+    post:
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUser'
+      responses:
+        '201': { description: Created }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /password-reset-requests:
+    post:
+      tags: [auth]
+      summary: Request a password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200': { description: Request accepted }
+        '400': { $ref: '#/components/responses/ValidationError' }
+  /passwords/{passwordResetToken}:
+    put:
+      tags: [auth]
+      summary: Set a new password with a reset token
+      parameters:
+        - { name: passwordResetToken, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password: { type: string, minLength: 5, maxLength: 90 }
+      responses:
+        '200': { description: Password updated }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /emails/{emailResetToken}:
+    put:
+      tags: [auth]
+      summary: Confirm an email change with a reset token
+      parameters:
+        - { name: emailResetToken, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Email updated }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /me/activity:
+    get:
+      tags: [me]
+      summary: Current user's activity feed
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Activity list }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /me/assigned-projects:
+    get:
+      tags: [me]
+      summary: Projects assigned to the current user
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Cursor' }, { $ref: '#/components/parameters/Limit' }]
+      responses:
+        '200': { description: Project list }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /me/assigned-tickets:
+    get:
+      tags: [me]
+      summary: Tickets assigned to the current user
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Cursor' }, { $ref: '#/components/parameters/Limit' }]
+      responses:
+        '200': { description: Ticket list }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /me/my-projects:
+    get:
+      tags: [me]
+      summary: Projects owned by the current user
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Cursor' }, { $ref: '#/components/parameters/Limit' }]
+      responses:
+        '200': { description: Project list }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /me/my-tickets:
+    get:
+      tags: [me]
+      summary: Tickets owned by the current user
+      security: [{ cookieAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/Cursor' }, { $ref: '#/components/parameters/Limit' }]
+      responses:
+        '200': { description: Ticket list }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /me/email-reset-requests:
+    post:
+      tags: [me]
+      summary: Request an email change for the current user
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [newEmail]
+              properties:
+                newEmail: { type: string, format: email }
+      responses:
+        '200': { description: Request accepted }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /me/username:
+    put:
+      tags: [me]
+      summary: Change the current user's username
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [newUsername]
+              properties:
+                newUsername: { type: string }
+      responses:
+        '200': { description: Username updated }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /me:
+    delete:
+      tags: [me]
+      summary: Delete the current user
+      security: [{ cookieAuth: [] }]
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /admin/projects:
+    get:
+      tags: [admin]
+      summary: List all projects with search
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: search, in: query, schema: { type: string, maxLength: 100 } }
+        - { $ref: '#/components/parameters/Cursor' }
+        - { $ref: '#/components/parameters/Limit' }
+      responses:
+        '200': { description: Project list }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/projects/{projectId}/owner:
+    put:
+      tags: [admin]
+      summary: Transfer project ownership
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Ownership transferred }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /admin/tickets:
+    get:
+      tags: [admin]
+      summary: Search all tickets
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: search, in: query, schema: { type: string, maxLength: 100 } }
+        - { $ref: '#/components/parameters/Cursor' }
+        - { $ref: '#/components/parameters/Limit' }
+      responses:
+        '200': { description: Ticket list }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /admin/users/{userId}/role:
+    put:
+      tags: [admin]
+      summary: Change a user's role
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: userId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Role updated }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /admin/users/{userId}/account-status:
+    put:
+      tags: [admin]
+      summary: Enable or disable a user account
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: userId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Status updated }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /admin/users/{userId}:
+    delete:
+      tags: [admin]
+      summary: Delete a user
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: userId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /projects:
+    post:
+      tags: [projects]
+      summary: Create a project (manager or admin)
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, minLength: 4, maxLength: 100 }
+                description: { type: string, maxLength: 500 }
+      responses:
+        '201': { description: Created }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /projects/{projectId}:
+    get:
+      tags: [projects]
+      summary: Get a project by id
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: The project
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project: { $ref: '#/components/schemas/Project' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [projects]
+      summary: Update a project
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 4, maxLength: 100 }
+                description: { type: string, maxLength: 500 }
+                status: { $ref: '#/components/schemas/ProjectStatus' }
+      responses:
+        '200': { description: Updated }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [projects]
+      summary: Delete a project
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /projects/{projectId}/users:
+    get:
+      tags: [users]
+      summary: List project members
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Member list }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [users]
+      summary: Add a member to the project
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId: { type: integer }
+      responses:
+        '201': { description: Member added }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /projects/{projectId}/users/{userId}:
+    delete:
+      tags: [users]
+      summary: Remove a member from the project
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: userId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '204': { description: Removed }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /projects/{projectId}/comments:
+    get:
+      tags: [comments]
+      summary: List project comments
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Comment list }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [comments]
+      summary: Add a project comment
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [comment]
+              properties:
+                comment: { type: string }
+      responses:
+        '201': { description: Created }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /projects/{projectId}/comments/{commentId}:
+    put:
+      tags: [comments]
+      summary: Edit a project comment
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: commentId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [comment]
+              properties:
+                comment: { type: string }
+      responses:
+        '200': { description: Updated }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [comments]
+      summary: Delete a project comment
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: commentId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /projects/{projectId}/tickets:
+    get:
+      tags: [tickets]
+      summary: List project tickets
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Ticket list }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [tickets]
+      summary: Create a ticket in the project
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                description: { type: string }
+                type: { $ref: '#/components/schemas/TicketType' }
+                priority: { $ref: '#/components/schemas/TicketPriority' }
+      responses:
+        '201': { description: Created }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /projects/{projectId}/tickets/{ticketId}:
+    put:
+      tags: [tickets]
+      summary: Update a ticket (status, priority, assignment)
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: ticketId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                status: { $ref: '#/components/schemas/TicketStatus' }
+                type: { $ref: '#/components/schemas/TicketType' }
+                priority: { $ref: '#/components/schemas/TicketPriority' }
+      responses:
+        '200': { description: Updated }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [tickets]
+      summary: Delete a ticket
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: ticketId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /projects/{projectId}/tickets/{ticketId}/users:
+    get:
+      tags: [users]
+      summary: List users assigned to a ticket
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: ticketId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Assignee list }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [users]
+      summary: Assign a user to a ticket
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: ticketId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId: { type: integer }
+      responses:
+        '201': { description: Assigned }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /projects/{projectId}/tickets/{ticketId}/users/{userId}:
+    delete:
+      tags: [users]
+      summary: Unassign a user from a ticket
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: ticketId, in: path, required: true, schema: { type: integer } }
+        - { name: userId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Unassigned }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /projects/{projectId}/tickets/{ticketId}/comments:
+    get:
+      tags: [comments]
+      summary: List ticket comments
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: ticketId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Comment list }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [comments]
+      summary: Add a ticket comment
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: ticketId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [comment]
+              properties:
+                comment: { type: string }
+      responses:
+        '201': { description: Created }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /projects/{projectId}/tickets/{ticketId}/comments/{commentId}:
+    put:
+      tags: [comments]
+      summary: Edit a ticket comment
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: ticketId, in: path, required: true, schema: { type: integer } }
+        - { name: commentId, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [comment]
+              properties:
+                comment: { type: string }
+      responses:
+        '200': { description: Updated }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [comments]
+      summary: Delete a ticket comment
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { name: projectId, in: path, required: true, schema: { type: integer } }
+        - { name: ticketId, in: path, required: true, schema: { type: integer } }
+        - { name: commentId, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+      description: express-session cookie backed by Redis
+  parameters:
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: integer, minimum: 0 }
+      description: Page cursor, optional
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1 }
+      description: Page size, optional
+  schemas:
+    ProjectStatus:
+      type: string
+      enum: [active, completed, archived]
+    Project:
+      type: object
+      properties:
+        id: { type: integer }
+        owner_id: { type: integer }
+        name: { type: string }
+        description: { type: string }
+        status: { $ref: '#/components/schemas/ProjectStatus' }
+        created_at: { type: string, format: date-time }
+        last_modified_at: { type: string, format: date-time }
+    TicketType:
+      type: string
+      enum: [bug, feature_request, task, documentation, improvement, question]
+    TicketPriority:
+      type: string
+      enum: [none, low, medium, high, critical]
+    TicketStatus:
+      type: string
+      enum: [open, in_progress, closed, additional_info_required]
+    Ticket:
+      type: object
+      properties:
+        id: { type: integer }
+        project_id: { type: integer }
+        owner_id: { type: integer }
+        name: { type: string }
+        description: { type: string }
+        priority: { $ref: '#/components/schemas/TicketPriority' }
+        type: { $ref: '#/components/schemas/TicketType' }
+        status: { $ref: '#/components/schemas/TicketStatus' }
+        created_at: { type: string, format: date-time }
+        last_modified_at: { type: string, format: date-time }
+    Comment:
+      type: object
+      properties:
+        id: { type: integer }
+        owner_id: { type: integer }
+        comment: { type: string }
+        created_at: { type: string, format: date-time }
+        last_modified_at: { type: string, format: date-time }
+    NewUser:
+      type: object
+      required: [username, email, password]
+      properties:
+        username: { type: string }
+        email: { type: string, format: email }
+        password: { type: string, minLength: 5, maxLength: 90 }
+  responses:
+    ValidationError:
+      description: express-validator failure — JSON message array
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message: { type: array, items: { type: object } }
+    Unauthorized:
+      description: Plain-text AppError message, 401
+      content:
+        text/plain:
+          schema: { type: string }
+    Forbidden:
+      description: Plain-text AppError message, 403
+      content:
+        text/plain:
+          schema: { type: string }
+    NotFound:
+      description: Plain-text AppError message, 404
+      content:
+        text/plain:
+          schema: { type: string }
+    Conflict:
+      description: Plain-text AppError message, 409
+      content:
+        text/plain:
+          schema: { type: string }

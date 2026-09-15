@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker'
-import type { TestTicket, TestUser } from '../../../helper'
+import type { TestUser } from '../../../helper'
 import {
-  addUserToTickets,
   createPmAndProjectWithTickets,
   createTestUser,
   testPaginationRoutes,
@@ -12,22 +11,20 @@ afterAll(async () => {
   await closeDbConnections()
 })
 
-describe("User route for checking all the tickets they're assigned to", () => {
-  let dev: TestUser
-  let tickets: TestTicket[]
-  const description = faker.lorem.words(20)
+describe('Admin route for searching all tickets', () => {
+  let admin: TestUser
+  const description = faker.lorem.words(5)
 
   beforeAll(async () => {
-    ;({ tickets } = await createPmAndProjectWithTickets(20))
-    dev = await createTestUser('developer')
-    await addUserToTickets(dev.id.toString(), tickets)
+    await createPmAndProjectWithTickets(20, description)
+    admin = await createTestUser('admin')
   })
 
   describe('GET /admin/tickets', () => {
-    testPaginationRoutes(() => dev.agent, '/admin/tickets', 'tickets')
+    testPaginationRoutes(() => admin.agent, '/admin/tickets', 'tickets')
   })
 
   describe('GET /admin/tickets?search=', () => {
-    testPaginationRoutes(() => dev.agent, '/admin/tickets', 'tickets', { search: description })
+    testPaginationRoutes(() => admin.agent, '/admin/tickets', 'tickets', { search: description })
   })
 })

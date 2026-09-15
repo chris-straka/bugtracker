@@ -122,6 +122,13 @@ describe('Ticket CRUD Routes', () => {
       await admin.agent.put(url).send({ name }).expect(200)
     })
 
+    it('should 200 and store priority and type without swapping them', async () => {
+      const res = await pm.agent.put(url).send({ priority: 'high', type: 'task' }).expect(200)
+
+      expect(res.body.priority).toBe('high')
+      expect(res.body.type).toBe('task')
+    })
+
     it("should 403 when a project contributor tries to change the ticket status of someone else's ticket", async () => {
       const otherProjectContributor = await createNewUserAndAddThemToProject(
         project.id.toString(),

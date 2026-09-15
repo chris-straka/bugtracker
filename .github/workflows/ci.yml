@@ -79,13 +79,8 @@ jobs:
       - name: Build
         run: pnpm build
 
-      # The suite runs, but ~84 of 278 tests still fail because the tests drifted
-      # away from the implementation long before this upgrade (they exercise
-      # routes that were never built, e.g. PUT /me/email). Flip this to a hard
-      # failure once those are reconciled.
       - name: Test
         run: pnpm test
-        continue-on-error: true
 
   docker:
     runs-on: ubuntu-latest

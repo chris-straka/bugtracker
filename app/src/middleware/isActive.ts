@@ -1,13 +1,14 @@
 import type { Request, Response, NextFunction } from 'express'
 import { UserIsDisabledError, UserIsNotAuthenticatedError } from '../errors'
 import { userRepository } from '../repositories'
+import { getRequestAuth } from '../utility'
 
 /**
  * An admin can disable or suspend a user
  * This checks whether or not they're currently disabled
  */
 export async function isActive(req: Request, _: Response, next: NextFunction) {
-  const userId = req.session.userId
+  const userId = getRequestAuth(req)?.userId
   if (!userId) return next(new UserIsNotAuthenticatedError())
 
   const { account_status } = await userRepository.getUserAccountStatus(userId)

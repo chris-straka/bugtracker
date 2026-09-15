@@ -61,7 +61,7 @@ export class UserRepository implements IUserRepository {
 
   async getUserByEmail(email: string) {
     const data = await this.#pool.query<BaseUser>({
-      name: 'get_user_by_id',
+      name: 'get_user_by_email',
       text: 'SELECT id, username, email, role FROM app_user WHERE email = $1;',
       values: [email],
     })
@@ -71,7 +71,7 @@ export class UserRepository implements IUserRepository {
 
   async getUserByUsername(username: string) {
     const data = await this.#pool.query<BaseUser>({
-      name: 'get_user_by_id',
+      name: 'get_user_by_username',
       text: 'SELECT id, username, email, role FROM app_user WHERE username = $1;',
       values: [username],
     })
@@ -149,7 +149,7 @@ export class UserRepository implements IUserRepository {
 
   async changeUsername(userId: string, username: string) {
     const data = await this.#pool.query<BaseUser>({
-      name: 'admin_update_user',
+      name: 'change_username',
       text: 'UPDATE app_user SET username = $2 WHERE id = $1 RETURNING id, username, email, role;',
       values: [userId, username],
     })
@@ -159,7 +159,7 @@ export class UserRepository implements IUserRepository {
 
   async changeEmail(oldEmail: string, newEmail: string) {
     const data = await this.#pool.query<BaseUser>({
-      name: 'admin_update_user',
+      name: 'change_email',
       text: 'UPDATE app_user SET email = $2 WHERE email = $1 RETURNING id, username, email, role;',
       values: [oldEmail, newEmail],
     })
@@ -178,7 +178,7 @@ export class UserRepository implements IUserRepository {
 
   async changeRole(id: string, newRole: UserRole) {
     const data = await this.#pool.query<BaseUser>({
-      name: 'change_email',
+      name: 'change_role',
       text: 'UPDATE app_user SET role = $2 WHERE id = $1 RETURNING id, username, email, role;',
       values: [id, newRole],
     })
@@ -217,7 +217,7 @@ export class UserRepository implements IUserRepository {
 
   async deleteUserByUsername(username: string) {
     const data = await this.#pool.query({
-      name: 'delete_user_by_email',
+      name: 'delete_user_by_username',
       text: 'DELETE FROM app_user WHERE username = $1;',
       values: [username],
     })

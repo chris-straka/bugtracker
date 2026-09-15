@@ -2,13 +2,14 @@
 import {
   userRepository,
   projectRepository,
+  projectUserRepository,
   ticketRepository,
   emailResetRepository,
   passwordResetRepository,
   projectCommentRepository,
-  projectUserRepository,
   ticketCommentRepository,
   ticketUserRepository,
+  refreshTokenRepository,
 } from '../repositories'
 
 // Service classes
@@ -20,10 +21,15 @@ import { TicketCommentService, TicketService, TicketUserService } from './ticket
 
 import { ActivityService } from './activity'
 import { AuthService } from './auth'
+import { TokenService } from './token'
 import { UserService } from './user'
 
 // Service instances
-export const adminProjectService = new AdminProjectService(userRepository, projectRepository)
+export const adminProjectService = new AdminProjectService(
+  userRepository,
+  projectRepository,
+  projectUserRepository,
+)
 export const adminTicketService = new AdminTicketService(ticketRepository)
 export const adminUserService = new AdminUserService(userRepository)
 
@@ -51,4 +57,5 @@ export const ticketUserService = new TicketUserService(
 
 export const activityService = new ActivityService(ticketRepository)
 export const authService = new AuthService(userRepository)
+export const tokenService = new TokenService(userRepository, refreshTokenRepository)
 export const userService = new UserService(userRepository, passwordResetRepository)

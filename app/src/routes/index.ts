@@ -4,6 +4,7 @@ import { projectCommentRouter, projectRouter, projectUserRouter } from './projec
 import { ticketCommentRouter, ticketRouter, ticketUserRouter } from './ticket'
 import authRouter from './auth/auth'
 import emailRouter from './auth/emailReset'
+import tokenRouter from './auth/token'
 import meRouter from './me'
 import passwordRouter from './auth/passwordReset'
 import userRouter from './auth/signup'
@@ -17,6 +18,7 @@ router.use(adminUserRouter)
 
 // auth
 router.use(authRouter)
+router.use(tokenRouter)
 
 // project
 router.use(projectCommentRouter)

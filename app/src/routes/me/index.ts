@@ -49,7 +49,7 @@ router.put(
   '/me/username',
   isAuthenticated,
   isActive,
-  body('newUsername', 'Username is not valid').isString(),
+  body('newUsername', 'Username is not valid').notEmpty().isString(),
   validateInput,
   MeController.changeUserUsername,
 )

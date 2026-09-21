@@ -1,6 +1,7 @@
 import type { Pool } from 'pg'
 import type { BaseUser, AuthUser, UserAccountStatus, UserAccountStatusObject, UserRole } from '../models/User'
 import { UserNotFoundError } from '../errors'
+import { execute, queryExists } from '../db/query'
 
 export interface IUserRepository {
   createUser(username: string, email: string, hashedPassword: string, role: UserRole): Promise<BaseUser>
@@ -111,40 +112,35 @@ export class UserRepository implements IUserRepository {
   }
 
   async userExistsById(id: string) {
-    const data = await this.#pool.query({
+    return queryExists(this.#pool, {
       name: 'user_exists_by_id',
       text: 'SELECT 1 FROM app_user WHERE id = $1;',
       values: [id],
     })
-    return (data.rowCount ?? 0) > 0
   }
 
   async userExistsByEmail(email: string) {
-    const data = await this.#pool.query({
+    return queryExists(this.#pool, {
       name: 'user_exists_by_email',
       text: 'SELECT 1 FROM app_user WHERE email = $1;',
       values: [email],
     })
-    return (data.rowCount ?? 0) > 0
   }
 
   async userExistsByUsername(username: string) {
-    const data = await this.#pool.query({
+    return queryExists(this.#pool, {
       name: 'user_exists_by_username',
       text: 'SELECT 1 FROM app_user WHERE username = $1;',
       values: [username],
     })
-    return (data.rowCount ?? 0) > 0
   }
 
   async userExistsByEmailOrUsername(email: string, username: string) {
-    const data = await this.#pool.query({
+    return queryExists(this.#pool, {
       name: 'check_if_user_exists_by_email_or_username',
       text: 'SELECT 1 FROM app_user WHERE email = $1 OR username = $2;',
       values: [email, username],
     })
-
-    return (data.rowCount ?? 0) > 0
   }
 
   async changeUsername(userId: string, username: string) {
@@ -168,12 +164,11 @@ export class UserRepository implements IUserRepository {
   }
 
   async changePassword(id: string, newPasswordHash: string) {
-    const data = await this.#pool.query({
+    return execute(this.#pool, {
       name: 'change_password',
       text: 'UPDATE app_user SET password = $2 WHERE id = $1;',
       values: [id, newPasswordHash],
     })
-    return (data.rowCount ?? 0) > 0
   }
 
   async changeRole(id: string, newRole: UserRole) {
@@ -196,32 +191,26 @@ export class UserRepository implements IUserRepository {
   }
 
   async deleteUserById(id: string) {
-    const data = await this.#pool.query({
+    return execute(this.#pool, {
       name: 'delete_user_by_id',
       text: 'DELETE FROM app_user WHERE id = $1;',
       values: [id],
     })
-
-    return (data.rowCount ?? 0) > 0
   }
 
   async deleteUserByEmail(email: string) {
-    const data = await this.#pool.query({
+    return execute(this.#pool, {
       name: 'delete_user_by_email',
       text: 'DELETE FROM app_user WHERE email = $1;',
       values: [email],
     })
-
-    return (data.rowCount ?? 0) > 0
   }
 
   async deleteUserByUsername(username: string) {
-    const data = await this.#pool.query({
+    return execute(this.#pool, {
       name: 'delete_user_by_username',
       text: 'DELETE FROM app_user WHERE username = $1;',
       values: [username],
     })
-
-    return (data.rowCount ?? 0) > 0
   }
 }

@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
-dotenv.config()
-import { isPortReachable } from '../helper/db'
+dotenv.config({ quiet: true })
+import { cleanupDb, isPortReachable } from '../helper/db'
 import { execSync } from 'child_process'
 
 async function globalSetup() {
@@ -30,6 +30,13 @@ async function globalSetup() {
       }
     }
   }
+
+  // Every run starts from empty tables. Suites share one database across
+  // parallel workers, so leftover rows from a previous run are visible to
+  // every suite — truncate deterministically instead of relying on the
+  // teardown coin flip below ever firing. (Concurrent `pnpm test`
+  // invocations against the same DB remain unsafe by design.)
+  await cleanupDb()
 }
 
 export default globalSetup

@@ -1,5 +1,6 @@
 import type { Pool } from 'pg'
 import type { BaseUser } from '../../models/User'
+import { execute, queryExists } from '../../db/query'
 
 export interface IProjectUserRepository {
   getProjectUsers(projectId: string): Promise<BaseUser[]>
@@ -31,7 +32,7 @@ export class ProjectUserRepository implements IProjectUserRepository {
   }
 
   async checkIfUserIsAssignedToProject(projectId: string, userId: string) {
-    const data = await this.#pool.query({
+    return queryExists(this.#pool, {
       name: 'check_if_user_is_assigned_to_project',
       text: `
         SELECT 1
@@ -40,11 +41,10 @@ export class ProjectUserRepository implements IProjectUserRepository {
       `,
       values: [projectId, userId],
     })
-    return (data.rowCount ?? 0) > 0
   }
 
   async checkIfUserIsOwnerOfProject(projectId: string, userId: string) {
-    const data = await this.#pool.query({
+    return queryExists(this.#pool, {
       name: 'check_if_user_is_owner_of_project',
       text: `
         SELECT 1
@@ -53,27 +53,21 @@ export class ProjectUserRepository implements IProjectUserRepository {
       `,
       values: [projectId, userId],
     })
-
-    return (data.rowCount ?? 0) > 0
   }
 
   async addUserToProject(projectId: string, userId: string) {
-    const res = await this.#pool.query({
+    return execute(this.#pool, {
       name: 'add_user_to_project',
       text: 'INSERT INTO project_user(project_id, user_id) VALUES ($1, $2);',
       values: [projectId, userId],
     })
-
-    return (res.rowCount ?? 0) > 0
   }
 
   async removeUserFromProject(projectId: string, userId: string) {
-    const res = await this.#pool.query({
+    return execute(this.#pool, {
       name: 'remove_user_from_project',
       text: 'DELETE FROM project_user WHERE project_id = $1 AND user_id = $2;',
       values: [projectId, userId],
     })
-
-    return (res.rowCount ?? 0) > 0
   }
 }

@@ -9,11 +9,37 @@ pnpm ddev   # api + postgres + redis; add pgadmin with `pnpm pgadmin` (port 8080
 pnpm test   # starts postgres/redis via docker if they are not already up
 ```
 
+`pnpm test` needs Node 24.9 or newer: the suite lets jest load ESM-only
+dev dependencies (e.g. `@faker-js/faker`, still the standard fake-data
+library) natively instead of transforming them. Dependency notes: TypeScript
+is pinned to the v6 line because `typescript-eslint` and `ts-jest` require
+the v6 compiler API and refuse the v7 native build; `tsconfig.json` names its
+global `@types` (`node`, `jest`) explicitly since newer compilers no longer
+auto-include every `@types` package.
+
 Postgres binds host port 5432 by default. If something else already owns it,
 override the host side: `PG_HOST_PORT=55432 pnpm dddev` (and set `PGPORT` to
 match in your `.env`).
 
 Other scripts: `pnpm lint`, `pnpm format`, `pnpm typecheck`, `pnpm build`.
+
+## Database
+
+- `bugtracker.sql` is the baseline schema. The docker entrypoint and CI use
+  it to create fresh databases.
+- `migrations/` holds versioned forward migrations (`001_...` matches the
+  baseline). Apply them with `pnpm db:migrate`, which tracks applied versions
+  in `schema_migrations` and stamps — rather than re-running — databases that
+  already have the baseline tables. New schema changes go in a new
+  `00N_description.sql` file, never by editing 001.
+- `src/db/query.ts` has the typed query helpers every repository uses:
+  `queryMany` / `queryMaybeOne` / `queryOne` for rows with declared types,
+  `queryExists` for `SELECT 1` probes, `execute` for writes without
+  `RETURNING`. No more untyped `pool.query` calls or `SELECT 1` results cast
+  to entity types.
+- `src/db/transaction.ts` has `withTransaction`, which every multi-statement
+  write goes through: project creation, ticket-with-assignees creation, and
+  the project/ticket cascade deletes each commit atomically or roll back.
 
 > Express 5, Typescript, Jest, REST, Postgres (no ORM), Docker, K8s, Terraform
 > This bug tracker helps an organization keep track of different bugs across various projects.

@@ -1,5 +1,6 @@
 import type { Pool } from 'pg'
 import type { TicketComment } from '../../models/TicketComment'
+import { execute } from '../../db/query'
 
 export interface ITicketCommentRepository {
   createTicketComment(ticketId: string, ownerId: string, comment: string): Promise<TicketComment>
@@ -43,12 +44,7 @@ export class TicketCommentRepository implements ITicketCommentRepository {
   async getTicketComments(ticketId: string) {
     const data = await this.#pool.query<TicketComment>({
       name: 'get_ticket_comments',
-      text: `
-      SELECT u.name, tc.comment
-      FROM ticket_comment tc
-      JOIN app_user u ON u.id = tc.owner_id
-      WHERE tc.id = $1;
-    `,
+      text: 'SELECT * FROM ticket_comment WHERE ticket_id = $1 ORDER BY id ASC;',
       values: [ticketId],
     })
     return data.rows
@@ -64,11 +60,10 @@ export class TicketCommentRepository implements ITicketCommentRepository {
   }
 
   async deleteTicketComment(commentId: string) {
-    const result = await this.#pool.query({
+    return execute(this.#pool, {
       name: 'delete_ticket_comment',
       text: 'DELETE FROM ticket_comment WHERE id = $1;',
       values: [commentId],
     })
-    return (result.rowCount ?? 0) > 0
   }
 }

@@ -63,6 +63,10 @@ export class RefreshTokenRepository implements IRefreshTokenRepository {
     const indexKey = indexFor(userId)
     const hashes = await this.#redis.sMembers(indexKey)
     if (hashes.length === 0) return
-    await this.#redis.multi().del(hashes.map((h) => keyFor(userId, h))).del(indexKey).exec()
+    await this.#redis
+      .multi()
+      .del(hashes.map((h) => keyFor(userId, h)))
+      .del(indexKey)
+      .exec()
   }
 }

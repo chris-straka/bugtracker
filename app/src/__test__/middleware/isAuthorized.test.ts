@@ -3,6 +3,11 @@ import { createRequest, createResponse } from 'node-mocks-http'
 import type { UserRole } from '../../models/User'
 import { UserIsNotAssignedToThisProjectError } from '../../errors'
 import { isAuthorized } from '../../middleware'
+import { closeDbConnections } from '../helper/db'
+
+afterAll(async () => {
+  await closeDbConnections()
+})
 
 describe('isAuthorized()', () => {
   let req: Request

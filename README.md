@@ -8,7 +8,9 @@ Full-stack bug-tracking app: the **Express 5 + TypeScript REST API** in
 
 - [`app/`](app/) — the API. See [`app/README.md`](app/README.md) for setup.
   - `src/routes` → `src/middleware` → `src/controllers` → `src/services` →
-    `src/repositories` → Postgres (`pg`, no ORM; schema in `app/bugtracker.sql`)
+    `src/repositories` → Postgres (`pg`, no ORM; baseline schema in
+    `app/bugtracker.sql`, forward migrations in `app/migrations/` via
+    `pnpm db:migrate`, typed helpers in `app/src/db/`)
   - Session auth backed by Redis (`express-session` + `connect-redis`),
     plus JWT access + rotating refresh tokens (`POST /tokens*`) for API/mobile
     clients; every protected route accepts either transport
@@ -22,8 +24,8 @@ Full-stack bug-tracking app: the **Express 5 + TypeScript REST API** in
   - Tests: Jest via `ts-jest` + `supertest` (`app/src/__test__`); docs in
     `app/docs/`; requests scratchpad in `app/postman.http`
   - Deploys: `app/Dockerfile`, `app/docker-compose.yaml` (api, postgres,
-    redis, pgadmin), K8s manifests in `app/k8s/` (api, postgres, redis, plus
-    legacy `backend`/`frontend`/`example` drafts)
+    redis, pgadmin), K8s manifests in `app/k8s/` (api, frontend, postgres,
+    redis)
 - [`LICENSE`](LICENSE) — license.
 
 ## Workflow

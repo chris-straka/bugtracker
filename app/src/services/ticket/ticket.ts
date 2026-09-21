@@ -27,9 +27,23 @@ export class TicketService {
     priority: TicketPriority = 'none',
     type: TicketType = 'bug',
     status: TicketStatus = 'open',
+    assigneeIds: string[] = [],
   ) {
     const ticketAlreadyExists = await this.#ticketDb.ticketExistsByName(name)
     if (ticketAlreadyExists) throw new TicketAlreadyExistsError()
+
+    if (assigneeIds.length > 0) {
+      return this.#ticketDb.createTicketWithAssignees(
+        projectId,
+        ownerId,
+        name,
+        description,
+        priority,
+        type,
+        status,
+        assigneeIds,
+      )
+    }
 
     return this.#ticketDb.createTicket(projectId, ownerId, name, description, priority, type, status)
   }

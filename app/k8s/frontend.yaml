@@ -14,7 +14,7 @@ spec:
   template:
     metadata:
       labels:
-        # what labels should be applied to the pods 
+        # what labels should be applied to the pods
         app: frontend
     spec:
       # I got the user/group ID for this by running `make nerdctl-shell-frontend` and then by running `cat /etc/passwd`
@@ -23,7 +23,7 @@ spec:
         runAsNonRoot: true
         fsGroup: 101
         runAsGroup: 101
-      
+
       # what containers should each pod be running
       containers:
         - name: frontend/nginx
@@ -43,8 +43,8 @@ spec:
             readOnlyRootFilesystem: true
           image: cstudent/frontend
           ports:
-          - containerPort: 80
-            protocol: TCP
+            - containerPort: 80
+              protocol: TCP
           # readinessProbe:
           #   initialDelaySeconds: 10
           #   httpGet:

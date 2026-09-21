@@ -4,6 +4,11 @@ import { SessionData } from 'express-session'
 import { UserIsNotAuthenticatedError } from '../../errors'
 import { isAuthenticated } from '../../middleware'
 import { signAccessToken } from '../../utility/jwt'
+import { closeDbConnections } from '../helper/db'
+
+afterAll(async () => {
+  await closeDbConnections()
+})
 
 describe('isAuthenticated()', () => {
   let req: Request

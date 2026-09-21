@@ -1,5 +1,6 @@
 import type { Pool } from 'pg'
 import type { ProjectComment } from '../../models/ProjectComment'
+import { execute, queryExists } from '../../db/query'
 
 export interface IProjectCommentRepository {
   createProjectComment(projectId: string, ownerId: string, comment: string): Promise<ProjectComment>
@@ -29,19 +30,17 @@ export class ProjectCommentRepository implements IProjectCommentRepository {
   }
 
   async projectCommentExists(commentId: string) {
-    const data = await this.#pool.query<ProjectComment>({
+    return queryExists(this.#pool, {
       name: 'project_comment_exists',
       text: 'SELECT 1 FROM project_comment WHERE id = $1;',
       values: [commentId],
     })
-
-    return (data.rowCount ?? 0) > 0
   }
 
   async getProjectCommentById(commentId: string) {
     const data = await this.#pool.query<ProjectComment>({
       name: 'get_project_comment_by_id',
-      text: 'SELECT 1 FROM project_comment WHERE id = $1;',
+      text: 'SELECT * FROM project_comment WHERE id = $1;',
       values: [commentId],
     })
     return data.rows[0]
@@ -60,12 +59,7 @@ export class ProjectCommentRepository implements IProjectCommentRepository {
   async getProjectComments(projectId: string) {
     const data = await this.#pool.query<ProjectComment>({
       name: 'get_project_comments',
-      text: `
-        SELECT u.name, pc.comment
-        FROM app_user u
-        JOIN project_comment pc ON u.id = pc.owner_id
-        WHERE pc.project_id = $1;
-      `,
+      text: 'SELECT * FROM project_comment WHERE project_id = $1 ORDER BY id ASC;',
       values: [projectId],
     })
     return data.rows
@@ -82,12 +76,10 @@ export class ProjectCommentRepository implements IProjectCommentRepository {
   }
 
   async deleteProjectComment(commentId: string) {
-    const data = await this.#pool.query({
+    return execute(this.#pool, {
       name: 'delete_project_comment',
       text: 'DELETE FROM project_comment WHERE id = $1;',
       values: [commentId],
     })
-
-    return (data.rowCount ?? 0) > 0
   }
 }

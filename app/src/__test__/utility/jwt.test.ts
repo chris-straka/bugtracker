@@ -58,11 +58,8 @@ describe('JWT utility', () => {
       expect(bearerTokenFromHeader('bearer abc')).toBe('abc')
     })
 
-    it.each([undefined, '', 'Token abc', 'Bearer', 'Basic abc'])(
-      'returns null for %p',
-      (header) => {
-        expect(bearerTokenFromHeader(header)).toBeNull()
-      },
-    )
+    it.each([undefined, '', 'Token abc', 'Bearer', 'Basic abc'])('returns null for %p', (header) => {
+      expect(bearerTokenFromHeader(header)).toBeNull()
+    })
   })
 })

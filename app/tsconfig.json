@@ -10,6 +10,9 @@
     "rootDir": "src",
     "strict": true,
     "skipLibCheck": true,
+    // TS 7 no longer auto-includes every @types package as globals the way
+    // TS 5 did; name the globals this project needs explicitly.
+    "types": ["node", "jest"],
     "isolatedModules": true,
     "experimentalDecorators": true,
     "esModuleInterop": true

@@ -5,14 +5,16 @@ const jestConfig: JestConfigWithTsJest = {
   // `"type": "module"` in package.json), so the CJS preset is the matching one.
   preset: 'ts-jest',
   testEnvironment: 'node',
-  // @faker-js/faker v10+ ships ESM only: route its .js through ts-jest
-  // (allowJs) so it compiles to CJS like the rest of the suite.
+  // Only our TypeScript goes through ts-jest. ESM-only dependencies such as
+  // @faker-js/faker must NOT be transformed to CJS: on Node 24.9+ jest
+  // natively require()s ESM (see jest-runtime's requireEsm path), and feeding
+  // transformed CJS into the ESM loader fails with `exports is not defined`.
+  // Transforming faker was the old workaround for Node <24.9, which cannot
+  // require() ESM — so this suite needs Node 24.9 or newer.
   transform: {
-    '^.+\\.m?[tj]sx?$': ['ts-jest', { tsconfig: { allowJs: true } }],
+    '^.+\\.tsx?$': ['ts-jest', { tsconfig: { allowJs: true } }],
   },
-  // pnpm nests packages under node_modules/.pnpm, so the ignore pattern
-  // must key off that (a plain node_modules/ lookahead never matches).
-  transformIgnorePatterns: ['\\.pnpm/(?!@faker-js\\+faker@)'],
+  transformIgnorePatterns: ['/node_modules/'],
   globalSetup: './src/__test__/_setup/globalSetup.ts',
   globalTeardown: './src/__test__/_setup/globalTeardown.ts',
 }

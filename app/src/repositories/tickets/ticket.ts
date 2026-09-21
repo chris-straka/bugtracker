@@ -1,6 +1,8 @@
 import type { Pool } from 'pg'
 import type { Ticket, TicketPriority, TicketStatus, TicketType } from '../../models/Ticket'
 import type { TicketStatistic } from '../../models/TicketStatistics'
+import { execute, queryExists } from '../../db/query'
+import { withTransaction } from '../../db/transaction'
 
 export interface ITicketRepository {
   createTicket(
@@ -14,6 +16,16 @@ export interface ITicketRepository {
   ): Promise<Ticket>
   getTicketById(ticketId: string): Promise<Ticket>
   getTicketOwnerId(ticketId: string): Promise<string>
+  createTicketWithAssignees(
+    projectId: string,
+    ownerId: string,
+    name: string,
+    description: string,
+    priority: TicketPriority,
+    type: TicketType,
+    status: TicketStatus,
+    assigneeIds: string[],
+  ): Promise<Ticket>
   ticketExistsById(ticketId: string): Promise<boolean>
   ticketExistsByName(name: string): Promise<boolean>
   getProjectTickets(projectId: string): Promise<Ticket[]>
@@ -60,24 +72,60 @@ export class TicketRepository implements ITicketRepository {
     return result.rows[0]
   }
 
+  /**
+   * Creates a ticket and links every assignee in the same transaction, so a
+   * bad assignee id rolls back the ticket instead of leaving it unassigned.
+   */
+  async createTicketWithAssignees(
+    projectId: string,
+    ownerId: string,
+    name: string,
+    description: string,
+    priority: TicketPriority,
+    type: TicketType,
+    status: TicketStatus,
+    assigneeIds: string[],
+  ) {
+    return withTransaction(this.#pool, async (client) => {
+      const result = await client.query<Ticket>({
+        name: 'create_ticket_with_assignees',
+        text: `
+          INSERT INTO ticket(project_id, owner_id, name, description, priority, type, status)
+          VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
+        `,
+        values: [projectId, ownerId, name, description, priority, type, status],
+      })
+      const ticket = result.rows[0]
+
+      if (assigneeIds.length > 0) {
+        await client.query({
+          name: 'link_ticket_assignees',
+          text: `
+            INSERT INTO ticket_user(ticket_id, user_id)
+            SELECT $1, unnest($2::int[]) ON CONFLICT DO NOTHING;
+          `,
+          values: [ticket.id, assigneeIds.map(Number)],
+        })
+      }
+
+      return ticket
+    })
+  }
+
   async ticketExistsById(id: string) {
-    const result = await this.#pool.query<Ticket>({
+    return queryExists(this.#pool, {
       name: 'ticket_exists_by_id',
       text: 'SELECT 1 FROM ticket WHERE id = $1;',
       values: [id],
     })
-
-    return (result.rowCount ?? 0) > 0
   }
 
   async ticketExistsByName(name: string) {
-    const result = await this.#pool.query<Ticket>({
+    return queryExists(this.#pool, {
       name: 'get_ticket_by_name',
       text: 'SELECT 1 FROM ticket WHERE name = $1;',
       values: [name],
     })
-
-    return (result.rowCount ?? 0) > 0
   }
 
   async getTicketById(id: string) {
@@ -130,9 +178,10 @@ export class TicketRepository implements ITicketRepository {
     const result = await this.#pool.query<Ticket>({
       name: 'get_user_created_tickets',
       text: `
-        SELECT t.id, t.name, t.description, t.project_id, t.type, t.status, t.priority
+        SELECT t.*
         FROM ticket t
         WHERE t.owner_id = $1 AND t.id > $2
+        ORDER BY t.id ASC
         LIMIT $3;
       `,
       values: [userId, cursor, limit],
@@ -247,13 +296,33 @@ export class TicketRepository implements ITicketRepository {
     return result.rows[0]
   }
 
+  /**
+   * Deletes a ticket and its links/comments/history in one transaction. A
+   * plain `DELETE FROM ticket` fails on the foreign keys that have no
+   * ON DELETE CASCADE.
+   */
   async deleteTicket(ticketId: string) {
-    const result = await this.#pool.query({
-      name: 'delete_ticket',
-      text: 'DELETE FROM ticket WHERE id = $1;',
-      values: [ticketId],
+    return withTransaction(this.#pool, async (client) => {
+      await client.query({
+        name: 'delete_ticket_history',
+        text: 'DELETE FROM ticket_history WHERE ticket_id = $1;',
+        values: [ticketId],
+      })
+      await client.query({
+        name: 'delete_ticket_comments',
+        text: 'DELETE FROM ticket_comment WHERE ticket_id = $1;',
+        values: [ticketId],
+      })
+      await client.query({
+        name: 'delete_ticket_users',
+        text: 'DELETE FROM ticket_user WHERE ticket_id = $1;',
+        values: [ticketId],
+      })
+      return execute(client, {
+        name: 'delete_ticket',
+        text: 'DELETE FROM ticket WHERE id = $1;',
+        values: [ticketId],
+      })
     })
-
-    return (result.rowCount ?? 0) > 0
   }
 }

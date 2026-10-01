@@ -1,7 +1,5 @@
-// ESLint 9+ flat config. Replaces the old .eslintrc.js.
-// Formatting rules live in Prettier now (see .prettierrc), so this file only
-// carries correctness rules; eslint-config-prettier turns off anything that
-// would fight the formatter.
+// Prettier owns formatting (see .prettierrc), so this config only carries
+// correctness rules. eslint-config-prettier turns off rules that conflict with it.
 import js from '@eslint/js'
 import tseslint from 'typescript-eslint'
 import prettier from 'eslint-config-prettier'
@@ -30,9 +28,8 @@ export default tseslint.config(
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
       ],
-      // The repositories build UPDATE statements as uniform `push field; push
-      // value; counter++` blocks. The final increment is dead today but keeps
-      // the blocks copy-pasteable when a new column is added.
+      // Repositories build UPDATE statements from uniform push-field, push-value,
+      // counter++ blocks. The last increment is dead but keeps the blocks uniform.
       'no-useless-assignment': 'off',
     },
   },

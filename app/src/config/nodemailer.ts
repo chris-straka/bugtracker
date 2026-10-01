@@ -1,16 +1,15 @@
 import { createTransport, createTestAccount } from 'nodemailer'
 
 export async function createTransporter() {
-  // Tests must never reach the network. jsonTransport serialises the message
-  // and resolves, so services and spies behave exactly as they would in prod.
+  // Keep tests off the network. jsonTransport serializes the message and resolves,
+  // so services and spies behave as they do in production.
   if (process.env.NODE_ENV === 'test') {
     return createTransport({ jsonTransport: true })
   }
 
   if (process.env.NODE_ENV !== 'production') {
-    // Ethereal hands out a throwaway inbox. Use ITS smtp host/port: the previous
-    // version took the account credentials but still pointed the transport at the
-    // unset SMTP_* vars, so dev mail was posted to localhost:587 and refused.
+    // Ethereal provides a throwaway inbox. Send through its SMTP host and port,
+    // since the SMTP_* vars are usually unset in dev.
     const testAccount = await createTestAccount()
 
     return createTransport({

@@ -34,7 +34,6 @@ export class ProjectRepository implements IProjectRepository {
 
   async createProject(ownerId: string, name: string, description: string) {
     return withTransaction(this.#pool, async (client) => {
-      // create the project
       const res = await client.query<Project>({
         name: 'create_project',
         text: 'INSERT INTO project(owner_id, name, description) VALUES ($1, $2, $3) RETURNING *;',
@@ -43,7 +42,7 @@ export class ProjectRepository implements IProjectRepository {
 
       const project = res.rows[0]
 
-      // assign the project creator to the list of project users
+      // The creator is also a member of the project.
       await client.query({
         name: 'add_project_owner_to_project',
         text: 'INSERT INTO project_user(user_id, project_id) VALUES ($1, $2);',

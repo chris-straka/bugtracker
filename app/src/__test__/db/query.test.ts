@@ -10,7 +10,7 @@ function fakeDb(rows: unknown[], rowCount?: number): Queryable {
     oid: 0,
     fields: [],
   }
-  // The helpers only ever call `query(config)`; nothing else on the pool.
+  // The helpers only call `query(config)`, so the fake pool needs nothing else.
   return { query: () => Promise.resolve(result) } as unknown as Queryable
 }
 

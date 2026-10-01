@@ -25,7 +25,7 @@ export function changeKeysFromSnakeToCamel<T extends Record<string, any>>(obj: T
     if (isObjectLiteral(obj[key])) {
       newObj[newKey] = changeKeysFromSnakeToCamel(obj[key])
     } else {
-      // String values are user data: only keys are ever converted.
+      // String values are user data, so only keys are converted.
       newObj[newKey] = obj[key]
     }
   }

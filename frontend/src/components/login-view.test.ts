@@ -53,8 +53,8 @@ describe('login-view', () => {
     )
     await el.updateComplete
 
-    // The view reads inputs on submit via @input handlers; set values through
-    // events here would be flakier, so only the controller call shape matters.
+    // Values set directly don't fire the view's @input handlers, so this only
+    // checks that submit reaches the controller.
     expect(login).toHaveBeenCalled()
     el.remove()
   })

@@ -1,4 +1,3 @@
-// Repositories
 import {
   userRepository,
   projectRepository,
@@ -12,7 +11,6 @@ import {
   refreshTokenRepository,
 } from '../repositories'
 
-// Service classes
 import { AdminProjectService, AdminTicketService, AdminUserService } from './admin'
 import { EmailService } from './email'
 import { ProjectCommentService, ProjectService, ProjectUserService } from './project'
@@ -24,7 +22,6 @@ import { AuthService } from './auth'
 import { TokenService } from './token'
 import { UserService } from './user'
 
-// Service instances
 export const adminProjectService = new AdminProjectService(
   userRepository,
   projectRepository,

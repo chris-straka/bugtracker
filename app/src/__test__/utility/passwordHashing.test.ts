@@ -5,14 +5,13 @@ describe('Password utils', () => {
   const password = faker.internet.password()
 
   test('toHash() should produce the correct hash', async () => {
-    // my db schema requires a length of 145 for passwords
+    // The schema stores password hashes as exactly 145 characters.
     expect(await toHashWithSalt(password)).toHaveLength(145)
   })
 
   test('toHash() should be producing different hashes for different passwords', async () => {
     const hashedPassword = await toHashWithSalt(password)
 
-    // my db schema requires a length of 145 for passwords
     expect(hashedPassword).toHaveLength(145)
 
     const otherPassword = faker.internet.password()

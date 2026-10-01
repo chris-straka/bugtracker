@@ -10,9 +10,8 @@ import { bearerTokenFromHeader, verifyAccessToken } from '../utility/jwt'
  * which is verified here and recorded on `req.auth`. Downstream code reads
  * both uniformly via `getRequestAuth(req)`.
  *
- * req.session is always available because express-session creates a session
- * object for every incoming request, so you can't check for req.session —
- * otherwise the user will always be authenticated.
+ * express-session attaches a session object to every request, so check
+ * `req.session.userId` rather than the presence of `req.session`.
  */
 export function isAuthenticated(req: Request, _: Response, next: NextFunction) {
   if (req.session?.userId) return next()

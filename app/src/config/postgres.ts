@@ -7,7 +7,7 @@ if (!process.env.PGUSER) throw new Error('PGUSER not set')
 if (!process.env.PGPASSWORD) throw new Error('PGPASSWORD not set')
 
 /**
- * pg package uses environment variables to connect to postgres
+ * pg reads the PG* environment variables checked above to connect.
  *
  * https://node-postgres.com/apis/pool
  */

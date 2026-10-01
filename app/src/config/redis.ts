@@ -21,10 +21,7 @@ redisClient.connect()
 
 redisClient.on('error', (err: unknown) => console.log('Redis Client Error', err))
 
-/**
- * It will store all my sessions as keys in the redis store
- * The prefix for each key is sess: by default
- */
+/** Session store. Each session is one Redis key with the default `sess:` prefix. */
 export const redisStore = new RedisStore({ client: redisClient })
 
 redisStore.on('error', (err: unknown) => console.log('Reddis Store Error', err))

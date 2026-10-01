@@ -7,8 +7,8 @@ async function globalSetup() {
   const isDBReachable = await isPortReachable(Number(process.env.PGPORT ?? 5432))
 
   if (!isDBReachable) {
-    // Remember that we were the ones who started the containers, so teardown
-    // only stops what it started. CI supplies its own Postgres/Redis.
+    // Teardown only stops containers this run started. CI supplies its own
+    // Postgres and Redis.
     process.env.JEST_STARTED_DOCKER = 'true'
     execSync('pnpm dddev')
 
@@ -19,10 +19,9 @@ async function globalSetup() {
       try {
         await new Promise((resolve) => setTimeout(resolve, 1000))
 
-        // pg_isready comes with postgres
         execSync('docker exec postgres_container pg_isready')
-        // redis has no pg_isready equivalent; ping it the same way so
-        // module-load-time clients never race a cold container
+        // Wait for Redis too. Clients connect at module load and would otherwise
+        // hit a container that is still starting.
         execSync('docker exec redis_container redis-cli ping')
         isReady = true
       } catch {
@@ -31,11 +30,9 @@ async function globalSetup() {
     }
   }
 
-  // Every run starts from empty tables. Suites share one database across
-  // parallel workers, so leftover rows from a previous run are visible to
-  // every suite — truncate deterministically instead of relying on the
-  // teardown coin flip below ever firing. (Concurrent `pnpm test`
-  // invocations against the same DB remain unsafe by design.)
+  // Start every run from empty tables. Parallel workers share one database, so
+  // rows left by a previous run would be visible to every suite. Concurrent
+  // `pnpm test` runs against the same database are not supported.
   await cleanupDb()
 }
 

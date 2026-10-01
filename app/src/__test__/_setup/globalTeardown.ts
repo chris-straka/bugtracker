@@ -9,10 +9,8 @@ const globalTeardown = async () => {
       console.error('Error when trying to stop docker containers:', error)
     }
   }
-  // No data cleanup here: globalSetup truncates before every run, so each run
-  // is hermetic without a coin flip. Teardown runs in the main process after
-  // workers exit; truncating here as well would only matter for humans
-  // inspecting the dev DB afterwards, and it stays inspectable as-is.
+  // No data cleanup here. globalSetup truncates before each run, and leaving the
+  // rows lets you inspect the dev database afterwards.
   await closeDbConnections()
 }
 

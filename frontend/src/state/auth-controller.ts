@@ -21,8 +21,8 @@ export interface LoginInput {
  *
  * Hosts add it in their constructor (`new AuthController(this, client)`) and
  * re-render automatically whenever `user`, `mode`, `busy` or `error` changes.
- * The JWT refresh token (never the cookie) is kept in storage so a reload
- * restores API/mobile-style logins; cookie sessions restore via a probe.
+ * Only the JWT refresh token is kept in storage, so a reload can restore a JWT
+ * login. Cookie sessions are restored with an authenticated probe.
  */
 export class AuthController implements ReactiveController {
   host: ReactiveControllerHost

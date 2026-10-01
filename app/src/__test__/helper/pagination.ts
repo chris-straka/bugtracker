@@ -37,7 +37,6 @@ export function testPaginationRoutes(
     expect(second.body[resource]).toEqual(secondAgain.body[resource])
   })
 
-  // limit
   it('should 400 when given a limit of 0', async () => {
     await searchWithQuery({ ...baseQuery, limit: '0' }, 400)
   })
@@ -50,7 +49,6 @@ export function testPaginationRoutes(
     await searchWithQuery({ ...baseQuery, limit: '' }, 400)
   })
 
-  // cursor
   it('should 400 when given an invalid cursor', async () => {
     await searchWithQuery({ ...baseQuery, cursor: 'wrong' }, 400)
   })

@@ -1,16 +1,14 @@
 import type { JestConfigWithTsJest } from 'ts-jest'
 
 const jestConfig: JestConfigWithTsJest = {
-  // The project compiles to CommonJS (tsconfig `module: NodeNext` with no
-  // `"type": "module"` in package.json), so the CJS preset is the matching one.
+  // The project compiles to CommonJS (`module: NodeNext` with no `"type": "module"`
+  // in package.json), so this uses the CJS preset.
   preset: 'ts-jest',
   testEnvironment: 'node',
   // Only our TypeScript goes through ts-jest. ESM-only dependencies such as
-  // @faker-js/faker must NOT be transformed to CJS: on Node 24.9+ jest
-  // natively require()s ESM (see jest-runtime's requireEsm path), and feeding
-  // transformed CJS into the ESM loader fails with `exports is not defined`.
-  // Transforming faker was the old workaround for Node <24.9, which cannot
-  // require() ESM — so this suite needs Node 24.9 or newer.
+  // @faker-js/faker stay untransformed because Node 24.9+ lets jest require() ESM
+  // directly. Transformed CJS fails in the ESM loader with `exports is not defined`.
+  // This is why the suite needs Node 24.9 or newer.
   transform: {
     '^.+\\.tsx?$': ['ts-jest', { tsconfig: { allowJs: true } }],
   },

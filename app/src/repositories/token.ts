@@ -4,11 +4,11 @@ import { REFRESH_TOKEN_TTL_SECONDS } from '../utility/jwt'
 
 /**
  * Allowlist of live refresh-token ids: one Redis key per token plus a
- * per-user index set so revocation never needs a keyspace scan.
+ * per-user index set so revocation doesn't need a keyspace scan.
  *
  * Rotation deletes the old id when a new pair is issued, so a replayed
  * (already-rotated) refresh token is simply absent and can be treated as
- * reuse. Only SHA-256 hashes of the ids are stored, never the tokens.
+ * reuse. Only SHA-256 hashes of the ids are stored, not the tokens.
  */
 export interface IRefreshTokenRepository {
   store(userId: string, jti: string): Promise<void>

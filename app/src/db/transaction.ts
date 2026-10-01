@@ -4,11 +4,10 @@ import type { Pool, PoolClient } from 'pg'
 export type TxClient = PoolClient
 
 /**
- * Runs `work` inside a single Postgres transaction: checks a client out of
- * the pool, BEGINs, COMMITs on success, ROLLBACKs on error, and always
- * releases the client. Multi-statement writes (create-then-link,
- * delete-then-children) must go through here so partial writes are
- * impossible.
+ * Runs `work` inside a single Postgres transaction. Commits on success, rolls
+ * back on error, and releases the client either way. Use it for multi-statement
+ * writes (create-then-link, delete-then-children) so a failure leaves no partial
+ * writes.
  */
 export async function withTransaction<T>(pool: Pool, work: (client: TxClient) => Promise<T>): Promise<T> {
   const client = await pool.connect()
@@ -21,8 +20,8 @@ export async function withTransaction<T>(pool: Pool, work: (client: TxClient) =>
     try {
       await client.query('ROLLBACK')
     } catch {
-      // The connection itself is broken; releasing it still matters, the
-      // original error is what the caller needs to see.
+      // ROLLBACK fails only if the connection is broken. Rethrow the original
+      // error, which is the one the caller needs.
     }
     throw error
   } finally {

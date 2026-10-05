@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Lit single-page app for the bugtracker REST API.",
+  "packageManager": "pnpm@11.1.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -18,6 +19,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
+    "@types/node": "^24.19.1",
     "eslint": "^10.10.0",
     "jest": "^30.5.1",
     "jest-environment-jsdom": "^30.5.1",

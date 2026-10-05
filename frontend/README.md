@@ -18,8 +18,8 @@ Requires Node >= 22 and the API running (`../app`: `pnpm install`, then
 `pnpm dddev` for postgres/redis and `pnpm dev` for the API on `:3000`).
 
 ```sh
-npm install
-npm run dev      # vite on :5173, API routes proxied to :3000 (see vite.config.ts)
+pnpm install
+pnpm dev        # vite on :5173, API routes proxied to :3000 (see vite.config.ts)
 ```
 
 Production builds use a relative API base (same origin). To point the SPA at
@@ -28,7 +28,7 @@ loads (and enable CORS on the API).
 
 ## Scripts
 
-- `npm run dev` — vite dev server with API proxy
-- `npm run build` — `tsc --noEmit` + vite build to `dist/`
-- `npm test` — jest suite (jsdom; no Docker needed)
-- `npm run typecheck`, `npm run lint`
+- `pnpm dev` — vite dev server with API proxy
+- `pnpm build` — `tsc --noEmit` + vite build to `dist/`
+- `pnpm test` — jest suite (jsdom; no Docker needed)
+- `pnpm typecheck`, `pnpm lint`

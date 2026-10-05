@@ -1,0 +1,5 @@
+# pnpm 10+ requires dependency build scripts to be explicitly approved.
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  unrs-resolver: true

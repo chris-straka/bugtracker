@@ -9,7 +9,9 @@ const config: Config = {
   transform: {
     '^.+\\.[tj]sx?$': ['ts-jest', { tsconfig: { module: 'commonjs', target: 'es2022' } }],
   },
-  transformIgnorePatterns: ['/node_modules/(?!lit|@lit/|lit-html|lit-element/)'],
+  // Transform Lit's packages under both npm (node_modules/lit/) and pnpm
+  // (node_modules/.pnpm/lit@x/node_modules/lit/) layouts.
+  transformIgnorePatterns: ['/node_modules/(?!(\\.pnpm/)?(lit|@lit|lit-html|lit-element)[@/+])'],
 }
 
 export default config

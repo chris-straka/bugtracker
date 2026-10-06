@@ -1,4 +1,5 @@
 import type { Agent } from 'supertest'
+import { MAX_PAGE_SIZE } from '../../validators'
 
 export function testPaginationRoutes(
   // Taken lazily: call sites pass an agent created in `beforeAll`, which has not
@@ -43,6 +44,11 @@ export function testPaginationRoutes(
 
   it('should 400 when given a negative limit', async () => {
     await searchWithQuery({ ...baseQuery, limit: '-1' }, 400)
+  })
+
+  it(`should 400 when the limit exceeds MAX_PAGE_SIZE (${MAX_PAGE_SIZE})`, async () => {
+    await searchWithQuery({ ...baseQuery, limit: String(MAX_PAGE_SIZE + 1) }, 400)
+    await searchWithQuery({ ...baseQuery, limit: String(MAX_PAGE_SIZE) }, 200)
   })
 
   it('should 400 when the limit is specified but missing a value', async () => {

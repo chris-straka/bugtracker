@@ -6,6 +6,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import session from './session'
 import routes from '../routes'
+import apiDocs from './swagger'
 import { errorHandler } from '../middleware/errorHandler'
 
 const app = express()
@@ -16,6 +17,7 @@ app.use(compression())
 app.use(morgan('dev', { skip: () => process.env.NODE_ENV === 'test' }))
 app.use(express.json())
 app.use(session)
+app.use(apiDocs)
 app.use(routes)
 app.use(errorHandler)
 

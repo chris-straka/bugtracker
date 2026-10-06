@@ -46,6 +46,69 @@ paths:
       responses:
         '200': { description: Logged out }
         '401': { $ref: '#/components/responses/Unauthorized' }
+  /tokens:
+    post:
+      tags: [auth]
+      summary: Log in as an API/mobile client, returning a JWT access + refresh pair
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 5, maxLength: 90 }
+      responses:
+        '200':
+          description: Authenticated; the user plus a token pair
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/TokenPair'
+                  - type: object
+                    properties:
+                      user: { type: object }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    delete:
+      tags: [auth]
+      summary: Revoke one refresh token, or all of the caller's with `all` and a Bearer refresh token
+      security: [{}, { bearerAuth: [] }]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken: { type: string }
+                all: { type: boolean }
+      responses:
+        '204': { description: Revoked (idempotent) }
+  /tokens/refresh:
+    post:
+      tags: [auth]
+      summary: Rotate a single-use refresh token into a fresh pair
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken: { type: string }
+      responses:
+        '200':
+          description: New token pair; the old refresh token is now spent
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPair' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
   /users:
     post:
       tags: [auth]
@@ -653,6 +716,11 @@ components:
       in: cookie
       name: connect.sid
       description: express-session cookie backed by Redis
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Access token from POST /tokens; accepted by every route that takes the cookie
   parameters:
     Cursor:
       name: cursor
@@ -665,6 +733,13 @@ components:
       schema: { type: integer, minimum: 1 }
       description: Page size, optional
   schemas:
+    TokenPair:
+      type: object
+      required: [accessToken, refreshToken, expiresIn]
+      properties:
+        accessToken: { type: string, description: Short-lived JWT for the Authorization header }
+        refreshToken: { type: string, description: Single-use JWT for POST /tokens/refresh }
+        expiresIn: { type: integer, description: Access token lifetime in seconds }
     ProjectStatus:
       type: string
       enum: [active, completed, archived]

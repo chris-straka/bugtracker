@@ -25,6 +25,7 @@ RUN pnpm build
 FROM base AS prod
 ENV NODE_ENV=production
 COPY --chown=node:node --from=build /usr/src/app/build ./
+COPY --chown=node:node docs/openapi.yaml ./docs/
 RUN pnpm install --prod --frozen-lockfile
 USER node
 # dumb-init reaps zombies and forwards signals, so the container stops cleanly.

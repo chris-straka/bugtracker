@@ -1,33 +1,32 @@
-# Install frontend and backend dependencies
+# One-command entry points. The API tests need Postgres + Redis: either run
+# `make up` (Docker), or point app/.env at your own (see app/README.md).
+.PHONY: install up down test test-api test-frontend lint build bench
+
 install:
-	cd ./frontend && npm i && cd - \
-	cd backend && ./gradlew build && cd -
+	cd app && pnpm install --frozen-lockfile
+	cd frontend && pnpm install --frozen-lockfile
 
-### NERDCTL ### 
+up:
+	cd app && pnpm dddev && pnpm db:migrate
 
-## BUILD
-nerdctl-build-frontend:
-	cd ./frontend && nerdctl build -t frontend . && cd - 
+down:
+	cd app && pnpm ddown
 
-nerdctl-build-backend:
-	cd ./backend && nerdctl build -t backend . && cd - \
+test: test-api test-frontend
 
-nerdctl-build:
-	docker-build-frontend && docker-build-backend
+test-api:
+	cd app && pnpm test
 
-## RUN
-nerdctl-run-frontend:
-	nerdctl run -p 4200:80 frontend 
+test-frontend:
+	cd frontend && pnpm test
 
-nerdctl-run-backend:
-	nerdctl run backend 
+lint:
+	cd app && pnpm lint && pnpm format:check && pnpm typecheck
+	cd frontend && pnpm lint && pnpm typecheck
 
-nerdctl-run:
-	nerdctl-run-frontend && nerdctl-run-backend
+build:
+	cd app && pnpm build
+	cd frontend && pnpm build
 
-## SHELL
-nerdctl-shell-frontend:
-	nerdctl run -it frontend sh
-
-nerdctl-shell-backend:
-	nerdctl run -it backend sh
+bench:
+	cd app && pnpm bench

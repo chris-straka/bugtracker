@@ -13,9 +13,8 @@ if (!process.env.PGPASSWORD) throw new Error('PGPASSWORD not set')
  */
 const pool = new Pool()
 
-pool.on('error', (err, client) => {
-  console.log(client)
-  console.error(err)
+pool.on('error', (err) => {
+  console.error('Postgres idle client error', err)
   process.exit(-1)
 })
 

@@ -47,7 +47,6 @@ export class ProjectCommentService {
     }
 
     const projectCommentOwnerId = await this.#projectCommentDb.getProjectCommentOwnerId(commentId)
-    console.log('projectCommentOwnerId', projectCommentOwnerId)
 
     const isProjectCommentOwner = userId === projectCommentOwnerId.toString()
     if (!isProjectCommentOwner) throw new UserIsNotAssignedToThisProjectError()

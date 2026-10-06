@@ -1,12 +1,11 @@
-Read the user's role from the session and not the user object, I think
+Open items (2026-10-06):
 
-Reconcile the test suite with the implementation. ~84 of 278 tests fail against
-routes that were never built the way the tests assume (PUT /me/email, which is
-really POST /me/email-reset-requests; PUT /me/username sends `username` where the
-validator wants `newUsername`). Then drop `continue-on-error` from the CI test step.
-
-Implement AdminTicketService.searchAllTickets - it is still a console.log stub,
-which is why the GET /admin/tickets pagination tests fail.
-
-Wire up helmet, morgan and compression in config/server.ts, or drop them from
-package.json. They are installed but never imported.
+- `searchPaginationValidators` runs `.escape()` on the search term, which
+  HTML-escapes it before it reaches the ILIKE query: searching for `a&b` looks
+  for `a&amp;b`. Escape output at render time, not on the way into SQL.
+- `ILIKE '%term%'` can't use a B-tree index. Add a pg_trgm GIN index or
+  full-text search before the ticket table grows.
+- Models are anemic (DTO interfaces) and the rules live in services; see
+  docs/DESIGN.md. Decide whether role/ownership checks belong on a rich model.
+- Read the user's role from the session/JWT (it can be up to 15 min stale for
+  JWTs) or re-read it in `isActive` alongside account status.

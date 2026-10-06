@@ -43,6 +43,9 @@ export class AuthController implements ReactiveController {
     this.client = client
     this.storage =
       storage ?? (typeof localStorage !== 'undefined' ? localStorage : nullStorage)
+    // A rotation spends the stored refresh token. Persist the new one, or the
+    // next reload would replay the spent token and trip the API's reuse detection.
+    client.onTokensRotated = () => this.persist()
     host.addController(this)
   }
 
@@ -156,7 +159,8 @@ export class AuthController implements ReactiveController {
     const stored: StoredAuth = {
       user: this.user,
       mode: this.mode,
-      accessToken: this.client.accessToken,
+      // Access tokens stay in memory; restore() mints a fresh one by rotating.
+      accessToken: null,
       refreshToken: this.client.refreshToken,
     }
     this.storage.setItem(STORAGE_KEY, JSON.stringify(stored))

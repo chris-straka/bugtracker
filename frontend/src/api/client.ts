@@ -15,6 +15,8 @@ export interface ApiClientOptions {
   baseUrl?: string
   /** Called when a stored JWT pair can no longer be refreshed (logged out). */
   onAuthExpired?: () => void
+  /** Called after every successful refresh rotation, so callers can persist the new refresh token. */
+  onTokensRotated?: () => void
 }
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' }
@@ -25,16 +27,22 @@ const JSON_HEADERS = { 'Content-Type': 'application/json' }
  * - JWT access tokens, attached as `Authorization` when set.
  *
  * On a 401 with a refresh token available, it rotates once and retries.
+ * Rotation is single-flight: refresh tokens are single use and the API treats
+ * a replayed one as theft (revoking every session), so concurrent 401s must
+ * share one /tokens/refresh call instead of each spending the same token.
  */
 export class ApiClient {
   baseUrl: string
   accessToken: string | null = null
   refreshToken: string | null = null
   onAuthExpired: () => void
+  onTokensRotated: () => void
+  #refreshing: Promise<boolean> | null = null
 
   constructor(options: ApiClientOptions = {}) {
     this.baseUrl = (options.baseUrl ?? '').replace(/\/$/, '')
     this.onAuthExpired = options.onAuthExpired ?? (() => {})
+    this.onTokensRotated = options.onTokensRotated ?? (() => {})
   }
 
   get hasJwt(): boolean {
@@ -67,7 +75,15 @@ export class ApiClient {
     await this.request<unknown>('DELETE', path, body)
   }
 
-  async refreshPair(): Promise<boolean> {
+  /** Rotates the refresh token. Concurrent callers share the in-flight rotation. */
+  refreshPair(): Promise<boolean> {
+    this.#refreshing ??= this.#rotate().finally(() => {
+      this.#refreshing = null
+    })
+    return this.#refreshing
+  }
+
+  async #rotate(): Promise<boolean> {
     if (!this.refreshToken) return false
     try {
       const res = await fetch(`${this.baseUrl}/tokens/refresh`, {
@@ -82,6 +98,7 @@ export class ApiClient {
       }
       const pair = (await res.json()) as { accessToken: string; refreshToken: string }
       this.setTokens(pair.accessToken, pair.refreshToken)
+      this.onTokensRotated()
       return true
     } catch {
       return false
@@ -90,7 +107,8 @@ export class ApiClient {
 
   private async request<T>(method: string, path: string, body?: unknown, retried = false): Promise<T> {
     const headers: Record<string, string> = { ...JSON_HEADERS }
-    if (this.accessToken) headers['Authorization'] = `Bearer ${this.accessToken}`
+    const sentToken = this.accessToken
+    if (sentToken) headers['Authorization'] = `Bearer ${sentToken}`
 
     const res = await fetch(`${this.baseUrl}${path}`, {
       method,
@@ -100,7 +118,9 @@ export class ApiClient {
     })
 
     if (res.status === 401 && this.refreshToken && !retried) {
-      if (await this.refreshPair()) return this.request<T>(method, path, body, true)
+      // Another request may already have rotated while this one was in flight.
+      const rotated = this.accessToken !== sentToken || (await this.refreshPair())
+      if (rotated) return this.request<T>(method, path, body, true)
     }
 
     if (res.status === 204) return undefined as T

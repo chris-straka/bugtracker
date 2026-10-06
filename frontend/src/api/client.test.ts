@@ -66,6 +66,39 @@ describe('ApiClient', () => {
     expect(client.refreshToken).toBe('new-r')
   })
 
+  it('shares one rotation between concurrent 401s', async () => {
+    // Both requests 401 on the stale token; spending the single-use refresh
+    // token twice would trip the API's reuse detection and revoke the login.
+    const onTokensRotated = jest.fn()
+    fetchMock.mockImplementation(async (url: string, init: RequestInit) => {
+      if (url === '/tokens/refresh') return jsonResponse({ accessToken: 'new-a', refreshToken: 'new-r' })
+      const auth = (init.headers as Record<string, string>).Authorization
+      return auth === 'Bearer new-a' ? jsonResponse({ url }) : new Response('nope', { status: 401 })
+    })
+    const client = new ApiClient({ onTokensRotated })
+    client.setTokens('old-a', 'old-r')
+
+    const results = await Promise.all([client.get('/a'), client.get('/b'), client.get('/c')])
+
+    expect(results).toEqual([{ url: '/a' }, { url: '/b' }, { url: '/c' }])
+    expect(fetchMock.mock.calls.filter(([url]) => url === '/tokens/refresh')).toHaveLength(1)
+    expect(onTokensRotated).toHaveBeenCalledTimes(1)
+  })
+
+  it('retries without rotating when another request already rotated', async () => {
+    const client = new ApiClient()
+    client.setTokens('old-a', 'old-r')
+    fetchMock
+      .mockImplementationOnce(async () => {
+        client.setTokens('new-a', 'new-r') // a concurrent rotation finished meanwhile
+        return new Response('nope', { status: 401 })
+      })
+      .mockResolvedValueOnce(jsonResponse({ ok: true }))
+
+    await expect(client.get('/me/activity')).resolves.toEqual({ ok: true })
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual(['/me/activity', '/me/activity'])
+  })
+
   it('logs out locally when rotation fails', async () => {
     const onAuthExpired = jest.fn()
     fetchMock

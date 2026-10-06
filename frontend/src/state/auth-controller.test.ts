@@ -69,6 +69,25 @@ describe('AuthController', () => {
     expect(client.refreshToken).toBe('r')
   })
 
+  it('persists the new refresh token after a mid-session rotation', async () => {
+    // Otherwise a reload replays the spent token and the API revokes the login.
+    const host = testHost()
+    const storage = memoryStorage()
+    const { client, post } = stubClient()
+    post.mockResolvedValueOnce({ user: USER, accessToken: 'a', refreshToken: 'r' })
+    const auth = new AuthController(host, client, storage)
+    await auth.login({ email: USER.email, password: 'secret' }, 'jwt')
+
+    global.fetch = jest.fn().mockResolvedValueOnce(
+      new Response(JSON.stringify({ accessToken: 'a2', refreshToken: 'r2' }), { status: 200 }),
+    ) as unknown as typeof fetch
+    await client.refreshPair()
+
+    const stored = JSON.parse(storage.getItem('bt.auth') as string)
+    expect(stored.refreshToken).toBe('r2')
+    expect(stored.accessToken).toBeNull()
+  })
+
   it('signs up (cookie session) and surfaces server errors', async () => {
     const host = testHost()
     const { client, post } = stubClient()
